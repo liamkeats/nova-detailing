@@ -2,29 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Nova Detailing | Mobile Car Detailing</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="css/global.css" /> <!-- for hero etc. -->
 </head>
 <body>
   <header>
-    <nav class="navbar">
-      <div class="logo">Nova Detailing</div>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li><a href="service-area.html">Service Area</a></li>
-        <li><a href="reviews.html">Reviews</a></li>
-        <li><a href="gallery.html">Gallery</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
+    <nav class="custom-navbar">
+      <div class="nav-inner">
+        <!--LEFT SIDE OF BAR-->
+        <div class="nav-logo-left">
+          <a href="index.html" class="logo"><img src="assets/icons/pfp.png" alt="Logo"></a>
+        </div>
+
+        <!--CENTER OF NAV BAR-->
+        <ul class="nav-center">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="service-area.html">Service Area</a></li>
+          <li><a href="reviews.html">Reviews</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+
+        <!--RIGHT OF BAR-->
+        <div class="nav-right">
+          <a href="https://www.instagram.com/thenovadetailing" target="_blank" aria-label="Instagram">
+            <img src="assets/icons/instagram.svg" alt="Instagram" class="social-icon" />
+          </a>
+          <a href="https://www.facebook.com/thenovadetailing/" target="_blank" aria-label="Facebook">
+            <img src="assets/icons/facebook.svg" alt="Facebook" class="social-icon" />
+          </a>
+        </div>        
+        <!-- Hamburger button for mobile -->
+        <a class="hamburger uk-navbar-toggle uk-hidden@m" uk-navbar-toggle-icon href="#mobile-nav" uk-toggle></a>
+      </div>
     </nav>
-    <div class="hero">
-      <h1>Mobile Car Detailing in Nova Scotia</h1>
-      <p>Serving New Minas, Kentville, and beyond — we come to you or you come to us.</p>
-      <a href="sms:+9026700224" class="chat-button">📱 Chat Now</a>
-    </div>
+    <section class="hero">
+      <video class="hero-video" autoplay muted loop playsinline>
+        <source src="assets/videos/hero.mp4" type="video/mp4" />
+      </video>
+      <div class="hero-content">
+        <a href="sms:+1234567890" class="chat-button">Chat Now</a>
+      </div>
+    </section>
   </header>
 
   <main>
@@ -41,5 +66,23 @@
   <footer>
     <p>&copy; 2025 Nova Detailing. All rights reserved.</p>
   </footer>
+
+  <!-- Offcanvas Mobile Nav -->
+  <div id="mobile-nav" uk-offcanvas="overlay: true">
+    <div class="uk-offcanvas-bar">
+      <ul class="uk-nav uk-nav-default">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="service-area.html">Service Area</a></li>
+        <li><a href="reviews.html">Reviews</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit-icons.min.js"></script>
+
 </body>
 </html>

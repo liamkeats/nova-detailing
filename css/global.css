@@ -1,0 +1,228 @@
+/* GLOBAL RESET AND FONT STACK */
+
+* {
+    box-sizing: border-box;
+}
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #111;
+    color: #fff;
+}
+  
+
+/* -----------------------------------
+   NAVBAR (Global)
+------------------------------------ */
+
+.custom-navbar {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1024px;
+    padding: 1.5rem 2rem;
+    z-index: 1000;
+    background-color: rgba(212, 0, 0, 0.06); /* red-tinted translucent */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+}
+  
+.nav-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    max-width: 1024px;
+    margin: 0 auto;
+    width: 100%;
+}
+  
+  /* LOGO LEFT */
+.nav-logo-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo-left a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    border: 3px solid #fff;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.nav-logo-left a::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #d40000;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.9s ease;
+    z-index: 0;
+}
+
+.nav-logo-left a:hover::before {
+    transform: scaleX(1);
+}
+
+.nav-logo-left img {
+    height: 30px;
+    position: relative;
+    z-index: 2;
+    filter: brightness(0) invert(1);
+    transition: filter 0.3s ease;
+}
+
+  
+  /* NAV LINKS CENTER */
+.nav-center {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    list-style: none;
+    margin: -5px;
+    padding: 15px;
+    width: 100%;
+}
+  
+.nav-center li a {
+    color: #aaa;
+    text-transform: uppercase;
+    font-size: clamp(13px, 1.2vw, 16px);
+    font-weight: 700;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.nav-center li a::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background-color: #d40000;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.25s ease-in-out;
+}
+
+.nav-center li a:hover {
+    color: #fff;
+}
+
+.nav-center li a:hover::after {
+    transform: scaleX(1);
+}
+  
+  /* SOCIAL ICONS RIGHT */
+.nav-right {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-right img {
+    height: 30px;
+    transition: opacity 0.2s ease;
+}
+
+.nav-right a:hover img {
+    opacity: 0.7;
+}
+  
+/* HAMBURGER (initially hidden) */
+.hamburger.uk-navbar-toggle {
+    display: none;
+    color: #fff;
+    padding: 0.5rem;
+}
+
+/* RESPONSIVE NAVIGATION */
+@media (max-width: 1024px) {
+    .custom-navbar {
+        left: 0;
+        transform: none;
+        top: 0;
+        width: 100%;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+  
+    .nav-center {
+        gap: clamp(1rem, 3vw, 3rem);
+    }
+  
+    .nav-center li a {
+        font-size: clamp(12px, 1.5vw, 14px);
+    }
+}
+  
+@media (max-width: 768px) {
+    .nav-center,
+    .nav-right {
+        display: none;
+    }
+  
+    .hamburger.uk-navbar-toggle {
+      display: block;
+      margin-left: auto;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+    }
+}
+.uk-offcanvas-page {
+    overflow: visible !important;
+  }
+
+/* Match offcanvas text style to navbar */
+.uk-offcanvas-bar {
+    background-color: #111; /* match your navbar bg */
+}
+  
+.uk-offcanvas-bar .uk-nav li a {
+    color: #aaa;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.75rem 0;
+    text-decoration: none;
+    display: block;
+    transition: color 0.2s ease;
+}
+  
+.uk-offcanvas-bar .uk-nav li a:hover {
+    color: #fff;
+}
+  
+/* Optional: underline-style hover like navbar */
+.uk-offcanvas-bar .uk-nav li a::after {
+    content: "";
+    display: block;
+    height: 4px;
+    width: 100%;
+    background-color: #d40000;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease-in-out;
+    margin-top: 4px;
+}
+  
+.uk-offcanvas-bar .uk-nav li a:hover::after {
+    transform: scaleX(1);
+}
+  
