@@ -11,6 +11,12 @@ body {
   overflow-x: hidden;
 }
 
+@media (max-width: 768px) {
+    body {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: auto;
+    }
+}
   
 
 /* -----------------------------------
