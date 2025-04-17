@@ -1,14 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nova Detailing | Mobile Car Detailing</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
-  <link rel="stylesheet" href="/css/home.css" />
-  <link rel="stylesheet" href="css/global.css" /> <!-- for hero etc. -->
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <!-- 🔧 SEO Basics -->
+    <title>Nova Detailing | Mobile Car Detailing in Kentville, NS</title>
+    <meta name="description" content="Nova Detailing offers high-end mobile car detailing, paint correction, and ceramic coatings in Kentville and the Annapolis Valley. We bring the shine to you.">
+    <meta name="keywords" content="Kentville detailing, mobile detailing Nova Scotia, car detailing Annapolis Valley, ceramic coating, paint correction Kentville">
+    <meta name="author" content="Nova Detailing">
+  
+    <!-- 🔧 Open Graph (for social sharing / Discord / Facebook) -->
+    <meta property="og:title" content="Nova Detailing | Mobile Car Detailing in Kentville">
+    <meta property="og:description" content="Interior & exterior mobile detailing, paint correction, and ceramic coating services — right at your home or business in the Annapolis Valley.">
+    <meta property="og:image" content="https://thenovadetailing.ca/assets/images/og-preview.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://thenovadetailing.ca">
+  
+    <!-- 🔧 Twitter Card (if shared on X/Twitter) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nova Detailing | Mobile Car Detailing">
+    <meta name="twitter:description" content="Detailing, ceramic coating, and paint correction across Kentville & the Annapolis Valley.">
+    <meta name="twitter:image" content="https://thenovadetailing.ca/assets/images/og-preview.jpg">
+  
+    <!-- 🔧 Favicon -->
+    <link rel="icon" href="assets/icons/pfp.png" type="image/png">
+  
+    <!-- 🔧 Fonts + CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
+    <link rel="stylesheet" href="/css/home.css" />
+    <link rel="stylesheet" href="css/global.css" />
+  </head>
 <body>
   <header>
     <nav class="custom-navbar">
@@ -22,7 +45,15 @@
         <ul class="nav-center">
           <li><a href="index.html">Home</a></li>
           <li><a href="about.html">About Us</a></li>
-          <li><a href="services.html">Services</a></li>
+          <li class="dropdown">
+            <a href="service-area.html">Services</a>
+            <ul class="dropdown-menu">
+              <li><a href="services.html#detailing">Detailing</a></li>
+              <li><a href="services.html#protection">Vehicle Protection</a></li>
+              <li><a href="services.html#paint">Paint Correction</a></li>
+              <li><a href="services.html#new">New Vehicle Detailing</a></li>
+            </ul>
+          </li>
           <li><a href="service-area.html">Service Area</a></li>
           <li><a href="reviews.html">Reviews</a></li>
           <li><a href="gallery.html">Gallery</a></li>
@@ -53,27 +84,114 @@
   </header>
 
   <main>
-    <section class="intro">
-      <h2>Why Choose Nova Detailing?</h2>
-      <p>
-        We specialize in bringing your vehicle back to life — interior, exterior, and everything in between.
-        Trusted by local dealerships like Forbes KIA, Kentville Toyota, and Kings Honda.
-      </p>
-      <a href="services.html" class="cta-button">View Our Services</a>
+    <section class="services">
+      <h2 class="section-title">Our Services</h2>
+      <div class="services-grid">
+
+        <div class="service-card">
+          <img src="assets/images/car-1.jpg" alt="Detailing">
+          <div class="service-info">
+            <h3>Detailing</h3>
+            <p>Detailing isn’t just cleaning—it’s restoring. We go beyond the surface with deep interior care, precise hand washes, and premium products that respect your vehicle’s finish. Whether it’s your daily driver or weekend pride, we treat every car like it’s our own.</p>  
+          </div>
+        </div>
+        <div class="service-card">
+          <img src="assets/images/car-2.jpg" alt="Vehicle Protection">
+          <div class="service-info">
+            <h3>Vehicle Protection</h3>
+            <p>Your car faces wear the moment it hits the road. Our protection packages, including ceramic coatings and precision-cut paint protection film, guard your vehicle against chips, UV damage, and the elements—without compromising its look.</p>  
+          </div>
+        </div>
+        <div class="service-card">
+          <img src="assets/images/car-3.jpg" alt="Paint Correction">
+          <div class="service-info">
+            <h3>Paint Correction</h3>
+            <p>Scratches, swirl marks, dullness—gone. Our paint correction service brings out the true clarity and depth of your paint through careful, multi-stage polishing. If your car’s finish isn’t turning heads, we’ll make sure it does.</p>
+          </div>
+        </div>
+        <div class="service-card">
+          <img src="assets/images/car-4.jpg" alt="New Vehicle Detailing">
+          <div class="service-info">
+            <h3>New Vehicle Detailing</h3>
+            <p>That “new car” feeling should last. We prep brand new vehicles with protective coatings and dialed-in finishes to fix factory mishaps and prevent early wear. It’s the perfect first step for long-term care and lasting shine.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="why-us-section">
+      <div class="why-us-container">
+    
+        <div class="why-us-image-container">
+          <img src="assets/images/why-us-car.jpg" alt="Why Nova Detailing">
+        </div>
+    
+        <div class="why-us-grid-wrapper">
+          <h2 class="why-us-heading"><span>WHY</span><br>CHOOSE US?</h2>
+          <div class="why-us-grid">
+            <div class="why-block">
+              <h3>Premium Results. Every Time.</h3>
+              <p>At Nova Detailing, we treat every vehicle like a high-end showpiece. From daily drivers to luxury cars, our mobile auto detailing services in Kentville and across the Annapolis Valley are delivered with unmatched precision and pride.</p>
+            </div>
+            <div class="why-block">
+              <h3>Certified Expertise You Can Count On</h3>
+              <p>We’re fully insured, experienced, and specialize in paint correction and ceramic coatings. Locals in Nova Scotia trust us because we deliver consistent, high-quality results — every single time.</p>
+            </div>
+            <div class="why-block">
+              <h3>Detailing Built Around You</h3>
+              <p>No two vehicles are the same. Whether you need interior shampooing, exterior polishing, or a full detail package, we tailor our services to your needs — right at your home or business in the Valley.</p>
+            </div>
+            <div class="why-block">
+              <h3>Cutting-Edge Products. Local Service.</h3>
+              <p>We stay ahead of the curve with the latest products and techniques in automotive detailing. From PPF to advanced ceramic coating, we bring big-city quality to Kentville and beyond — without the big-city hassle.</p>
+            </div>
+          </div>
+        </div>
+    
+      </div>
+    </section>
+
+    <section class="contact-us">
+      <div class="contact-overlay">
+        <h2 class="book-heading">Ready to book?</h2>
+        <a href="sms:+1234567890" class="cta-button">Contact Us</a>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <p>&copy; 2025 Nova Detailing. All rights reserved.</p>
+  <footer class="footer-grid">
+    <div class="footer-left">
+
+    </div>
+    <div class="footer-center">
+
+    </div>
+    <div class="footer-right">
+
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Nova Detailing. All rights reserved.</p>
+    </div>
   </footer>
 
   <!-- Offcanvas Mobile Nav -->
   <div id="mobile-nav" uk-offcanvas="overlay: true">
     <div class="uk-offcanvas-bar">
-      <ul class="uk-nav uk-nav-default">
+      <ul class="uk-nav uk-nav-default uk-nav-parent-icon" uk-nav>
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About Us</a></li>
-        <li><a href="services.html">Services</a></li>
+  
+        <!-- Services dropdown (click to expand) -->
+        <li class="uk-parent">
+          <a href="#">Services</a>
+          <ul class="uk-nav-sub">
+            <li><a href="services.html#detailing">Detailing</a></li>
+            <li><a href="services.html#protection">Vehicle Protection</a></li>
+            <li><a href="services.html#paint">Paint Correction</a></li>
+            <li><a href="services.html#new">New Vehicle Detailing</a></li>
+          </ul>
+        </li>
+  
         <li><a href="service-area.html">Service Area</a></li>
         <li><a href="reviews.html">Reviews</a></li>
         <li><a href="gallery.html">Gallery</a></li>
@@ -83,6 +201,41 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit-icons.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const contactSection = document.querySelector('.contact-us');
+  
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            contactSection.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.2 });
+  
+      observer.observe(contactSection);
+    });
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const sectionTitle = document.querySelector('.section-title');
 
+    const titleObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          sectionTitle.classList.add('visible');
+        } else {
+          sectionTitle.classList.remove('visible'); // 👈 remove it when out of view
+        }
+      });
+    }, { threshold: 0.2 });
+
+    if (sectionTitle) {
+      titleObserver.observe(sectionTitle);
+    }
+  });
+  </script>
+
+  
 </body>
 </html>
