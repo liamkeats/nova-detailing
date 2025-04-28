@@ -54,7 +54,7 @@
     display: none;
   }
   .hero{
-    background: url(/assets/images/hero-fallback.jpg);
+    background: url(/assets/images/hero-fallback.webp);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
