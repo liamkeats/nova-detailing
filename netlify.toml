@@ -1,7 +1,7 @@
 [build]
   command = "astro build"
   publish = "dist"
-  functions = "src/netlify/functions"
+  functions = "netlify/functions"
 
 [dev]
   command = "astro dev"
