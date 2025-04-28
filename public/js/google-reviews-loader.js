@@ -2,7 +2,7 @@ function loadGoogleReviewsWidget() {
     const PLACE_ID = "ChIJb7_tAZNXWEsRafrAml5YACU";
     console.log("🔥 Google Reviews widget script running");
   
-    fetch('http://localhost:8888/api/getReviews')
+    fetch('/.netlify/functions/getReviews')
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
