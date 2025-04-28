@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { OpenAI } from 'openai';
+const axios = require('axios');
+const { OpenAI } = require('openai');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,7 +13,7 @@ function getWriteReviewUrl(placeId) {
 let cachedSummary = null;
 let lastReviewCount = 0;
 
-export async function handler(event, context) {
+exports.handler = async function(event, context) {
   const { GOOGLE_API_KEY, PLACE_ID } = process.env;
 
   try {
