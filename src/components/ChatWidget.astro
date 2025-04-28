@@ -1,0 +1,51 @@
+---
+// This component only renders markup. Logic lives in /js/chat-widget.js
+---
+
+<div id="chat-button">
+  <img src="https://dufzo4epsnvlh.cloudfront.net/image/icon-new/chat-bubble-rounded.svg" alt="Chat Now" />
+</div>
+
+<div id="chat-popup" class="hidden">
+  <div class="chat-header">
+    <span class="header-text">How can we help you?</span>
+    <img id="chat-close" src="/assets/icons/close.svg" alt="Close" class="chat-close-icon" />
+  </div>
+
+  <div class="chat-body">
+    <div class="message-item">
+      <div class="chat-message-container">
+        <div class="profile-pic">
+          <img src="/assets/icons/pfp.png" alt="Nova Detailing Logo" class="chat-logo" />
+        </div>
+        <div class="nova-chat-message">
+          <p>Have a question? Enter the information below and we will send you an SMS shortly.</p>
+        </div>
+      </div>
+    </div>
+
+    <form id="chat-form">
+      <div class="new-chat-form">
+        <div class="input-group">
+          <input type="text" name="name" placeholder="Name..." required autocomplete="off" />
+          <span class="input-icon" aria-hidden="true">👤</span>
+        </div>
+        <div class="input-group">
+          <input type="tel" name="phone" placeholder="Mobile Number..." required autocomplete="off" />
+          <span class="input-icon" aria-hidden="true">📞</span>
+        </div>
+        <div class="input-group">
+          <textarea name="message" placeholder="Message..." required></textarea>
+          <span class="input-icon" aria-hidden="true">✉️</span>
+        </div>
+        <img src="/assets/icons/default.png" alt="User" class="img-block" />
+      </div>
+
+      <div class="submit-form">
+        <button id="chat-now-button" class="chat-send-btn">
+          <span>Send</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

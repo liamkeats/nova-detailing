@@ -1,0 +1,162 @@
+---
+import Navbar from '../../components/Navbar.astro'
+import Footer from '../../components/Footer.astro'
+import ChatWidget from '../../components/ChatWidget.astro'
+---
+
+<html lang="en">
+  <head>
+    <title>Services | Nova Detailing</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
+
+    <!-- UIkit first -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
+
+    <!-- Your custom styles after -->
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/services-main.css" />
+  </head>
+
+  <body>
+    <Navbar />
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <button type="button" class="chat-button open-chat">Ask for a Quote</button>
+      </div>
+    </section>
+
+    <!-- Services Cards Section -->
+    <section class="services">
+      <h2 class="section-title">Our Professional Services</h2>
+      <div class="services-grid">
+
+        <a href="services/detailing.html" class="service-card">
+          <img src="/assets/images/car-1.jpg" alt="Detailing">
+          <div class="service-info">
+            <h3>Detailing</h3>
+            <p>Detailing isn’t just cleaning—it’s restoration. At Nova Detailing, we bring out the best in your vehicle with deep interior care, meticulous hand washing, and premium-grade products that protect your paint and trim. Whether you're in Kentville or anywhere in the Annapolis Valley, we treat every car like it's our own—daily driver or weekend pride.</p>  
+          </div>
+        </a>
+        <a href="services/vehicle-protection.html" class="service-card">
+          <img src="/assets/images/car-2.jpg" alt="Vehicle Protection">
+          <div class="service-info">
+            <h3>Vehicle Protection</h3>
+            <p>In the Annapolis Valley, your vehicle battles sun, salt, and road grime year-round. Our professional ceramic coating services offer unbeatable protection against the elements—locking in that deep gloss, repelling dirt, and making your car easier to clean while preserving its value.</p>  
+          </div>
+        </a>
+        <a href="services/paint-correction.html" class="service-card">
+          <img src="/assets/images/car-3.jpg" alt="Paint Correction">
+          <div class="service-info">
+            <h3>Scratch Removal</h3>
+            <p>Scratches, swirl marks, and dull paint don’t stand a chance. Our expert paint correction and scratch removal service in the Annapolis Valley restores depth, clarity, and gloss through precise multi-stage polishing. If your car’s finish isn’t turning heads—don’t worry, it will.</p>
+          </div>
+        </a>
+        <a href="services/new-vehicle-detailing.html" class="service-card">
+          <img src="/assets/images/car-4.jpg" alt="New Vehicle Detailing">
+          <div class="service-info">
+            <h3>New Vehicle Detailing</h3>
+            <p>That new car feeling? We make it last. Our new vehicle detailing service in the Annapolis Valley protects your investment from day one—correcting factory defects, enhancing the finish, and applying high-quality ceramic coatings to guard against early wear. Start strong, stay shining.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Full Service Summary Section -->
+    <section class="full-service-summary">
+      <h2>Complete Vehicle Care You Can Trust</h2>
+      <p>At Nova Detailing, we offer complete mobile detailing services for vehicles of all types. Whether it's restoring a showroom finish, protecting a brand-new car, or deep cleaning an interior, we bring professional care directly to your driveway in Kentville and the Annapolis Valley. Every service is customized to your vehicle's needs, using premium products and techniques for lasting results.</p>
+    </section>
+
+    <!-- Pricing Guide Section -->
+    <section class="pricing-guide">
+      <h2>Detailing Package Pricing</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Package</th>
+            <th>Starting Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Basic Detail</td>
+            <td>$120</td>
+          </tr>
+          <tr>
+            <td>Standard Detail</td>
+            <td>$180</td>
+          </tr>
+          <tr>
+            <td>Premium Detail</td>
+            <td>$250</td>
+          </tr>
+          <tr>
+            <td>Ceramic Coating</td>
+            <td>Quote Only</td>
+          </tr>
+          <tr>
+            <td>Paint Correction</td>
+            <td>Quote Only</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <Footer />
+    <ChatWidget />
+
+    <!-- UIkit JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit-icons.min.js"></script>
+
+    <!-- Chat widget script -->
+    <script src="/js/chat-widget.js" defer></script>
+
+    <!--SERVICES CARDS ANIMATION-->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const sectionTitle = document.querySelector('.section-title');
+    
+        if (sectionTitle) {
+          const titleObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                sectionTitle.classList.add('visible');
+              } else {
+                sectionTitle.classList.remove('visible');
+              }
+            });
+          }, { threshold: 0.2 });
+    
+          titleObserver.observe(sectionTitle);
+        }
+      });
+    </script>
+
+    <!--SCROLL IN FOR SERVICE SUMMARY -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        }, { threshold: 0.3 }); // 30% visible triggers
+    
+        const summarySection = document.querySelector('.full-service-summary');
+        if (summarySection) {
+          observer.observe(summarySection);
+        }
+      });
+    </script>
+    
+  </body>
+</html>

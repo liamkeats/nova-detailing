@@ -1,0 +1,470 @@
+/* -----------------------------------
+   HERO SECTION
+------------------------------------ */
+
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0; /* don’t use -1 */
+  filter: brightness(0.6);
+  pointer-events: none; /* avoids accidental interaction on mobile */
+}
+
+.hero-content {
+  position: absolute;
+  bottom: 10%; /* adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  max-width: 800px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(to bottom, transparent, #000);
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .hero-video {
+    display: none;
+  }
+  .hero{
+    background: url(/assets/images/hero-fallback.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+}
+/* -----------------------------------
+   CHAT NOW BUTTON - header styll
+------------------------------------ */
+
+.chat-button {
+  position: relative;
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background-color: transparent;
+  color: white;
+  text-decoration: none;
+  border: 2px solid white;
+  border-radius: 8px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.075rem;
+  overflow: hidden;
+  transition: color 0.3s ease, border-color 0.3s ease;
+  z-index: 1;
+}
+
+.chat-button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0%;
+  height: 100%;
+  background-color: #8d0505;
+  z-index: -1;
+  transition: width 0.3s ease;
+}
+
+.chat-button:hover::before {
+  width: 100%;
+}
+
+.chat-button:hover {
+  color: white;
+  border-color: #7a0606;
+  cursor: pointer;
+}
+
+/* -----------------------------------
+  Services - main - section 1
+------------------------------------ */
+
+.services {
+  background-color: #000000;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 3rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 3rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  color: white;
+  position: relative;
+  display: inline-block;
+  transition: opacity 2.5s ease, transform 2.5s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background-color: #d40000;
+  border-radius: 2px;
+}
+
+.section-title.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* force 2 per row */
+  gap: 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .services-grid {
+    grid-template-columns: 1fr; /* stack 1 per row on mobile */
+  }
+}
+
+.service-card {
+  background-color: #350404;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow:
+    0 0 10px rgba(212, 0, 0, 0.4),
+    0 0 25px rgba(212, 0, 0, 0.3),
+    0 0 40px rgba(212, 0, 0, 0.2);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
+}
+
+.service-card h3 {
+  transition: color 0.3s ease;
+}
+
+.service-card:hover h3 {
+  color: #ff4c4c; /* or your theme red */
+  text-decoration: underline;
+}
+
+.service-info {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.service-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.service-card h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.service-card p {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .service-info {
+    padding: 1rem 1rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* -----------------------------------
+   WHY US - main - section 2
+------------------------------------ */
+
+.why-us-section {
+  background-color: #000;
+  padding: 8rem 2rem;
+  position: relative;
+}
+
+.why-us-container {
+  position: relative;
+  max-width: 1200px;
+  margin: -100px auto;
+}
+
+.why-us-image-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  z-index: 0;
+  overflow: hidden; /* ensures gradient doesn't get clipped weirdly */
+}
+
+.why-us-image-container img {
+  width: 100%;
+  max-width: 1000px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+
+  /* Fade in/out on both sides */
+  -webkit-mask-image: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 85%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 1) 15%,
+    rgba(0, 0, 0, 1) 85%,
+    rgba(0, 0, 0, 0) 100%
+  );
+
+  /* Required to apply the mask fully */
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+@keyframes softPulse {
+  0% { box-shadow: 0 0 20px rgba(212, 0, 0, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(212, 0, 0, 0.6); }
+  100% { box-shadow: 0 0 20px rgba(212, 0, 0, 0.3); }
+}
+
+.why-us-grid-wrapper {
+  background: #2d0000; /* muted dark red */
+  border-radius: 12px;
+  color: white;
+  padding: 3rem;
+  box-shadow: 0 0 30px rgba(212, 0, 0, 0.4); /* soft red glow */
+  position: relative;
+  z-index: 1;
+  margin-top: -125px;
+  max-width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  animation: softPulse 4s infinite;
+}
+
+@media (max-width: 768px) {
+  .why-us-grid-wrapper {
+    margin-top: -56px; /* 👈 removes the overlap on mobile */
+    padding-top: 3rem; /* add breathing room if needed */
+  }
+
+  .why-us-image-container {
+    margin-bottom: -1rem; /* optional — reduce extra spacing */
+  }
+
+  .why-us-image-container img {
+    max-width: 90%;
+  }
+}
+
+.why-us-heading {
+  font-size: 2.5rem;
+  font-family: 'Rajdhani', sans-serif;
+  text-transform: uppercase;
+  color: white;
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+.why-us-heading span {
+  background-color: white;
+  color: #d40000;
+  padding: 0 0.4rem;
+  border-radius: 4px;
+}
+
+
+.why-us-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.why-block h3 {
+  color: white;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.why-block p {
+  color: #eee;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .why-us-container {
+    flex-direction: column;
+  }
+
+  .why-us-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .why-us-grid-wrapper {
+    padding: 2rem;
+  }
+}
+
+
+/* -----------------------------------
+   CONTACT US - main - section 4
+------------------------------------ */
+
+.contact-us {
+  background-color: #000;
+  padding: 6rem 2rem;
+  text-align: center;
+  color: white;
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.contact-us.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.contact-overlay {
+  background-color: rgba(0, 0, 0, 0.5); /* optional dark overlay */
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  display: inline-block;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+
+.contact-overlay h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.book-heading {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  color: white;
+  font-weight: bold;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 1.2rem 3rem;
+  background-color: transparent;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border: 2px solid #d40000;
+  border-radius: 50px;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  z-index: 1;
+}
+
+.cta-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, #d40000 50%, transparent);
+  transition: all 0.6s ease;
+  z-index: -1;
+}
+
+.cta-button:hover::before {
+  left: 0;
+}
+
+.cta-button:hover {
+  color: white;
+  border-color: #ff1a1a;
+  box-shadow: 0 0 20px #d40000;
+  transform: scale(1.03);
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

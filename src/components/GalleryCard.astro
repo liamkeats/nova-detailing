@@ -1,0 +1,14 @@
+---
+const { post } = Astro.props;
+---
+
+<a href={`/gallery/${post.slug.current}`} class="card">
+  {post.afterPhoto && (
+    <img src={post.afterPhoto} alt={post.title} loading="lazy" />
+  )}
+
+  <div class="card-body">
+    <h2>{post.title}</h2>
+    <p>{new Date(post.date).toLocaleDateString()}</p>
+  </div>
+</a>

@@ -1,0 +1,276 @@
+/* ============================
+   Global Page Styling
+============================ */
+html{
+  background-color: #1e1e1e !important;
+}
+body {
+  font-family: 'Inter', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  background: linear-gradient(to bottom, #1e1e1e, #0d0d0d);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================
+   Hero Section
+============================ */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  max-height: 700px;
+  background-image: url('/assets/images/gallery-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 0;
+  text-align: center;
+}
+
+/* ============================
+   Gallery Wrapper
+============================ */
+
+.gallery-wrapper {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+/* ============================
+   Gallery Heading + Subtitle
+============================ */
+
+.gallery-wrapper h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.8s ease-out forwards;
+  animation-delay: 0.1s;
+  animation-play-state: paused;
+}
+
+.gallery-subtitle {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 3rem auto;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.8s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+.gallery-wrapper h1,
+.gallery-subtitle {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.8s ease-out forwards;
+}
+
+.gallery-wrapper h1 {
+  animation-delay: 0.1s;
+}
+
+/* ============================
+   Scroll Animation Keyframes
+============================ */
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================
+   Gallery Grid Columns
+============================ */
+
+
+/* ============================
+          Masonry
+============================ */
+
+.card-grid {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Set width for 3 columns using Masonry's grid-sizer */
+.grid-sizer,
+.grid-item {
+  width: 33.333%;
+}
+
+/* Space out cards vertically */
+.grid-item {
+  padding: 0 0.75rem; /* NEW: add horizontal padding */
+  box-sizing: border-box; /* make sure padding doesn’t mess width */
+}
+
+@media (max-width: 1024px) {
+  .grid-sizer,
+  .grid-item {
+    width: 50%; /* 2 columns */
+  }
+}
+
+@media (max-width: 767px) {
+  .grid-sizer,
+  .grid-item {
+    width: 100%;
+  }
+}
+@media (max-width: 767px) {
+  .grid-item {
+    padding: 0 0.5rem;
+  }
+}
+ 
+/* ============================
+   Individual Card Styling
+============================ */
+
+.card {
+  padding: 1rem;
+  background-color: #5e0b0b; /* warm wine red */
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 12px rgba(255, 255, 255, 0.1),
+    0 8px 24px rgba(255, 255, 255, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 1.5rem;
+  break-inside: avoid; /* still important so cards don’t get chopped */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+  backface-visibility: hidden;
+  transform: translateZ(0); /* forces hardware acceleration */
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  text-decoration: none;
+  box-shadow:
+    0 6px 16px rgba(255, 255, 255, 0.25),
+    0 12px 32px rgba(255, 255, 255, 0.15);
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+  color: #fff;
+}
+
+.card p {
+  font-size: 0.85rem;
+  color: #bbb;
+  margin: 0;
+}
+
+/* ============================
+   Card Body Styling (3D glass feel)
+============================ */
+
+.card-body {
+  background-color: rgba(255, 255, 255, 0.03); /* subtle glass effect */
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+  color: white;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* soft lift */
+  border-radius: 0 0 12px 12px;
+}
+
+/* ============================
+   Chat Button Styling
+============================ */
+
+.chat-button {
+  position: relative;
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background-color: #c70c0c;
+  color: white;
+  text-decoration: none;
+  border: 2px solid rgb(148, 9, 9);
+  border-radius: 8px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.075rem;
+  overflow: hidden;
+  transition: color 0.3s ease, border-color 0.3s ease;
+  z-index: 1;
+}
+
+.chat-button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0%;
+  height: 100%;
+  background-color: #8d0505;
+  z-index: -1;
+  transition: width 0.3s ease;
+}
+
+.chat-button:hover::before {
+  width: 100%;
+}
+
+.chat-button:hover {
+  color: white;
+  border-color: #7a0606;
+  cursor: pointer;
+}

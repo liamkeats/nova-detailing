@@ -1,0 +1,246 @@
+---
+import { client } from '../../lib/sanityClient'
+import Footer from '../../components/Footer.astro';
+import ChatWidget from '../../components/ChatWidget.astro';
+import Navbar from '../../components/Navbar.astro'
+
+export async function getStaticPaths() {
+  const query = `*[_type == "galleryPost"]{ "slug": slug.current }`
+  const slugs = await client.fetch(query)
+
+  return slugs.map((post: { slug: string }) => ({
+    params: { slug: post.slug }
+  }))
+}
+
+const { slug } = Astro.params
+
+console.log("Slug being used: ", slug); // Add this log to check the slug value
+
+const typeLabels: Record<string, string> = {
+  interior: 'Interior Detailing',
+  exterior: 'Exterior Detailing',
+  fullDetail: 'Full Detailing (Interior & Exterior)',
+  scratch: 'Scratch Removal',
+  newVehicle: 'New Vehicle Prep',
+  vehicleProtection: 'Vehicle Protection'
+};
+
+const query = `*[_type == "galleryPost" && slug.current == $slug][0]{
+  title,
+  detailType,
+  date,
+  notes,
+  "beforePhotos": beforePhotos[].asset->url,
+  "afterPhotos": afterPhotos[].asset->url
+}`
+
+const post = await client.fetch(query, { slug })
+const formattedNotes = post.notes ? post.notes.replace(/\n/g, '<br />') : '';
+---
+
+<html lang="en">
+
+  <head>
+    <title>{post.title} | Nova Detailing</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Font (only once) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
+  
+    <!-- UIkit first -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
+
+    <!-- Your styles after -->
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/gallery-slug.css" />
+  </head>
+
+  <body>
+    <header class="site-header">
+      <Navbar />
+    </header>
+
+    <section class="gallery-post">
+      <h1 class="gallery-title">{post.title}</h1>
+      <div class="back-button-container">
+        <a href="/gallery" class="back-link">← Back to Gallery</a>
+      </div>
+      <div class="post-meta">
+        <p class="detail-type">Detail Type: <span>{typeLabels[post.detailType]}</span></p>
+        <p class="date">{new Date(post.date).toLocaleDateString()}</p>
+      </div>
+
+      <div class="notes">
+        <!-- Using Astro.content to safely inject raw HTML -->
+        <p set:html={formattedNotes}></p>
+      </div>
+
+      <section class="before-after">
+        <div class="before">
+          <h3>Before</h3>
+          <div class="image-gallery">
+            {post.beforePhotos?.map((url: string) => (
+              <img src={url} alt="Before" class="before-image" />
+            ))}
+          </div>
+        </div>
+
+        <div class="after">
+          <h3>After</h3>
+          <div class="image-gallery">
+            {post.afterPhotos?.map((url: string) => (
+              <img src={url} alt="After" class="after-image" />
+            ))}
+          </div>
+        </div>
+      </section>
+    </section>
+
+    
+    <Footer />
+    <ChatWidget />
+
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit-icons.min.js"></script>
+
+    <div class="edge-label before-stick">Before</div>
+    <div class="edge-label after-stick">After</div>
+
+    <!--LIGHTBOX -->
+    <div class="lightbox-overlay" id="lightbox">
+      <img src="" alt="Expanded image" id="lightbox-img" />
+    </div>
+    <script>
+      const lightbox = document.getElementById('lightbox') as HTMLElement | null;
+      const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+      const allImages = document.querySelectorAll('.image-gallery img');
+
+      if (lightbox && lightboxImg) {
+        allImages.forEach(img => {
+          img.addEventListener('click', () => {
+            lightboxImg.src = (img as HTMLImageElement).src;
+            lightbox.style.display = 'flex';
+          });
+        });
+
+        lightbox.addEventListener('click', () => {
+          lightbox.style.display = 'none';
+          lightboxImg.src = '';
+        });
+      }
+    </script>
+    
+
+    <!--Showing second before and after -->
+    <script>
+      const lightbox = document.getElementById('lightbox') as HTMLElement | null;
+      const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+      const allImages = Array.from(document.querySelectorAll('.image-gallery img')) as HTMLImageElement[];
+
+      let currentIndex = -1;
+
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      if (lightbox && lightboxImg && allImages.length) {
+        allImages.forEach((img, index) => {
+          img.addEventListener('click', () => {
+            lightboxImg.src = img.src;
+            lightbox.style.display = 'flex';
+            currentIndex = index;
+          });
+        });
+
+        lightbox.addEventListener('click', () => {
+          lightbox.style.display = 'none';
+          lightboxImg.src = '';
+          currentIndex = -1;
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (lightbox.style.display !== 'flex') return;
+
+          if (e.key === 'ArrowRight') {
+            currentIndex = (currentIndex + 1) % allImages.length;
+            lightboxImg.src = allImages[currentIndex].src;
+          }
+
+          if (e.key === 'ArrowLeft') {
+            currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+            lightboxImg.src = allImages[currentIndex].src;
+          }
+
+          if (e.key === 'Escape') {
+            lightbox.style.display = 'none';
+            lightboxImg.src = '';
+            currentIndex = -1;
+          }
+        });
+
+        // 🔥 Swipe Detection
+        lightbox.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        });
+
+        lightbox.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipe();
+        });
+
+        const handleSwipe = () => {
+          if (lightbox.style.display !== 'flex') return;
+
+          const swipeDistance = touchEndX - touchStartX;
+          if (Math.abs(swipeDistance) > 50) { // minimum swipe distance
+            if (swipeDistance < 0) {
+              // swipe left → next image
+              currentIndex = (currentIndex + 1) % allImages.length;
+              lightboxImg.src = allImages[currentIndex].src;
+            } else {
+              // swipe right → previous image
+              currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+              lightboxImg.src = allImages[currentIndex].src;
+            }
+          }
+        };
+      }
+    </script>
+
+    <script>
+      
+      const beforeHeader = document.querySelector('.before h3');
+      const afterHeader = document.querySelector('.after h3');
+      const beforeLabel = document.querySelector('.before-stick');
+      const afterLabel = document.querySelector('.after-stick');
+
+      const observerOptions = {
+        root: null,
+        threshold: 0
+      };
+      /**
+       * @param {HTMLElement} target
+       * @param {HTMLElement} label
+       */
+      const createObserver = (target: Element, label: Element) => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) {
+              label.classList.add('visible');
+            } else {
+              label.classList.remove('visible');
+            }
+          });
+        }, observerOptions);
+
+        observer.observe(target);
+      };
+
+      if (beforeHeader && beforeLabel) createObserver(beforeHeader, beforeLabel);
+      if (afterHeader && afterLabel) createObserver(afterHeader, afterLabel);
+    </script>
+  
+    <script src="/js/chat-widget.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,75 @@
+---
+--- 
+
+<header>
+  <nav class="custom-navbar" uk-navbar>
+    <div class="nav-inner">
+      
+      <!-- Logo Left -->
+      <div class="nav-logo-left">
+        <a href="/" class="logo">
+          <img src="/assets/icons/pfp.png" alt="Logo" />
+        </a>
+      </div>
+
+      <!-- Center Nav -->
+      <ul class="nav-center">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about.html">About Us</a></li>
+        <li class="dropdown">
+          <a href="/services">Services</a>
+          <ul class="dropdown-menu">
+            <li><a href="/services">All Services</a></li> <!-- 🔥 add this link -->
+            <li><a href="/services/detailing.html">Detailing</a></li>
+            <li><a href="/services/vehicle-protection.html">Vehicle Protection</a></li>
+            <li><a href="/services/paint-correction.html">Scratch Removal</a></li>
+            <li><a href="/services/new-vehicle-detailing.html">New Vehicle Detailing</a></li>
+          </ul>
+        </li>
+        <li><a href="/service-area.html">Service Area</a></li>
+        <li><a href="/reviews.html">Reviews</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+
+      <!-- Right -->
+      <div class="nav-right">
+        <a href="https://www.instagram.com/thenovadetailing" target="_blank">
+          <img src="/assets/icons/instagram.svg" alt="Instagram" class="social-icon" />
+        </a>
+        <a href="https://www.facebook.com/thenovadetailing/" target="_blank">
+          <img src="/assets/icons/facebook.svg" alt="Facebook" class="social-icon" />
+        </a>
+      </div>
+
+      <!-- Hamburger Icon -->
+      <a class="hamburger uk-navbar-toggle uk-hidden@m" href="#mobile-nav" uk-toggle>
+        <span uk-navbar-toggle-icon></span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Offcanvas Mobile Nav -->
+  <div id="mobile-nav" uk-offcanvas="overlay: true">
+    <div class="uk-offcanvas-bar">
+      <ul class="uk-nav uk-nav-default uk-nav-parent-icon" uk-nav>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about.html">About Us</a></li>
+        <li class="uk-parent">
+          <a href="#">Services</a>
+          <ul class="uk-nav-sub">
+            <li><a href="/services">All Services</a></li> <!-- 🔥 add this link -->
+            <li><a href="/services/detailing.html">Detailing</a></li>
+            <li><a href="/services/vehicle-protection.html">Vehicle Protection</a></li>
+            <li><a href="/services/paint-correction.html">Scratch Removal</a></li>
+            <li><a href="/services/new-vehicle-detailing.html">New Vehicle Detailing</a></li>
+          </ul>
+        </li>
+        <li><a href="/service-area.html">Service Area</a></li>
+        <li><a href="/reviews.html">Reviews</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</header>

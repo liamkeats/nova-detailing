@@ -1,0 +1,60 @@
+---
+--- 
+
+<!-- Reviews Widget Styles -->
+<link rel="stylesheet" href="/styles/reviews.css" />
+
+<section class="reviews-widget-section">
+  <div class="reviews-container">
+    <h2 class="section-heading">What our customers say</h2>
+
+    <div class="reviews-summary">
+      <div class="score-and-button-container">
+        <div class="score-block">
+          <div class="score-main">
+            <span id="score-value" class="loading-score">—</span>
+          </div>
+          <div class="score-details">
+            <div class="stars" id="summary-stars"></div>
+            <div class="review-and-google">
+              <p id="total-reviews">...</p>
+              <div class="google-icon">
+                <!-- SVG stays the same -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 85 36" width="60" height="25">
+                  <g clip-path="url(#a)">
+                    <!-- all your SVG paths inside -->
+                  </g>
+                  <defs>
+                    <clipPath id="a"><path fill="#fff" d="M0 0h84.515v36H0z"/></clipPath>
+                  </defs>
+                </svg>
+              </div>
+            </div>      
+          </div>
+        </div>
+        <a
+          href="fortnite.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="review-button"
+          id="review-link"
+        >
+          Review us on Google
+        </a>
+      </div>
+    </div>
+
+    <div class="google-reviews-widget" id="google-reviews">
+      <!-- JS will inject the AI summary and review cards here -->
+    </div>
+  </div>
+</section>
+
+<!-- Google Reviews Loader -->
+<script src="/js/google-reviews-loader.js" defer></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    loadGoogleReviewsWidget();
+  });
+</script>

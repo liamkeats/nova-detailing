@@ -1,0 +1,188 @@
+---
+import Footer from '../components/Footer.astro'
+import ChatWidget from '../components/ChatWidget.astro'
+import Navbar from '../components/Navbar.astro'
+import GoogleReviewsWidget from '../components/GoogleReviewsWidget.astro'
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <!-- 🔧 SEO Basics -->
+    <title>Nova Detailing | Mobile Car Detailing in Kentville, NS</title>
+    <meta name="description" content="Nova Detailing offers high-end mobile car detailing, paint correction, and ceramic coatings in Kentville and the Annapolis Valley. We bring the shine to you.">
+    <meta name="keywords" content="Kentville detailing, mobile detailing Nova Scotia, car detailing Annapolis Valley, ceramic coating, paint correction Kentville">
+    <meta name="author" content="Nova Detailing">
+  
+    <!-- 🔧 Open Graph (for social sharing / Discord / Facebook) -->
+    <meta property="og:title" content="Nova Detailing | Mobile Car Detailing in Kentville">
+    <meta property="og:description" content="Interior & exterior mobile detailing, paint correction, and ceramic coating services — right at your home or business in the Annapolis Valley.">
+    <meta property="og:image" content="https://thenovadetailing.ca/assets/images/og-preview.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://thenovadetailing.ca">
+  
+    <!-- 🔧 Twitter Card (if shared on X/Twitter) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nova Detailing | Mobile Car Detailing">
+    <meta name="twitter:description" content="Detailing, ceramic coating, and paint correction across Kentville & the Annapolis Valley.">
+    <meta name="twitter:image" content="https://thenovadetailing.ca/assets/images/og-preview.jpg">
+  
+    <!-- 🔧 Favicon -->
+    <link rel="icon" href="assets/icons/favicon.png" type="image/png">
+  
+    <!-- 🔧 Fonts + CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
+    <link rel="stylesheet" href="/styles/home.css" />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <header>
+      <Navbar />
+      <section class="hero">
+        <video autoplay muted loop playsinline preload="metadata" class="hero-video">
+          <source src="/assets/videos/hero.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-content">
+          <button type="button" class="chat-button open-chat">Chat Now</button>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="services">
+        <h2 class="section-title">Our Services</h2>
+        <div class="services-grid">
+
+          <a href="services/detailing.html" class="service-card">
+            <img src="/assets/images/car-1.jpg" alt="Detailing">
+            <div class="service-info">
+              <h3>Detailing</h3>
+              <p>Detailing isn’t just cleaning—it’s restoration. At Nova Detailing, we bring out the best in your vehicle with deep interior care, meticulous hand washing, and premium-grade products that protect your paint and trim. Whether you're in Kentville or anywhere in the Annapolis Valley, we treat every car like it's our own—daily driver or weekend pride.</p>  
+            </div>
+          </a>
+          <a href="services/vehicle-protection.html" class="service-card">
+            <img src="/assets/images/car-2.jpg" alt="Vehicle Protection">
+            <div class="service-info">
+              <h3>Vehicle Protection</h3>
+              <p>In the Annapolis Valley, your vehicle battles sun, salt, and road grime year-round. Our professional ceramic coating services offer unbeatable protection against the elements—locking in that deep gloss, repelling dirt, and making your car easier to clean while preserving its value.</p>  
+            </div>
+          </a>
+          <a href="services/paint-correction.html" class="service-card">
+            <img src="/assets/images/car-3.jpg" alt="Paint Correction">
+            <div class="service-info">
+              <h3>Scratch Removal</h3>
+              <p>Scratches, swirl marks, and dull paint don’t stand a chance. Our expert paint correction and scratch removal service in the Annapolis Valley restores depth, clarity, and gloss through precise multi-stage polishing. If your car’s finish isn’t turning heads—don’t worry, it will.</p>
+            </div>
+          </a>
+          <a href="services/new-vehicle-detailing.html" class="service-card">
+            <img src="/assets/images/car-4.jpg" alt="New Vehicle Detailing">
+            <div class="service-info">
+              <h3>New Vehicle Detailing</h3>
+              <p>That new car feeling? We make it last. Our new vehicle detailing service in the Annapolis Valley protects your investment from day one—correcting factory defects, enhancing the finish, and applying high-quality ceramic coatings to guard against early wear. Start strong, stay shining.</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="why-us-section">
+        <div class="why-us-container">
+      
+          <div class="why-us-image-container">
+            <img src="assets/images/why-us-car.jpg" alt="Why Nova Detailing">
+          </div>
+      
+          <div class="why-us-grid-wrapper">
+            <h2 class="why-us-heading"><span>WHY</span><br>CHOOSE US?</h2>
+            <div class="why-us-grid">
+              <div class="why-block">
+                <h3>Premium Results. Every Time.</h3>
+                <p>At Nova Detailing, we treat every vehicle like a show car. From daily drivers to high-end builds, our mobile auto detailing services in Kentville and throughout the Annapolis Valley deliver flawless results with unmatched precision and care.</p>
+              </div>
+              <div class="why-block">
+                <h3>Certified Expertise You Can Count On</h3>
+                <p>We’re fully insured and trained in professional paint correction and ceramic coating applications. Drivers across Nova Scotia trust us for consistent, high-quality detailing that restores and protects their vehicles.</p>
+              </div>
+              <div class="why-block">
+                <h3>Detailing Built Around You</h3>
+                <p>No two vehicles—or owners—are the same. Whether you need interior shampooing, exterior polishing, or a full ceramic coating package, we tailor every detail to your needs—right at your home or business in the Valley.</p>
+              </div>
+              <div class="why-block">
+                <h3>Advanced Products. Local Service.</h3>
+                <p>We use the latest in professional-grade detailing products and techniques to give your vehicle lasting protection and an unbeatable shine. Get expert-level ceramic coating and paint correction without leaving Kentville or the Annapolis Valley.</p>
+              </div>            
+            </div>
+          </div>
+      
+        </div>
+      </section>
+
+      <!-- Loading review widget-->
+      <div id="reviews-widget"></div>
+      <GoogleReviewsWidget />
+
+      <section class="contact-us">
+        <div class="contact-overlay">
+          <h2 class="book-heading">Ready to book?</h2>
+          <a href="/contact.html" class="cta-button">Contact Us</a>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+    <ChatWidget />
+
+    <!--loading nav bar stuff-->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit-icons.min.js"></script>
+
+    <!-- Chat widget JS LOAD -->
+    <script src="/js/chat-widget.js" defer></script>
+
+    <!--showing contact us button from bottom-->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const contactSection = document.querySelector('.contact-us');
+    
+        if (contactSection) {
+          const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                contactSection.classList.add('visible');
+              }
+            });
+          }, { threshold: 0.2 });
+    
+          observer.observe(contactSection);
+        }
+      });
+    </script>
+    
+
+    <!--SERVICES CARDS ANIMATION-->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const sectionTitle = document.querySelector('.section-title');
+    
+        if (sectionTitle) {
+          const titleObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                sectionTitle.classList.add('visible');
+              } else {
+                sectionTitle.classList.remove('visible');
+              }
+            });
+          }, { threshold: 0.2 });
+    
+          titleObserver.observe(sectionTitle);
+        }
+      });
+    </script>
+    
+  </body>
+</html>

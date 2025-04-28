@@ -1,0 +1,16 @@
+[build]
+  command = "astro build"
+  publish = "dist"
+  functions = "src/netlify/functions"
+
+[dev]
+  command = "astro dev"
+  targetPort = 4321
+  port = 8888
+  publish = "dist"
+  framework = "#custom"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

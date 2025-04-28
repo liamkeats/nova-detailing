@@ -1,0 +1,270 @@
+---
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+    <!-- 🔧 SEO Basics -->
+    <title>Nova Detailing | Mobile Car Detailing in Kentville, NS</title>
+    <meta name="description" content="Nova Detailing offers high-end mobile car detailing, paint correction, and ceramic coatings in Kentville and the Annapolis Valley. We bring the shine to you.">
+    <meta name="keywords" content="Kentville detailing, mobile detailing Nova Scotia, car detailing Annapolis Valley, ceramic coating, paint correction Kentville">
+    <meta name="author" content="Nova Detailing">
+  
+    <!-- 🔧 Open Graph -->
+    <meta property="og:title" content="Nova Detailing | Mobile Car Detailing in Kentville">
+    <meta property="og:description" content="Interior & exterior mobile detailing, paint correction, and ceramic coating services — right at your home or business in the Annapolis Valley.">
+    <meta property="og:image" content="https://thenovadetailing.ca/assets/images/og-preview.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://thenovadetailing.ca">
+  
+    <!-- 🔧 Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nova Detailing | Mobile Car Detailing">
+    <meta name="twitter:description" content="Detailing, ceramic coating, and paint correction across Kentville & the Annapolis Valley.">
+    <meta name="twitter:image" content="https://thenovadetailing.ca/assets/images/og-preview.jpg">
+  
+    <!-- 🔧 Favicon -->
+    <link rel="icon" href="assets/icons/pfp.png" type="image/png">
+  
+    <!-- 🔧 Fonts + CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/contact.css" />    
+  </head>
+
+  <body>
+    <header>
+      <Navbar />
+      <section class="contact-hero">
+        <img class="hero-bg" src="/assets/images/contact-us-background.jpg" alt="Contact Background">
+        <div class="hero-content">
+          <button type="button" class="chat-button open-chat">Chat Now</button>
+        </div>
+      </section>
+    </header>
+
+    <main class="contact-main">
+      <div class="contact-background-wrapper">
+
+        <div class="contact-wrapper">
+          <div class="contact-content">
+            <div class="contact-text">
+              <h2>Let’s Get in Touch</h2>
+              <p>Looking for professional car detailing in Kentville or the Annapolis Valley? Whether you need a full interior deep clean, ceramic coating, paint correction, or seasonal vehicle protection, Nova Detailing is ready to help. We provide mobile auto detailing services at your home or workplace, saving you time and hassle.</p>
+              <p>Have a question about our services, pricing, or availability? Fill out the form below and we’ll get back to you as soon as possible. You can also reach us directly by phone or email.</p>
+              <p><strong>Phone:</strong> <a href="tel:+19023850723">(902) 385-0723</a></p>
+              <p><strong>Email:</strong> <a href="mailto:thenovadetailing@gmail.com">thenovadetailing@gmail.com</a></p>            
+            </div>
+
+          <div class="contact-form-wrapper">
+            <form id="contact-form" class="booking-form" action="https://docs.google.com/forms/d/e/1FAIpQLSetKRNgTfaF5WI2zMEsjEZ0hipHPEgjCvcgIKbVAYSwYwOK4Q/formResponse" method="POST" target="hidden_iframe" onsubmit="submitted=true;">
+              <label for="service">Select a Service</label>
+              <select id="service" name="entry.2144809380" required>
+                <option value="">Select a Service</option>
+                <option value="Interior Detailing">Interior Detailing</option>
+                <option value="Exterior Detailing">Exterior Detailing</option>
+                <option value="Full Detail(Interior and Exterior)">Full Detail(Interior and Exterior)</option>
+                <option value="Scratch Removal">Scratch Removal</option>
+                <option value="New Vehicle Prep">New Vehicle Prep</option>
+              </select>
+
+              <p class="contact-info">Contact Details</p>
+              <div class="form-body">
+                <div class="form-row">
+                  <div class="form-col">
+                    <input type="text" placeholder="First Name" name="entry.1977954969" required>
+                    <input type="text" placeholder="Last Name" name="entry.1289566118" required>
+                  </div>
+                </div>
+              
+                <div class="form-row">
+                  <div class="form-col">
+                    <input type="tel" placeholder="Phone Number" name="entry.153198611" required>
+                    <input type="email" placeholder="Email" name="entry.1562851891" required>
+                  </div>
+                </div>
+              
+                <div class="form-row">
+                  <div class="form-col">
+                    <input type="text" placeholder="Make" name="entry.1548587124">
+                    <input type="text" placeholder="Model" name="entry.1550545176">
+                  </div>
+                </div>
+              
+                <div class="form-row">
+                  <div class="form-col">
+                    <input type="text" placeholder="Year" name="entry.1033767936">
+                    <input type="text" placeholder="Paint / Color" name="entry.1297957681">
+                  </div>
+                </div>
+                
+                <p class="pref-date">Preferred Date</p>
+                <div class="form-row">
+                  <div class="form-col full-width">
+                    <input type="date" name="entry.362240232" required>
+                  </div>
+                </div>                 
+                
+                <div class="form-row">
+                  <div class="form-col full-width">
+                    <textarea placeholder="Notes / Comments" name="entry.1161262287"></textarea>
+                  </div>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-col">
+                    <button type="submit">Submit</button>
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" name="entry.362240232_year">
+              <input type="hidden" name="entry.362240232_month">
+              <input type="hidden" name="entry.362240232_day">
+            </form>
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+    <ChatWidget />
+
+    <!--loading nav bar stuff-->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit-icons.min.js"></script>
+
+    <!-- Chat widget -->
+    <script src="/js/chat-widget.js" defer></script>
+
+    <!--form send button and sending-->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('contact-form') as HTMLFormElement;
+        if (!form) return; // <-- if form doesn't exist, don't run anything
+
+        const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (!submitButton) return; // <-- same for button
+
+        let submitted = false;
+
+        form.addEventListener('submit', function () {
+          submitted = true;
+
+          submitButton.disabled = true;
+          submitButton.style.opacity = "0.7"; 
+          submitButton.textContent = "Sending... ⏳";
+
+          // etc...
+        });
+
+        const iframe = document.getElementById('hidden_iframe') as HTMLIFrameElement;
+        if (!iframe) return; // <-- protect this too just to be clean
+
+        iframe.addEventListener('load', function () {
+          if (submitted) {
+            submitted = false;
+            
+            submitButton.textContent = "Request Sent! ✅";
+            submitButton.style.backgroundColor = "#4CAF50";
+            submitButton.style.borderColor = "#4CAF50";
+            submitButton.style.color = "white";
+            submitButton.style.transform = "scale(1.05)";
+            submitButton.style.transition = "all 0.3s ease";
+
+            form.reset();
+
+            setTimeout(() => {
+              submitButton.disabled = false;
+              submitButton.style.opacity = "1";
+              submitButton.textContent = "Submit";
+              submitButton.style.backgroundColor = "";
+              submitButton.style.borderColor = "";
+              submitButton.style.color = "";
+              submitButton.style.transform = "scale(1)";
+            }, 5000);
+
+            fetch('/.netlify/functions/send-form-notification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+              console.log('📲 SMS notification sent!', data);
+            })
+            .catch(err => {
+              console.error('⚠️ Failed to send SMS', err);
+            });
+          }
+        });
+      });
+
+    </script>
+
+
+    <!--FORM DATE FIX-->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.querySelector('#contact-form input[name="entry.362240232"]') as HTMLInputElement;
+        const yearInput = document.querySelector('#contact-form input[name="entry.362240232_year"]') as HTMLInputElement;
+        const monthInput = document.querySelector('#contact-form input[name="entry.362240232_month"]') as HTMLInputElement;
+        const dayInput = document.querySelector('#contact-form input[name="entry.362240232_day"]') as HTMLInputElement;
+    
+        if (!dateInput || !yearInput || !monthInput || !dayInput) return;
+    
+        dateInput.addEventListener('change', (e) => {
+          const target = e.target as HTMLInputElement; // type cast the event target properly
+          const dateValue = target.value; // Format: yyyy-mm-dd
+    
+          if (dateValue) {
+            const [year, month, day] = dateValue.split('-');
+            yearInput.value = year;
+            monthInput.value = month;
+            dayInput.value = day;
+          } else {
+            yearInput.value = '';
+            monthInput.value = '';
+            dayInput.value = '';
+          }
+        });
+      });
+    </script>
+  
+    <!--Making phone number on form auto fill-->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const contactPhone = document.querySelector('#contact-form input[name="entry.153198611"]') as HTMLInputElement;
+        if (!contactPhone) return;
+    
+        contactPhone.addEventListener('input', (e) => {
+          const target = e.target as HTMLInputElement; // 👈 tell TS the event target is an <input>
+    
+          let digits = target.value.replace(/\D/g, '');
+          if (digits.length > 10) digits = digits.slice(0, 10);
+    
+          let formatted = digits;
+          if (digits.length >= 7) {
+            formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+          } else if (digits.length >= 4) {
+            formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+          } else if (digits.length >= 1) {
+            formatted = `(${digits}`;
+          }
+    
+          target.value = formatted;
+        });
+      });
+    </script>
+    
+
+  </body>
+</html>

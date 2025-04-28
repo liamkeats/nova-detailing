@@ -1,0 +1,403 @@
+/* ========== Base ========== */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #121212;
+    color: white;
+  }
+  
+  .contact-main {
+    width: 100%;
+    background-color: #121212; /* same dark background */
+  }
+  
+  /* ========== Hero Section ========== */
+  .contact-hero {
+    position: relative;
+    height: 40vh;
+    overflow: hidden;
+  }
+  .contact-hero .hero-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+  }
+  .contact-hero .hero-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }  
+  .hero.contact-hero h1 {
+    font-size: 3rem;
+    font-family: 'Rajdhani', sans-serif;
+    color: white;
+    letter-spacing: 2px;
+  }
+  
+  /* ========== Chat Button ========== */
+  .chat-button {
+    position: relative;
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background-color: red;
+    color: white;
+    text-decoration: none;
+    border: 2px solid rgb(201, 10, 10);
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.075rem;
+    overflow: hidden;
+    transition: color 0.3s ease, border-color 0.3s ease;
+    z-index: 1;
+  }
+  
+  .chat-button::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    height: 100%;
+    background-color: #8d0505;
+    z-index: -1;
+    transition: width 0.3s ease;
+  }
+  
+  .chat-button:hover::before {
+    width: 100%;
+  }
+  
+  .chat-button:hover {
+    color: white;
+    border-color: #7a0606;
+    cursor: pointer;
+  }
+  
+  /* ========== Wrapper ========== */
+  .contact-wrapper {
+    background-color: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    max-width: 1600px;
+    margin: 4rem auto;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* ========== Contact Layout ========== */
+  .contact-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3rem;
+    max-width: 1600px;
+    margin: auto;
+  }
+  .contact-text {
+    flex: 1;
+    font-size: 1.1rem;
+    color: #000;
+  }
+  
+  .contact-text h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #d40000;
+    text-shadow: 0 0 10px rgba(212, 0, 0, 0.5);
+  }
+  
+  .contact-text a {
+    color: #d40000;
+    text-decoration: none;
+  }
+  .contact-form-wrapper {
+    flex: 1;
+  }
+  
+  /* ========== Booking Form ========== */
+  .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background-color: #c5c5c5;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.884);
+    color: #000;
+  }
+  .booking-form label {
+    font-weight: bold;
+  }
+  
+  /* Old Grid (can remove later if not used) */
+  .form-grid > div {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .form-grid input,
+  .form-grid select {
+    width: 100%;
+  }
+  
+  /* Input / Select / Textarea Styles */
+  .booking-form input,
+  .booking-form select,
+  .booking-form textarea {
+    background-color: #000;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  input[type="date"] {
+    background-color: #000;
+    color: white; /* <-- fix the text color */
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    appearance: none; /* removes default calendar styling on some browsers */
+    -webkit-appearance: none;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* makes the little calendar icon white */
+    cursor: pointer;
+  }
+  
+  
+  .form-grid input {
+    width: 100%;
+  }
+  
+  .booking-form input:focus,
+  .booking-form select:focus,
+  .booking-form textarea:focus {
+    outline: none;
+    border-color: #d40000;
+  }
+  .booking-form select {
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="5"><path fill="white" d="M0 0l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 10px 5px;
+  }
+  .booking-form textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  /* Submit Button */
+  .booking-form button[type='submit'] {
+    background-color: #d40000;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .booking-form button[type='submit']:hover {
+    background-color: #a30000;
+  }
+  
+  /* Flex-based Form Row & Col */
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-col {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  .form-col input {
+    flex: 1;
+    min-width: 200px;
+    height: 100%;
+  }
+
+  .full-width {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+  
+  .form-col.full-width textarea {
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  [data-lastpass-icon-root] {
+    display: none !important;
+  }
+
+  
+  @media (max-width: 1135px) {
+    .contact-content {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .contact-text,
+    .contact-form-wrapper {
+      width: 100%;
+    }
+  }  
+  
+  @media (max-width: 600px) {
+    .form-col {
+      flex-direction: column;
+      width: 100%;
+    }
+  
+    .form-col input,
+    .form-col select,
+    .form-col textarea {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .contact-wrapper {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: hidden;
+      padding: 1.5rem 1rem;
+      margin: 0 auto;
+    }
+  
+    .contact-content {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: hidden;
+      padding: 0;
+      margin: 0;
+      flex-direction: column;
+    }
+  
+    .contact-text {
+      width: 100%;
+      padding: 0;
+      box-sizing: border-box;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+  
+    .contact-text p,
+    .contact-text a,
+    .contact-text strong {
+      word-break: break-word;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+    }
+  
+    .booking-form {
+      width: 100%;
+      padding: 1.5rem 1rem;
+      box-sizing: border-box;
+    }
+  
+    .form-col {
+      flex-direction: column;
+      width: 100%;
+      gap: 0.75rem;
+    }
+  
+    .form-col input,
+    .form-col textarea,
+    .form-col select {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  
+    .chat-button {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+  }
+  
+
+  @media (max-width: 360px) {
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+  
+    .contact-wrapper {
+      max-width: 100% !important;
+      width: 100% !important;
+      margin: 1rem auto;
+      padding: 1.5rem 1rem;
+      box-sizing: border-box;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+  
+    .contact-content {
+      flex-direction: column;
+      gap: 2rem;
+      width: 100%;
+    }
+  
+    .contact-text {
+      padding: 0;
+      width: 100%;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+  
+    .booking-form {
+      padding: 1.5rem 1rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  
+    .form-row,
+    .form-col {
+      flex-direction: column;
+      width: 100%;
+      gap: 0.75rem;
+    }
+  
+    .form-col input,
+    .form-col textarea,
+    .form-col select {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  
+    .chat-button {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+  
+    .booking-form button[type="submit"] {
+      font-size: 1rem;
+      padding: 0.75rem;
+    }
+  }
+  
+  

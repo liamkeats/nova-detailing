@@ -1,0 +1,404 @@
+body {
+    background: #0c0c0c;
+}
+
+/* -----------------------------------
+    SERVICES PAGE STYLES
+----------------------------------- */
+
+/* Hero Section */
+.hero {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: url('/assets/images/service-main-hero.jpg') no-repeat center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    color: white;
+}
+  
+.hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    z-index: 0;
+}
+  
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+  
+  /* Services Cards Section */
+.services-cards-section {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+  
+.services-cards-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+}
+  
+.services-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+  
+/* -----------------------------------
+    Full Service Summary - Beast Mode
+----------------------------------- */
+
+.full-service-summary {
+    padding: 6rem 2rem;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+    text-align: center;
+    color: white;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease, transform 1s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); /* 🔥 Added this */
+    border-radius: 12px; /* Optional: smooth rounded edges */
+  }
+  
+  
+  .full-service-summary h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 4rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ffffff;
+    margin-bottom: 2rem;
+  }
+
+  .full-service-summary.visible {
+    opacity: 1; /* fade in */
+    transform: translateY(0); /* slide up */
+  }
+  
+  .full-service-summary p {
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: 1.4rem;
+    line-height: 1.8;
+    color: #e0e0e0;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fadeSlideUp 1.3s ease forwards;
+    animation-delay: 0.3s;
+  }
+  
+  /* Animation */
+  @keyframes fadeSlideUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+/* -----------------------------------
+    Pricing Guide Section
+----------------------------------- */
+
+.pricing-guide {
+    padding: 6rem 2rem;
+    background: #0c0c0c; /* match darker vibe */
+    color: white;
+    text-align: center;
+    overflow-x: auto; /* in case table overflows on tiny screens */
+  }
+  
+  .pricing-guide h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    margin-bottom: 2.5rem;
+    color: #ffffff;
+  }
+  
+  /* Table Styles */
+  .pricing-guide table {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background: #151515;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  }
+  
+  .pricing-guide thead {
+    background: #d40000; /* Nova Detailing red header */
+  }
+
+  /* Table row setup */
+.pricing-guide tbody tr {
+    position: relative; /* needed for ::after positioning */
+    transition: background 0.3s ease, transform 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .pricing-guide th {
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700; /* bold only for headers */
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.pricing-guide td {
+    position: relative; /* enable pseudo-element positioning */
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 1.2rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400; /* not bold for items */
+    color: #e0e0e0;
+    border-bottom: 1px solid #333;
+    overflow: hidden; /* hide pseudo-underline overflow */
+}
+  
+  .pricing-guide tr:last-child td {
+    border-bottom: none; /* no border under last row */
+  }
+  
+  /* Hover Effect */
+
+  .pricing-guide tbody tr::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    width: 90%; /* how wide across the row */
+    height: 3px;
+    background-color: #d40000;
+    border-radius: 2px;
+    transition: transform 0.3s ease-in-out;
+  }
+
+
+
+  .pricing-guide tbody tr:hover::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+.pricing-guide tbody tr:hover td {
+    color: #ffffff;
+}
+
+.pricing-guide tbody tr {
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+  
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .pricing-guide h2 {
+        font-size: 2.5rem;
+    }
+
+    .pricing-guide th,
+    .pricing-guide td {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
+  
+/* -----------------------------------
+   CHAT NOW BUTTON - header styll
+------------------------------------ */
+
+.chat-button {
+    position: relative;
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background-color: transparent;
+    color: white;
+    text-decoration: none;
+    border: 2px solid white;
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.075rem;
+    overflow: hidden;
+    transition: color 0.3s ease, border-color 0.3s ease;
+    z-index: 1;
+  }
+  
+  .chat-button::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    height: 100%;
+    background-color: #8d0505;
+    z-index: -1;
+    transition: width 0.3s ease;
+  }
+  
+  .chat-button:hover::before {
+    width: 100%;
+  }
+  
+  .chat-button:hover {
+    color: white;
+    border-color: #7a0606;
+    cursor: pointer;
+  }
+  
+/* -----------------------------------
+  Services - main - section 1
+------------------------------------ */
+
+.services {
+    padding: 6rem 2rem;
+    background: linear-gradient(to bottom, #030B0B 0%, #030B0B 10%, #0c0c0c 40%, #0c0c0c 100%);
+    color: white;
+    text-align: center;
+    overflow-x: auto;
+  }
+  
+  .section-title {
+    font-size: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 3rem;
+    font-weight: 700;
+    font-family: 'Rajdhani', sans-serif;
+    color: white;
+    position: relative;
+    display: inline-block;
+    transition: opacity 2.5s ease, transform 2.5s ease;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background-color: #d40000;
+    border-radius: 2px;
+  }
+  
+  .section-title.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* force 2 per row */
+    gap: 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .services-grid {
+      grid-template-columns: 1fr; /* stack 1 per row on mobile */
+    }
+  }
+  
+  .service-card {
+    background-color: #350404;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .service-card:hover {
+    transform: translateY(-10px);
+    box-shadow:
+      0 0 10px rgba(212, 0, 0, 0.4),
+      0 0 25px rgba(212, 0, 0, 0.3),
+      0 0 40px rgba(212, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    text-decoration: none;
+  }
+  
+  .service-card h3 {
+    transition: color 0.3s ease;
+  }
+  
+  .service-card:hover h3 {
+    color: #ff4c4c; /* or your theme red */
+    text-decoration: underline;
+  }
+  
+  .service-info {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .service-card img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .service-card h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .service-card p {
+    margin: 0;
+    color: #ccc;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .service-info {
+      padding: 1rem 1rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .section-title {
+        font-size: 2.5rem; /* or 2rem if you want even smaller */
+    }
+}
