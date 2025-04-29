@@ -26,6 +26,9 @@ import ChatWidget from '../../components/ChatWidget.astro';
     <!-- Masonry library -->
     <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js" defer></script>
 
+    <!--IMages loaded -->
+    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js" defer></script>
+
   </head>
 
   <body>
@@ -118,17 +121,18 @@ import ChatWidget from '../../components/ChatWidget.astro';
             grid.appendChild(gridItem);
             });
 
-            // 🛠 FIX: Ignore TS here
+          // @ts-ignore
+          imagesLoaded(grid, () => {
             // @ts-ignore
             const msnry = new Masonry(grid, {
-            itemSelector: '.grid-item',
-            columnWidth: '.grid-sizer',
-            percentPosition: true,
+              itemSelector: '.grid-item',
+              columnWidth: '.grid-sizer',
+              percentPosition: true,
             });
 
-            setTimeout(() => {
             msnry.layout();
-            }, 100);
+            grid.classList.add('visible'); // fade in after layout is ready
+          });
 
             if (window.UIkit) {
             setTimeout(() => {
