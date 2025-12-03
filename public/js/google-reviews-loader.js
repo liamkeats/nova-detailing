@@ -1,4 +1,16 @@
 function loadGoogleReviewsWidget() {
+
+    //TEXT TRUNCATION
+    function truncateText(text, maxLength = 300) {
+      if (!text) return "";
+      if (text.length <= maxLength) return text;
+
+      let trimmed = text.slice(0, maxLength);
+      trimmed = trimmed.slice(0, trimmed.lastIndexOf(" "));
+      return trimmed + "...";
+    }
+    // ==========================
+    
     const PLACE_ID = "ChIJb7_tAZNXWEsRafrAml5YACU";
     console.log("🔥 Google Reviews widget script running");
   
@@ -55,7 +67,7 @@ function loadGoogleReviewsWidget() {
             <div class="review-container">
               <div class="review-content">
                 <div class="stars">${renderStars(r.rating)}</div>
-                <p class="review-text">${r.text || '<em>(No comment)</em>'}</p>
+                <p class="review-text">${truncateText(r.text) || '<em>(No comment)</em>'}</p>
               </div>
               <svg class="tail" viewBox="0 0 19 13" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0.965704 0H10.3736L19 0C19 0 16.2331 5.15665 10.3736 8.99489C6.68171 11.4132 3.12703 12.3741 1.00222 12.7541C0.488597 12.8459 0.227225 12.1436 0.617463 11.7973C2.03909 10.5355 3.88298 8.3072 3.88294 5.23718C3.88287 0 0.965704 0 0.965704 0Z"></path>
