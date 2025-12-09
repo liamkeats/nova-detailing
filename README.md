@@ -1,3 +1,7 @@
+> 🧩 This repo is part of **NovaProject**, the full stack behind [thenovadetailing.ca](https://www.thenovadetailing.ca).  
+> High-level overview: https://github.com/liamkeats/NovaProjectMeta
+
+
 # ✨ Nova Detailing – Modern Auto Detailing Website
 
 > A clean, fast, mobile-first website for **Nova Detailing** – a professional mobile detailing service based in Nova Scotia. Built to convert visitors into booked details with slick visuals, live chat, and real Google Reviews.
