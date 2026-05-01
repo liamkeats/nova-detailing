@@ -1,36 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reviews | Nova Detailing</title>
-  <link rel="stylesheet" href="/styles/global.css" />
-</head>
-<body>
+---
+import UnderConstructionNotice from '../components/UnderConstructionNotice.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
 
-  <div class="under-construction-overlay">
-    <div class="under-construction-content">
-      <h2>Under Development</h2>
-      <h3>We are fixing a few things<br>behind the scenes.</h3>
-      <h3>We'll be back soon...</h3>
-      <a href="/contact.html" class="contact-button">Contact Us</a>
-    </div>
-  </div>
-
-  <header>
-    <nav class="navbar">
-      <div class="logo">Nova Detailing</div>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li><a href="service-area.html">Service Area</a></li>
-        <li><a href="reviews.html" class="active">Reviews</a></li>
-        <li><a href="gallery.html">Gallery</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+<SiteLayout
+  title="Reviews | Nova Detailing"
+  description="Read what Nova Detailing customers are saying about our detailing, protection, and paint correction work in Kentville and the Annapolis Valley."
+  canonicalPath="/reviews"
+  showNavbar={false}
+  showFooter={false}
+  showChatWidget={false}
+>
+  <UnderConstructionNotice />
 
   <main class="reviews-page">
     <section class="review-intro">
@@ -60,9 +41,4 @@
       </div>
     </section>
   </main>
-
-  <footer>
-    <p>&copy; 2025 Nova Detailing. All rights reserved.</p>
-  </footer>
-</body>
-</html>
+</SiteLayout>

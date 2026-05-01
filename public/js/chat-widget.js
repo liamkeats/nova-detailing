@@ -2,7 +2,7 @@ function initChatWidget() {
     const chatBtn = document.getElementById('chat-button');
     const chatPopup = document.getElementById('chat-popup');
     const chatClose = document.getElementById('chat-close');
-    const heroChatBtn = document.querySelector('.open-chat');
+    const heroChatBtns = Array.from(document.querySelectorAll('.open-chat'));
     const phoneInput = document.querySelector('#chat-form input[name="phone"]');
     const chatForm = document.getElementById('chat-form');
   
@@ -24,7 +24,12 @@ function initChatWidget() {
     }
   
     if (chatBtn) chatBtn.onclick = toggleChatPopup;
-    if (heroChatBtn) heroChatBtn.onclick = toggleChatPopup;
+    heroChatBtns.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        toggleChatPopup();
+      });
+    });
     if (chatClose) chatClose.onclick = toggleChatPopup;
   
     if (chatForm) {

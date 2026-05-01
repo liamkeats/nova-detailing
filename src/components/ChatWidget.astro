@@ -1,22 +1,48 @@
 ---
-// This component only renders markup. Logic lives in /js/chat-widget.js
+import { Image } from 'astro:assets';
+import chatBubbleIcon from '../assets/icons/chat-bubble-rounded.svg';
+import closeIcon from '../assets/icons/close.svg';
+import chatLogo from '../assets/icons/pfp-chat.png';
+import defaultUserIcon from '../assets/icons/default.png';
 ---
 
 <div id="chat-button">
-  <img src="https://dufzo4epsnvlh.cloudfront.net/image/icon-new/chat-bubble-rounded.svg" alt="Chat Now" />
+  <Image
+    src={chatBubbleIcon}
+    alt="Open chat"
+    width={30}
+    height={30}
+    loading="eager"
+    fetchpriority="high"
+  />
 </div>
 
 <div id="chat-popup" class="hidden">
   <div class="chat-header">
     <span class="header-text">How can we help you?</span>
-    <img id="chat-close" src="/assets/icons/close.svg" alt="Close" class="chat-close-icon" />
+    <Image
+      id="chat-close"
+      src={closeIcon}
+      alt="Close chat"
+      class="chat-close-icon"
+      width={18}
+      height={18}
+      loading="lazy"
+    />
   </div>
 
   <div class="chat-body">
     <div class="message-item">
       <div class="chat-message-container">
         <div class="profile-pic">
-          <img src="/assets/icons/pfp.png" alt="Nova Detailing Logo" class="chat-logo" />
+          <Image
+            src={chatLogo}
+            alt="Nova Detailing logo"
+            class="chat-logo"
+            width={60}
+            height={60}
+            loading="lazy"
+          />
         </div>
         <div class="nova-chat-message">
           <p>Have a question? Enter the information below and we will send you an SMS shortly.</p>
@@ -38,7 +64,14 @@
           <textarea name="message" placeholder="Message..." required></textarea>
           <span class="input-icon" aria-hidden="true">✉️</span>
         </div>
-        <img src="/assets/icons/default.png" alt="User" class="img-block" />
+        <Image
+          src={defaultUserIcon}
+          alt="User"
+          class="img-block"
+          width={28}
+          height={28}
+          loading="lazy"
+        />
       </div>
 
       <div class="submit-form">

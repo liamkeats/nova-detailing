@@ -1,4 +1,7 @@
 ---
+import { Image } from 'astro:assets';
+import instagramIcon from '../assets/icons/instagram.svg';
+import facebookIcon from '../assets/icons/facebook.svg';
 ---
 
 <div class="footer-divider">
@@ -7,7 +10,7 @@
         <div class="footer-content">
           <!-- Branding -->
           <div class="footer-column footer-branding">
-            <h2>Unleash Your<br>Ride’s True<br>Potenetial.</h2>
+            <h2>Unleash Your<br>Ride’s True<br>Potential.</h2>
             <p>WITH<br><span class="red">NOVA DETAILING</span></p>
           </div>
       
@@ -15,10 +18,10 @@
           <div class="footer-column footer-services">
             <h3>SERVICES</h3>
             <ul>
-              <li><a href="/services.html#new">New Vehicle Detailing</a></li>
-              <li><a href="/services.html#protection">Vehicle Protection</a></li>
-              <li><a href="/services.html#correction">Scratch Removal</a></li>
-              <li><a href="/services.html#detailing">Detailing</a></li>
+              <li><a href="/services/new-vehicle-detailing">New Vehicle Detailing</a></li>
+              <li><a href="/services/vehicle-protection">Vehicle Protection</a></li>
+              <li><a href="/services/paint-correction">Scratch Removal</a></li>
+              <li><a href="/services/detailing">Detailing</a></li>
             </ul>
           </div>
       
@@ -31,10 +34,24 @@
             <p>🕓 MON-SUN: 9:00 am – 6:00 pm</p>
             <div class="social-icons">
               <a href="https://www.instagram.com/thenovadetailing" target="_blank" rel="noopener noreferrer">
-                <img src="/assets/icons/instagram.svg" alt="Instagram" class="social-icon" />
+                <Image
+                  src={instagramIcon}
+                  alt="Instagram"
+                  class="social-icon"
+                  width={24}
+                  height={24}
+                  loading="lazy"
+                />
               </a>
               <a href="https://www.facebook.com/thenovadetailing/" target="_blank" rel="noopener noreferrer">
-                <img src="/assets/icons/facebook.svg" alt="Facebook" class="social-icon" />
+                <Image
+                  src={facebookIcon}
+                  alt="Facebook"
+                  class="social-icon"
+                  width={24}
+                  height={24}
+                  loading="lazy"
+                />
               </a>
             </div>
           </div>

@@ -216,11 +216,16 @@ section {
   z-index: 10000;
 }
 
-.lightbox-overlay img {
+.lightbox-stage {
   max-width: 90%;
   max-height: 90%;
+  width: min(90vw, 1200px);
+  height: min(90vh, 900px);
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 /* -----------------------------------

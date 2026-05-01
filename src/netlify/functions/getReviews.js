@@ -1,108 +1,137 @@
-const axios = require('axios');
-const { OpenAI } = require('openai');
+import axios from 'axios';
+import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const GOOGLE_PLACE_DETAILS_URL = 'https://maps.googleapis.com/maps/api/place/details/json';
+const GOOGLE_PLACE_FIELDS = 'name,rating,reviews,user_ratings_total,url';
+const RESPONSE_CACHE_TTL_MS = 30 * 60 * 1000;
+const RESPONSE_HEADERS = {
+  'Content-Type': 'application/json',
+  'Cache-Control': 'public, max-age=300, stale-while-revalidate=1800',
+};
+const FALLBACK_SUMMARY_BULLETS = [
+  'Friendly and professional staff',
+  'Cars look brand new after service',
+  'Great value for the price',
+];
+
+function getOpenAIClient() {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    return null;
+  }
+
+  return new OpenAI({ apiKey });
+}
 
 function getWriteReviewUrl(placeId) {
   return `https://search.google.com/local/writereview?placeid=${placeId}`;
 }
 
-//memory cache
+function jsonResponse(statusCode, body) {
+  return {
+    statusCode,
+    headers: RESPONSE_HEADERS,
+    body: JSON.stringify(body),
+  };
+}
+
 let cachedSummary = null;
 let lastReviewCount = 0;
+let cachedPayload = null;
+let cachedPayloadAt = 0;
 
-exports.handler = async function(event, context) {
-  const { GOOGLE_API_KEY, PLACE_ID } = process.env;
+async function buildSummaryBullets(reviews) {
+  const textBlock = reviews
+    .map((review, index) => `${index + 1}. ${review.text || ''}`.trim())
+    .filter(Boolean)
+    .join('\n');
 
-  try {
-    const res = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
-      params: {
-        place_id: PLACE_ID,
-        fields: 'name,rating,reviews,user_ratings_total,url',
-        key: GOOGLE_API_KEY
-      }
-    });
+  if (!textBlock) {
+    return FALLBACK_SUMMARY_BULLETS;
+  }
 
-    const result = res.data.result;
-    const reviews = result.reviews || [];
-    const totalReviews = result.user_ratings_total;
-
-    if (cachedSummary && totalReviews == lastReviewCount) {
-      console.log("✅ Using cached AI summary");
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          rating: result.rating,
-          totalReviews,
-          url: getWriteReviewUrl(PLACE_ID),
-          reviews,
-          summaryBullets: cachedSummary,
-        }),
-      };
-    }
-
-    const textBlock = reviews
-      .map((r, i) => `${i + 1}. ${r.text || ''}`.trim())
-      .filter(Boolean)
-      .join('\n');
-    
-    let summaryBullets = [];
-
-    if (textBlock.length > 0) {
-      const prompt = `
+  const prompt = `
 You're an assistant summarizing Google reviews for a car detailing business.
 
 Here are some actual reviews:
-    
+
 ${textBlock}
 
-Give 3 short bullet point summaries that capture what customers loved. Be specific. Each bullet should be a single sentence — casual, specific, and clear. Keep them under 12 words. Think like a review highlight or ad caption.
+Give 3 short bullet point summaries that capture what customers loved. Be specific. Each bullet should be a single sentence, casual, specific, and clear. Keep them under 12 words.
 
 Only return a JSON array of 3 strings.
-      `;
-      
-      try {
-        const chat = await openai.chat.completions.create({
-          model: "gpt-4.1-mini-2025-04-14",
-          messages: [{ role: "user", content: prompt }],
-        });
+  `;
 
-        let raw = chat.choices[0].message.content;
-        console.log("🧠 GPT raw output:", raw);
+  try {
+    const openai = getOpenAIClient();
 
-        raw = raw.replace(/```(?:json)?\s*([\s\S]*?)\s*```/, '$1').trim();
-
-        summaryBullets = JSON.parse(raw);
-      } catch (err) {
-        console.error("❌ AI Summary failed:", err);
-        summaryBullets = [
-          "Friendly and professional staff",
-          "Cars look brand new after service",
-          "Great value for the price"
-        ];
-      }
+    if (!openai) {
+      throw new Error('Missing OPENAI_API_KEY');
     }
+
+    const chat = await openai.chat.completions.create({
+      model: 'gpt-4.1-mini-2025-04-14',
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    let raw = chat.choices[0].message.content ?? '[]';
+
+    raw = raw.replace(/```(?:json)?\s*([\s\S]*?)\s*```/, '$1').trim();
+
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error('AI review summary failed:', error);
+    return FALLBACK_SUMMARY_BULLETS;
+  }
+}
+
+export async function handler(event, context) {
+  const { GOOGLE_API_KEY, PLACE_ID } = process.env;
+
+  if (cachedPayload && Date.now() - cachedPayloadAt < RESPONSE_CACHE_TTL_MS) {
+    return jsonResponse(200, cachedPayload);
+  }
+
+  try {
+    const res = await axios.get(GOOGLE_PLACE_DETAILS_URL, {
+      timeout: 5000,
+      params: {
+        place_id: PLACE_ID,
+        fields: GOOGLE_PLACE_FIELDS,
+        key: GOOGLE_API_KEY,
+      },
+    });
+
+    const result = res.data?.result ?? {};
+    const reviews = Array.isArray(result.reviews) ? result.reviews : [];
+    const totalReviews = result.user_ratings_total ?? reviews.length;
+
+    let summaryBullets = cachedSummary;
+
+    if (!summaryBullets || totalReviews !== lastReviewCount) {
+      summaryBullets = await buildSummaryBullets(reviews);
+    }
+
+    const payload = {
+      rating: result.rating,
+      totalReviews,
+      url: getWriteReviewUrl(PLACE_ID),
+      reviews,
+      summaryBullets,
+    };
 
     cachedSummary = summaryBullets;
     lastReviewCount = totalReviews;
+    cachedPayload = payload;
+    cachedPayloadAt = Date.now();
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        rating: result.rating,
-        totalReviews,
-        url: getWriteReviewUrl(PLACE_ID),
-        reviews: result.reviews || [],
-        summaryBullets,
-      })
-    };
+    return jsonResponse(200, payload);
   } catch (error) {
-    console.error("Google API Error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch reviews" })
-    };
+    console.error('Google API Error:', error);
+    return jsonResponse(500, {
+      error: 'Failed to fetch reviews',
+      summaryBullets: FALLBACK_SUMMARY_BULLETS,
+    });
   }
 }

@@ -1,0 +1,47 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import ChatWidget from '../components/ChatWidget.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  keywords?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  bodyClass?: string;
+  pageStyles?: string[];
+  showNavbar?: boolean;
+  showFooter?: boolean;
+  showChatWidget?: boolean;
+}
+
+const {
+  showNavbar = true,
+  showFooter = true,
+  showChatWidget = true,
+  ...baseProps
+} = Astro.props;
+
+const hasHero = Astro.slots.has('hero');
+---
+
+<BaseLayout {...baseProps}>
+  <slot name="head" slot="head" />
+
+  {(showNavbar || hasHero) && (
+    <header>
+      {showNavbar && <Navbar />}
+      {hasHero && <slot name="hero" />}
+    </header>
+  )}
+
+  <slot />
+
+  {showFooter && <Footer />}
+  {showChatWidget && <ChatWidget />}
+
+  {showChatWidget && <script slot="scripts" src="/js/chat-widget.js" defer></script>}
+  <slot name="scripts" slot="scripts" />
+</BaseLayout>

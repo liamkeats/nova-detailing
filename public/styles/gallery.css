@@ -129,6 +129,19 @@ body {
   opacity: 1;
 }
 
+.card-grid.fallback-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card-grid.fallback-layout .grid-sizer {
+  display: none;
+}
+
+.card-grid.fallback-layout .grid-item {
+  width: auto;
+}
+
 /* Set width for 3 columns using Masonry's grid-sizer */
 .grid-sizer,
 .grid-item {
@@ -146,12 +159,20 @@ body {
   .grid-item {
     width: 50%; /* 2 columns */
   }
+
+  .card-grid.fallback-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 767px) {
   .grid-sizer,
   .grid-item {
     width: 100%;
+  }
+
+  .card-grid.fallback-layout {
+    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 767px) {

@@ -1,0 +1,204 @@
+---
+import { Image } from 'astro:assets';
+import type { ServicePageContent } from '../lib/servicePageContent';
+
+interface Props {
+  content: ServicePageContent;
+}
+
+const { content } = Astro.props;
+---
+
+<main class="service-page">
+  <section class="service-hero">
+    <div class="service-shell service-hero-grid">
+      <div class="service-hero-copy service-reveal is-visible">
+        <p class="service-eyebrow">{content.eyebrow}</p>
+        <h1>{content.title}</h1>
+        <span class="service-title-accent" aria-hidden="true"></span>
+        <p class="service-hero-description">{content.description}</p>
+
+        <div class="service-badge-row">
+          {content.heroBadges.map((badge) => (
+            <span class="service-badge">{badge}</span>
+          ))}
+        </div>
+
+        <p class="service-hero-summary">{content.heroSummary}</p>
+
+        <div class="service-cta-row">
+          <button type="button" class="service-button service-button-primary open-chat">Chat Now</button>
+          <button type="button" class="service-button service-button-secondary open-chat">Ask for a Quote</button>
+        </div>
+
+        <p class="service-hero-note">{content.heroNote}</p>
+      </div>
+
+      <div class="service-hero-visual service-reveal is-visible">
+        <div class="service-image-frame">
+          <Image
+            src={content.image}
+            alt={content.imageAlt}
+            widths={[520, 760, 960]}
+            sizes="(max-width: 960px) calc(100vw - 3rem), 520px"
+            loading="eager"
+            fetchpriority="high"
+            class="service-hero-image"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="service-section">
+    <div class="service-shell">
+      <div class="service-section-head service-section-head-centered service-reveal">
+        <p class="service-section-label">What this service is</p>
+        <h2>Built around the vehicle in front of us</h2>
+      </div>
+      <div class="service-overview-grid">
+        {content.overview.map((paragraph) => (
+          <article class="service-copy-card service-reveal">
+            <p>{paragraph}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="service-section service-section-muted">
+    <div class="service-shell">
+      <div class="service-section-head service-section-head-centered service-reveal">
+        <p class="service-section-label">Who it is for</p>
+        <h2>Who this service makes the most sense for</h2>
+      </div>
+
+      <div class="service-best-for-grid">
+        {content.bestFor.map((item) => (
+          <article class="service-best-for-card service-reveal">
+            <h3>{item}</h3>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="service-section">
+    <div class="service-shell">
+      <div class="service-section-head service-section-head-centered service-reveal">
+        <p class="service-section-label">What is included</p>
+        <h2>{content.includedHeading}</h2>
+        <p>{content.includedIntro}</p>
+      </div>
+
+      <div class="service-feature-grid">
+        {content.includedItems.map((item) => (
+          <article class="service-feature-card service-reveal">
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="service-section">
+    <div class="service-shell">
+      <div class="service-section-head service-section-head-centered service-reveal">
+        <p class="service-section-label">Pricing guide</p>
+        <h2>Starting pricing and quote guidance</h2>
+        <p>{content.pricingIntro}</p>
+      </div>
+
+      <div class="service-pricing-grid">
+        {content.pricingCards.map((card) => (
+          <article class="service-pricing-card service-reveal">
+            <p class="service-pricing-name">{card.name}</p>
+            <p class="service-pricing-value">{card.price}</p>
+            <p class="service-pricing-description">{card.description}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="service-adjustments-card service-reveal">
+        <h3>What can affect final pricing?</h3>
+        <p>
+          Starting prices are a guide. Final pricing can move depending on the vehicle, the cleanup
+          level, and any extras you want added.
+        </p>
+        <ul class="service-list">
+          {content.pricingAdjustments.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="service-section service-section-muted">
+    <div class="service-shell">
+      <div class="service-section-head service-section-head-centered service-reveal">
+        <p class="service-section-label">Why Nova Detailing</p>
+        <h2>Why people book this service with us</h2>
+      </div>
+
+      <div class="service-trust-grid">
+        {content.trustPoints.map((item) => (
+          <article class="service-trust-card service-reveal">
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="service-section">
+    <div class="service-shell">
+      <div class="service-section-head service-section-head-centered service-reveal">
+        <p class="service-section-label">Ready when you are</p>
+        <h2>{content.ctaHeading}</h2>
+        <p>{content.ctaText}</p>
+      </div>
+
+      <div class="service-cta-band service-reveal">
+        <div>
+          <h3>Fastest way to get started</h3>
+          <p>Open the chat widget and send us the vehicle, your location, and what kind of result you want.</p>
+        </div>
+
+        <div class="service-cta-row service-cta-row-end">
+          <button type="button" class="service-button service-button-primary open-chat">Chat Now</button>
+          <button type="button" class="service-button service-button-secondary open-chat">Request a Quote</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const revealItems = document.querySelectorAll('.service-reveal:not(.is-visible)');
+
+  if (revealItems.length && typeof window.IntersectionObserver === 'function') {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        });
+      },
+      {
+        threshold: 0.16,
+        rootMargin: '0px 0px -8% 0px',
+      }
+    );
+
+    revealItems.forEach((item) => revealObserver.observe(item));
+  } else {
+    revealItems.forEach((item) => item.classList.add('is-visible'));
+  }
+</script>

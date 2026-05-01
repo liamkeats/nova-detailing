@@ -1,5 +1,9 @@
 ---
---- 
+import { Image } from 'astro:assets';
+import logoImage from '../assets/icons/pfp.png';
+import instagramIcon from '../assets/icons/instagram.svg';
+import facebookIcon from '../assets/icons/facebook.svg';
+---
 
 <header>
   <nav class="custom-navbar" uk-navbar>
@@ -8,37 +12,57 @@
       <!-- Logo Left -->
       <div class="nav-logo-left">
         <a href="/" class="logo">
-          <img src="/assets/icons/pfp.png" alt="Logo" />
+          <Image
+            src={logoImage}
+            alt="Nova Detailing logo"
+            width={30}
+            loading="eager"
+            fetchpriority="high"
+          />
         </a>
       </div>
 
       <!-- Center Nav -->
       <ul class="nav-center">
         <li><a href="/">Home</a></li>
-        <li><a href="/about.html">About Us</a></li>
+        <li><a href="/about">About Us</a></li>
         <li class="dropdown">
           <a href="/services">Services</a>
           <ul class="dropdown-menu">
-            <li><a href="/services">All Services</a></li> <!-- 🔥 add this link -->
-            <li><a href="/services/detailing.html">Detailing</a></li>
-            <li><a href="/services/vehicle-protection.html">Vehicle Protection</a></li>
-            <li><a href="/services/paint-correction.html">Scratch Removal</a></li>
-            <li><a href="/services/new-vehicle-detailing.html">New Vehicle Detailing</a></li>
+            <li><a href="/services">All Services</a></li>
+            <li><a href="/services/detailing">Detailing</a></li>
+            <li><a href="/services/vehicle-protection">Vehicle Protection</a></li>
+            <li><a href="/services/paint-correction">Scratch Removal</a></li>
+            <li><a href="/services/new-vehicle-detailing">New Vehicle Detailing</a></li>
           </ul>
         </li>
-        <li><a href="/service-area.html">Service Area</a></li>
-        <li><a href="/reviews.html">Reviews</a></li>
+        <li><a href="/service-area">Service Area</a></li>
+        <li><a href="/reviews">Reviews</a></li>
         <li><a href="/gallery">Gallery</a></li>
-        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/contact">Contact</a></li>
       </ul>
 
       <!-- Right -->
       <div class="nav-right">
         <a href="https://www.instagram.com/thenovadetailing" target="_blank" rel="noopener noreferrer">
-          <img src="/assets/icons/instagram.svg" alt="Instagram" class="social-icon" />
+          <Image
+            src={instagramIcon}
+            alt="Instagram"
+            class="social-icon"
+            width={24}
+            height={24}
+            loading="eager"
+          />
         </a>
         <a href="https://www.facebook.com/thenovadetailing/" target="_blank" rel="noopener noreferrer">
-          <img src="/assets/icons/facebook.svg" alt="Facebook" class="social-icon" />
+          <Image
+            src={facebookIcon}
+            alt="Facebook"
+            class="social-icon"
+            width={24}
+            height={24}
+            loading="eager"
+          />
         </a>
       </div>
 
@@ -54,21 +78,21 @@
     <div class="uk-offcanvas-bar">
       <ul class="uk-nav uk-nav-default uk-nav-parent-icon" uk-nav>
         <li><a href="/">Home</a></li>
-        <li><a href="/about.html">About Us</a></li>
+        <li><a href="/about">About Us</a></li>
         <li class="uk-parent">
           <a href="#">Services</a>
           <ul class="uk-nav-sub">
-            <li><a href="/services">All Services</a></li> <!-- 🔥 add this link -->
-            <li><a href="/services/detailing.html">Detailing</a></li>
-            <li><a href="/services/vehicle-protection.html">Vehicle Protection</a></li>
-            <li><a href="/services/paint-correction.html">Scratch Removal</a></li>
-            <li><a href="/services/new-vehicle-detailing.html">New Vehicle Detailing</a></li>
+            <li><a href="/services">All Services</a></li>
+            <li><a href="/services/detailing">Detailing</a></li>
+            <li><a href="/services/vehicle-protection">Vehicle Protection</a></li>
+            <li><a href="/services/paint-correction">Scratch Removal</a></li>
+            <li><a href="/services/new-vehicle-detailing">New Vehicle Detailing</a></li>
           </ul>
         </li>
-        <li><a href="/service-area.html">Service Area</a></li>
-        <li><a href="/reviews.html">Reviews</a></li>
+        <li><a href="/service-area">Service Area</a></li>
+        <li><a href="/reviews">Reviews</a></li>
         <li><a href="/gallery">Gallery</a></li>
-        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/contact">Contact</a></li>
       </ul>
     </div>
   </div>

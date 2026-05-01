@@ -1,21 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Detailing | Nova Detailing</title>
-  <link rel="stylesheet" href="/styles/global.css" />
-</head>
-<body>
+---
+import ServiceDetailPage from '../../components/ServiceDetailPage.astro';
+import { detailingPageContent } from '../../lib/servicePageContent';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+---
 
-<div class="under-construction-overlay">
-  <div class="under-construction-content">
-    <h2>Under Development</h2>
-    <h3>We are fixing a few things<br>behind the scenes.</h3>
-    <h3>We'll be back soon...</h3>
-    <a href="/contact.html" class="contact-button">Contact Us</a>
-  </div>
-</div>
-
-</body>
-</html>
+<SiteLayout
+  title="Detailing | Nova Detailing"
+  description="Mobile interior and exterior detailing from Nova Detailing across Kentville and the Annapolis Valley, with Basic, Standard, and Premium package options."
+  canonicalPath="/services/detailing"
+  pageStyles={['/styles/service-detail.css']}
+>
+  <ServiceDetailPage content={detailingPageContent} />
+</SiteLayout>

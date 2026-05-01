@@ -1,6 +1,6 @@
-const twilio = require('twilio');
+import twilio from 'twilio';
 
-exports.handler = async (event) => {
+export async function handler(event) {
   try {
     const accountSid = process.env.TWILIO_SID;
     const authToken = process.env.TWILIO_AUTH;
@@ -40,4 +40,4 @@ exports.handler = async (event) => {
       body: JSON.stringify({ success: false, error: err.message }),
     };
   }
-};
+}

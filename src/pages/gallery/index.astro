@@ -1,155 +1,105 @@
 ---
+import GalleryCard from '../../components/GalleryCard.astro';
 import Hero from '../../components/Hero.astro';
-import Navbar from '../../components/Navbar.astro';
-import Footer from '../../components/Footer.astro';
-import ChatWidget from '../../components/ChatWidget.astro';
+import { client } from '../../lib/sanityClient';
+import { urlFor } from '../../lib/sanityImage';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+const query = `*[_type == "galleryPost"] | order(date desc){
+  _id,
+  title,
+  slug,
+  detailType,
+  date,
+  "afterPhoto": afterPhotos[0],
+  "afterPhotoDimensions": afterPhotos[0].asset->metadata.dimensions
+}`;
+
+const rawPosts = await client.fetch(query);
+const posts = rawPosts.map((post: any) => ({
+  ...post,
+  afterPhotoSrc: post.afterPhoto
+    ? urlFor(post.afterPhoto).width(1800).fit('max').quality(85).url()
+    : null,
+  afterPhotoWidth: post.afterPhotoDimensions?.width ?? null,
+  afterPhotoHeight: post.afterPhotoDimensions?.height ?? null,
+}));
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Gallery | Nova Detailing</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
-
-    <!-- UIkit first -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/css/uikit.min.css" />
-
-    <!-- Your styles after -->
-    <link rel="stylesheet" href="/styles/global.css" />
-    <link rel="stylesheet" href="/styles/gallery.css" />
-
-    <!-- Masonry library -->
+<SiteLayout
+  title="Gallery | Nova Detailing"
+  description="Browse Nova Detailing's latest detailing, protection, and paint correction transformations from around Kentville and the Annapolis Valley."
+  canonicalPath="/gallery"
+  pageStyles={['/styles/gallery.css']}
+>
+  <Fragment slot="head">
     <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js" defer></script>
-
-    <!--IMages loaded -->
     <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js" defer></script>
+  </Fragment>
 
-  </head>
+  <Hero slot="hero" />
 
-  <body>
-    <header>
-      <Navbar />
-      <Hero />
-    </header>
+  <main>
+    <section class="gallery-wrapper">
+      <h1>Our Work</h1>
+      <p class="gallery-subtitle">Browse our latest transformations & services.</p>
 
-    <main>
-      <section class="gallery-wrapper">
-        <h1>Our Work</h1>
-        <p class="gallery-subtitle">Browse our latest transformations & services.</p>
-  
-        <div class="card-grid" id="gallery-grid" data-masonry='{"itemSelector": ".grid-item", "columnWidth": ".grid-sizer", "percentPosition": true}'>
-          <div class="grid-sizer"></div>
-          <!-- Gallery cards inserted dynamically -->
-        </div>
-      </section>
-    </main>
+      <div class="card-grid fallback-layout visible" id="gallery-grid">
+        <div class="grid-sizer"></div>
+        {posts.map((post, index) => (
+          <div class="grid-item">
+            <GalleryCard post={post} priority={index < 3} />
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
 
-    <Footer />
-    <ChatWidget />
+  <script slot="scripts">
+    window.addEventListener('pageshow', () => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+      });
+    });
+  </script>
 
-    <!-- UIKit Scripts (from CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.4/dist/js/uikit-icons.min.js"></script>
-    
-    <!-- Chat widget -->
-    <script src="/js/chat-widget.js" defer></script>
-    
-    <!-- Forgetting scroll -->
-    <script>
-      window.addEventListener('pageshow', () => {
-        const imgs = document.querySelectorAll('img');
-        let loaded = 0;
+  <script slot="scripts" type="module">
+    const grid = document.getElementById('gallery-grid');
 
-        if (imgs.length === 0) {
-          window.scrollTo(0, 0);
+    if (grid) {
+      const initializeMasonry = () => {
+        if (typeof window.Masonry !== 'function') {
           return;
         }
 
-        imgs.forEach(img => {
-          if (img.complete) {
-            loaded++;
-          } else {
-            img.addEventListener('load', () => {
-              loaded++;
-              if (loaded === imgs.length) {
-                setTimeout(() => {
-                  window.scrollTo(0, 0);
-                }, 50);
-              }
-            });
-          }
+        grid.classList.remove('fallback-layout');
+
+        const masonry = new window.Masonry(grid, {
+          itemSelector: '.grid-item',
+          columnWidth: '.grid-sizer',
+          percentPosition: true,
         });
 
-        if (loaded === imgs.length) {
-          setTimeout(() => {
-            window.scrollTo(0, 0);
-          }, 50);
+        if (typeof window.imagesLoaded === 'function') {
+          window.imagesLoaded(grid)
+            .on('progress', () => {
+              masonry.layout();
+            })
+            .on('always', () => {
+              masonry.layout();
+            });
+        } else {
+          masonry.layout();
         }
-      });
-      
-    </script>
 
-    <script type="module">
-        async function fetchGalleryPosts() {
-        const url = "/.netlify/functions/getGalleryPosts";
-
-        try {
-            const res = await fetch(url);
-            const posts = await res.json();
-
-            const grid = document.getElementById('gallery-grid');
-
-            posts.forEach(post => {
-            const gridItem = document.createElement('div');
-            gridItem.className = 'grid-item';
-
-            gridItem.innerHTML = `
-                <a href="/gallery/${post.slug.current}" class="card">
-                    ${post.afterPhoto ? `<img src="${post.afterPhoto}" alt="${post.title}" loading="lazy" />` : ''}
-                    <div class="card-body">
-                    <h2>${post.title}</h2>
-                    <p>${post.date ? new Date(post.date).toLocaleDateString() : ''}</p>
-                    </div>
-                </a>
-                `;
-
-            grid.appendChild(gridItem);
-            });
-
-          // @ts-ignore
-          imagesLoaded(grid, () => {
-            // @ts-ignore
-            const msnry = new Masonry(grid, {
-              itemSelector: '.grid-item',
-              columnWidth: '.grid-sizer',
-              percentPosition: true,
-            });
-
-            msnry.layout();
-            grid.classList.add('visible'); // fade in after layout is ready
+        if (window.UIkit) {
+          requestAnimationFrame(() => {
+            window.UIkit.update(grid);
           });
-
-            if (window.UIkit) {
-            setTimeout(() => {
-                window.UIkit.update(document.querySelector('.card-grid'));
-            }, 100);
-            }
-
-        } catch (err) {
-            console.error('Failed to fetch gallery posts', err);
         }
-        }
-        // ✅ Only run AFTER everything is loaded (scripts + images)
-        window.addEventListener('load', () => {
-        fetchGalleryPosts();
-        });
-    </script>
+      };
 
-    
-  </body>
-</html>
+      window.addEventListener('load', initializeMasonry, { once: true });
+    }
+  </script>
+</SiteLayout>

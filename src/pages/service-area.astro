@@ -1,71 +1,297 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Service Area | Nova Detailing</title>
-  <link rel="stylesheet" href="/styles/global.css" />
-</head>
-<body>
+---
+import { Image } from 'astro:assets';
+import whyUsImage from '../assets/images/why-us-car.webp';
+import SiteLayout from '../layouts/SiteLayout.astro';
 
-  <div class="under-construction-overlay">
-    <div class="under-construction-content">
-      <h2>Under Development</h2>
-      <h3>We are fixing a few things<br>behind the scenes.</h3>
-      <h3>We'll be back soon...</h3>
-      <a href="/contact.html" class="contact-button">Contact Us</a>
-    </div>
-  </div>
+const nearbyTowns = [
+  'Kentville',
+  'New Minas',
+  'Wolfville',
+  'Port Williams',
+  'Coldbrook',
+  'Canning',
+];
 
+const extendedTowns = [
+  'Berwick',
+  'Aylesford',
+  'Greenwood',
+  'Middleton',
+  'Cambridge',
+  'Nearby rural communities throughout the Annapolis Valley',
+];
 
-  <header>
-    <nav class="navbar">
-      <div class="logo">Nova Detailing</div>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li><a href="service-area.html" class="active">Service Area</a></li>
-        <li><a href="reviews.html">Reviews</a></li>
-        <li><a href="gallery.html">Gallery</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
+const mapLocations = [
+  { name: 'Kentville', lat: 45.0786, lng: -64.496, center: true },
+  { name: 'New Minas', lat: 45.0692, lng: -64.453, center: false },
+  { name: 'Wolfville', lat: 45.0898, lng: -64.3672, center: false },
+  { name: 'Port Williams', lat: 45.0979, lng: -64.4491, center: false },
+  { name: 'Coldbrook', lat: 45.0665, lng: -64.5737, center: false },
+  { name: 'Canning', lat: 45.1598, lng: -64.4362, center: false },
+  { name: 'Berwick', lat: 45.0437, lng: -64.7386, center: false },
+  { name: 'Greenwood', lat: 44.9743, lng: -64.9162, center: false },
+  { name: 'Middleton', lat: 44.9426, lng: -65.0708, center: false },
+];
+---
 
-  <main class="service-area">
-    <section>
-      <h1>Where We Operate</h1>
-      <p>We proudly serve the Annapolis Valley and surrounding communities. This includes:</p>
-      <ul>
-        <li>New Minas</li>
-        <li>Kentville</li>
-        <li>Wolfville</li>
-        <li>Berwick</li>
-        <li>Greenwood</li>
-        <li>Middleton</li>
-        <li>Port Williams</li>
-        <li>And more — just ask!</li>
-      </ul>
+<SiteLayout
+  title="Service Area | Nova Detailing"
+  description="Nova Detailing serves Kentville, Nova Scotia and surrounding Annapolis Valley communities with a normal 40 km mobile service range."
+  canonicalPath="/service-area"
+  pageStyles={['/styles/service-area.css']}
+>
+  <Fragment slot="head">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+  </Fragment>
+
+  <main class="service-area-page">
+    <section class="service-area-hero">
+      <div class="service-area-shell service-area-grid">
+        <div class="service-area-copy">
+          <p class="service-area-eyebrow">Mobile Detailing Coverage</p>
+          <h1>Serving Kentville and the surrounding Annapolis Valley</h1>
+          <p class="service-area-hero-description">
+            Nova Detailing is based around Kentville, Nova Scotia, and our normal mobile detailing
+            service range is 40 km from Kentville. We come to homes, workplaces, and dealerships
+            across the Valley so you can get the service without rearranging your whole day.
+          </p>
+
+          <div class="service-area-badges">
+            <span class="service-area-badge">40 km normal service radius</span>
+            <span class="service-area-badge">Kentville-based mobile service</span>
+            <span class="service-area-badge">$2 per km beyond range</span>
+          </div>
+
+          <div class="service-area-cta-row">
+            <button type="button" class="service-area-button service-area-button-primary open-chat">Chat Now</button>
+            <a href="/contact" class="service-area-button service-area-button-secondary">Ask About Your Address</a>
+          </div>
+        </div>
+
+        <div class="service-area-hero-visual">
+          <div class="service-area-image-frame">
+            <Image
+              src={whyUsImage}
+              alt="Nova Detailing serving customers across the Annapolis Valley"
+              widths={[520, 760, 960]}
+              sizes="(max-width: 960px) calc(100vw - 3rem), 520px"
+              loading="eager"
+              fetchpriority="high"
+              class="service-area-image"
+            />
+            <div class="service-area-stat-card">
+              <strong>40 km from Kentville</strong>
+              <span>
+                Our normal mobile detailing zone covers Kentville and many of the surrounding
+                Valley communities.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section>
-        <h2>Service Area Map</h2>
-        <div style="width: 100%; height: 400px; margin-bottom: 1rem;">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d90164.98575065813!2d-64.60236026451187!3d45.07249287372595!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4b5850cce363daeb%3A0x502581ef8cf0440!2sKentville%2C%20NS!5e0!3m2!1sen!2sca!4v1744497249420!5m2!1sen!2sca" 
-            width="100%" 
-            height="100%" 
-            style="border:0;" 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
+    <section class="service-area-section">
+      <div class="service-area-shell service-area-summary-grid">
+        <div class="service-area-copy">
+          <p class="service-area-section-label">Coverage overview</p>
+          <h2>Where we normally travel for mobile detailing</h2>
+          <p>
+            Kentville is the center of our normal service zone, and from there we regularly serve
+            surrounding Annapolis Valley communities within roughly 40 km. That covers a large part
+            of the Valley and keeps most appointments simple to schedule.
+          </p>
+          <p>
+            If you are outside the standard radius, that does not automatically mean no. It just
+            means we may need to add a travel fee depending on how far beyond the included range
+            the address is.
+          </p>
         </div>
-        <p><strong>Note:</strong> We offer fully mobile service across the Annapolis Valley. For locations beyond a 30km radius from Kentville, a travel fee of <strong>$2.50/km</strong> will be applied.</p>
-      </section>      
-  <footer>
-    <p>&copy; 2025 Nova Detailing. All rights reserved.</p>
-  </footer>
-</body>
-</html>
+
+        <aside class="service-area-card">
+          <p class="service-area-section-label">Outside the standard zone</p>
+          <h3>Still possible in many cases</h3>
+          <p>
+            We can often still book addresses outside the 40 km range with an added travel fee of
+            about <strong>$2 per km beyond the included radius</strong>.
+          </p>
+          <ul class="service-area-list">
+            <li>Tell us the address or community when you reach out</li>
+            <li>We will confirm if you are inside the standard zone</li>
+            <li>If not, we can estimate the extra travel charge before booking</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="service-area-section">
+      <div class="service-area-shell">
+        <div class="service-area-section-head">
+          <p class="service-area-section-label">Service map</p>
+          <h2>Kentville-centered 40 km mobile service radius</h2>
+          <p>
+            The map below shows Kentville as the center point and the normal 40 km radius we use
+            for regular mobile detailing appointments.
+          </p>
+        </div>
+
+        <div class="service-area-map-card">
+          <div class="service-area-map-header">
+            <div>
+              <h3>Nova Detailing Service Radius</h3>
+              <p>Centered on Kentville, Nova Scotia</p>
+            </div>
+
+            <div class="map-legend" aria-hidden="true">
+              <span><i class="map-legend-dot"></i>Kentville / town markers</span>
+              <span><i class="map-legend-ring"></i>40 km normal radius</span>
+            </div>
+          </div>
+
+          <div id="service-area-map" aria-label="Map showing Kentville and Nova Detailing's 40 kilometre service radius"></div>
+          <p class="service-area-map-fallback">
+            If the map does not load on your device, message us with your location and we can still
+            confirm coverage manually.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section">
+      <div class="service-area-shell service-area-policy-grid">
+        <div>
+          <p class="service-area-section-label">Communities we commonly serve</p>
+          <h2>Nearby towns and areas we cover</h2>
+
+          <div class="service-area-town-columns">
+            <div class="service-area-card">
+              <h3>Core service communities</h3>
+              <ul class="service-area-town-list">
+                {nearbyTowns.map((town) => (
+                  <li>{town}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div class="service-area-card">
+              <h3>Extended Valley coverage</h3>
+              <ul class="service-area-town-list">
+                {extendedTowns.map((town) => (
+                  <li>{town}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <aside class="service-area-card">
+          <p class="service-area-section-label">Booking note</p>
+          <h3>Not sure if you are in range?</h3>
+          <p>
+            That is completely fine. Send us your town, road, or address and we can quickly tell
+            you whether you are inside the normal service area or if a small travel fee would apply.
+          </p>
+          <p>
+            Later on we can build an address checker into the page, but for now the easiest move is
+            just to ask and we will confirm it for you.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="service-area-section">
+      <div class="service-area-shell">
+        <div class="service-area-cta-band">
+          <div>
+            <p class="service-area-section-label">Ready to check your location?</p>
+            <h2>Tell us where the vehicle is parked and we will take it from there.</h2>
+            <p>
+              Whether you are in Kentville, around the Valley, or a little outside the normal
+              radius, we can let you know what is possible and what the travel cost would look like.
+            </p>
+          </div>
+
+          <div class="service-area-cta-row">
+            <button type="button" class="service-area-button service-area-button-primary open-chat">Chat Now</button>
+            <a href="/contact" class="service-area-button service-area-button-secondary">Request a Quote</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script slot="scripts" define:vars={{ mapLocations }}>
+    const loadLeaflet = () => {
+      if (window.L) {
+        return Promise.resolve(window.L);
+      }
+
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.async = true;
+        script.onload = () => resolve(window.L);
+        script.onerror = reject;
+        document.head.append(script);
+      });
+    };
+
+    const initializeServiceAreaMap = () => {
+      const mapElement = document.getElementById('service-area-map');
+      if (!mapElement || !window.L) {
+        return;
+      }
+
+      const kentville = mapLocations.find((location) => location.center) || mapLocations[0];
+      const map = window.L.map(mapElement, {
+        scrollWheelZoom: false,
+        zoomControl: true,
+      }).setView([kentville.lat, kentville.lng], 10);
+
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(map);
+
+      const radiusCircle = window.L.circle([kentville.lat, kentville.lng], {
+        radius: 40000,
+        color: '#ff5c5c',
+        weight: 2,
+        fillColor: '#d62828',
+        fillOpacity: 0.14,
+      }).addTo(map);
+
+      mapLocations.forEach((location) => {
+        const marker = window.L.circleMarker([location.lat, location.lng], {
+          radius: location.center ? 7 : 5,
+          color: '#ffffff',
+          weight: 1.5,
+          fillColor: location.center ? '#d62828' : '#ff7a7a',
+          fillOpacity: 1,
+        }).addTo(map);
+
+        marker.bindPopup(
+          location.center
+            ? `<strong>${location.name}, NS</strong><br />Center of the normal 40 km service radius`
+            : `<strong>${location.name}, NS</strong>`
+        );
+      });
+
+      map.fitBounds(radiusCircle.getBounds(), {
+        padding: [24, 24],
+      });
+    };
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+        loadLeaflet().then(initializeServiceAreaMap).catch(() => {
+          // Leave the fallback note in place if the map library fails to load.
+        });
+      },
+      { once: true }
+    );
+  </script>
+</SiteLayout>

@@ -1,10 +1,22 @@
 ---
-const { post } = Astro.props;
+import { Image } from 'astro:assets';
+
+const { post, priority = false } = Astro.props;
 ---
 
 <a href={`/gallery/${post.slug.current}`} class="card">
-  {post.afterPhoto && (
-    <img src={post.afterPhoto} alt={post.title} loading="lazy" />
+  {post.afterPhotoSrc && post.afterPhotoWidth && post.afterPhotoHeight && (
+    <Image
+      src={post.afterPhotoSrc}
+      alt={post.title}
+      width={post.afterPhotoWidth}
+      height={post.afterPhotoHeight}
+      widths={[420, 720, 960]}
+      sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1024px) calc(50vw - 2rem), calc(33vw - 2.5rem)"
+      loading={priority ? 'eager' : 'lazy'}
+      fetchpriority={priority ? 'high' : 'auto'}
+      decoding="async"
+    />
   )}
 
   <div class="card-body">

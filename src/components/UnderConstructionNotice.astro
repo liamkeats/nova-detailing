@@ -1,0 +1,23 @@
+---
+interface Props {
+  heading?: string;
+  lines?: string[];
+  ctaHref?: string;
+  ctaLabel?: string;
+}
+
+const {
+  heading = 'Under Development',
+  lines = ['We are fixing a few things', 'behind the scenes.', "We'll be back soon..."],
+  ctaHref = '/contact',
+  ctaLabel = 'Contact Us',
+} = Astro.props;
+---
+
+<div class="under-construction-overlay">
+  <div class="under-construction-content">
+    <h2>{heading}</h2>
+    {lines.map((line) => <h3>{line}</h3>)}
+    <a href={ctaHref} class="contact-button">{ctaLabel}</a>
+  </div>
+</div>
