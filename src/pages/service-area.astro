@@ -3,40 +3,271 @@ import { Image } from 'astro:assets';
 import whyUsImage from '../assets/images/why-us-car.webp';
 import SiteLayout from '../layouts/SiteLayout.astro';
 
-const nearbyTowns = [
-  'Kentville',
-  'New Minas',
-  'Wolfville',
-  'Port Williams',
-  'Coldbrook',
-  'Canning',
+const popularAreas = [
+  {
+    name: 'Kentville',
+    description:
+      'Our home base and the easiest area for regular mobile detailing appointments.',
+    tone: 'core',
+  },
+  {
+    name: 'New Minas',
+    description:
+      'A regular service area for daily drivers, family vehicles, and workplace appointments.',
+    tone: 'regular',
+  },
+  {
+    name: 'Coldbrook / Centreville',
+    description:
+      'Nearby areas that are usually simple to schedule for most detailing packages.',
+    tone: 'regular',
+  },
+  {
+    name: 'Wolfville',
+    description:
+      'A regular service area for homes, apartments, student vehicles, and workplaces.',
+    tone: 'regular',
+  },
+  {
+    name: 'Port Williams / Canning',
+    description:
+      'Usually serviceable depending on timing, route, and the package being booked.',
+    tone: 'regular',
+  },
+  {
+    name: 'Berwick / Waterville',
+    description:
+      'Often possible for full details, multiple vehicles, or days when the route lines up well.',
+    tone: 'extended',
+  },
+  {
+    name: 'Cambridge / Aylesford',
+    description:
+      'Extended-area appointments that work best for larger details or grouped bookings.',
+    tone: 'extended',
+  },
+  {
+    name: 'Kingston / Greenwood',
+    description:
+      'Quote-based mobile service area, especially for larger jobs, fleets, or multiple vehicles.',
+    tone: 'extended',
+  },
+  {
+    name: 'Middleton',
+    description:
+      'Farther out, but still worth checking for premium details, grouped appointments, or higher-value services.',
+    tone: 'extended',
+  },
+  {
+    name: 'Windsor / Falmouth',
+    description:
+      'Extended-area quote. Best suited for larger jobs, multiple vehicles, or services that justify the travel.',
+    tone: 'extended',
+  },
+  {
+    name: 'Farther Valley / South Mountain areas',
+    description:
+      'Quote-only. Best for grouped appointments, fleet work, ceramic coatings, paint correction, or larger details.',
+    tone: 'extended',
+  },
 ];
 
-const extendedTowns = [
-  'Berwick',
-  'Aylesford',
-  'Greenwood',
-  'Middleton',
-  'Cambridge',
-  'Nearby rural communities throughout the Annapolis Valley',
+const locationTypes = [
+  {
+    title: 'Driveways',
+    description: 'The best setup for most mobile detailing appointments. Usually the easiest for water, power, and space around the vehicle.',
+  },
+  {
+    title: 'Workplaces',
+    description: 'A good option if the parking area allows it and we have permission to work there. Access to water and power may still be needed depending on the service.',
+  },
+  {
+    title: 'Apartment Lots',
+    description: 'Possible when there is enough space, permission from the property, and access to what the service requires.',
+  },
+  {
+    title: 'Garages / Shop Bays',
+    description: 'Great for longer jobs, bad weather, ceramic coating prep, paint correction, or appointments that need more control.',
+  },
+  {
+    title: 'Fleet Yards',
+    description: 'A strong fit for work trucks, company vehicles, and repeat service, especially when multiple vehicles are at one location.',
+  },
+  {
+    title: 'Dealership Lots',
+    description: 'Useful for used vehicle cleanup, reconditioning support, sale prep, and multiple-vehicle bookings.',
+  },
 ];
 
-const mapLocations = [
-  { name: 'Kentville', lat: 45.0786, lng: -64.496, center: true },
-  { name: 'New Minas', lat: 45.0692, lng: -64.453, center: false },
-  { name: 'Wolfville', lat: 45.0898, lng: -64.3672, center: false },
-  { name: 'Port Williams', lat: 45.0979, lng: -64.4491, center: false },
-  { name: 'Coldbrook', lat: 45.0665, lng: -64.5737, center: false },
-  { name: 'Canning', lat: 45.1598, lng: -64.4362, center: false },
-  { name: 'Berwick', lat: 45.0437, lng: -64.7386, center: false },
-  { name: 'Greenwood', lat: 44.9743, lng: -64.9162, center: false },
-  { name: 'Middleton', lat: 44.9426, lng: -65.0708, center: false },
+const faqItems = [
+  {
+    question: 'Do you come to my house?',
+    answer:
+      'Yes. Most of our mobile detailing appointments are done at homes, as long as there is enough space to work safely around the vehicle.',
+  },
+  {
+    question: 'Can you detail at my workplace?',
+    answer:
+      'Usually, yes. Workplace appointments work well when the parking area has enough room and we have permission to work there.',
+  },
+  {
+    question: 'Can you detail in an apartment parking lot?',
+    answer:
+      'Sometimes. Apartment lots can work if there is enough space, property permission, and access to water or power if the service requires it.',
+  },
+  {
+    question: 'Do you need water or power?',
+    answer:
+      'Access to water and power is preferred for most appointments and required for some services. We confirm this before booking.',
+  },
+  {
+    question: 'Do you charge travel fees?',
+    answer:
+      'Nearby appointments are usually included. Farther appointments may have a small travel fee depending on distance, schedule, package, and number of vehicles.',
+  },
+  {
+    question: 'What if I am outside your normal area?',
+    answer:
+      'You should still ask. We do not automatically reject farther addresses if the job size, schedule, service type, or number of vehicles makes the trip worthwhile.',
+  },
+  {
+    question: 'Do you travel farther for ceramic coating or paint correction?',
+    answer:
+      'Yes. Bigger services like ceramic coating and paint correction are more likely to make extended travel worthwhile.',
+  },
+  {
+    question: 'Do you offer fleet detailing?',
+    answer:
+      'Yes. We may be able to help with company vehicles, work trucks, dealership vehicles, and multiple vehicles at the same location.',
+  },
 ];
+
+const checkerCopy = {
+  idle: {
+    title: 'Start with your address',
+    message:
+      'We will show whether the address looks like part of our regular service area, an extended area, or a location that needs a custom quote.',
+    tags: [
+      'Regular service area',
+      'Extended area beyond that',
+      'Bigger jobs can still travel farther',
+    ],
+    ctas: [
+      {
+        label: 'Chat Now',
+        variant: 'secondary',
+        messageTemplate:
+          'Hi Nova Detailing, I want to check if you can come to my address for mobile detailing.',
+      },
+      {
+        label: 'Get My Quote',
+        variant: 'primary',
+        messageTemplate:
+          'Hi Nova Detailing, I want a quote and I also want to confirm whether my address is inside your normal service area.',
+      },
+    ],
+  },
+  regular: {
+    title: 'Regular Area',
+    message:
+      'Good news, this address is in our regular mobile service area. No extra travel fee is usually expected for this location.',
+    tags: [
+      'Regular service area',
+      'No expected travel fee',
+      'Mobile detailing available',
+      'Best for Basic, Standard, or Premium',
+    ],
+    ctas: [
+      {
+        label: 'Get My Quote',
+        variant: 'primary',
+        messageTemplate:
+          'Hi Nova Detailing, I checked my address and it looks like I am in your regular service area. I would like a quote for my vehicle at [address].',
+      },
+      {
+        label: 'Chat Now',
+        variant: 'secondary',
+        messageTemplate:
+          'Hi Nova Detailing, I checked my address and I would like to chat about booking mobile detailing at [address].',
+      },
+    ],
+  },
+  extended: {
+    title: 'Extended Area',
+    message:
+      'This address is outside our regular area, but we may still be able to come to you. A small travel fee may apply depending on distance, schedule, service type, and number of vehicles.',
+    tags: [
+      'Extended area',
+      'Travel fee may apply',
+      'Larger jobs are easier to schedule',
+      'Multi-vehicle bookings help',
+    ],
+    ctas: [
+      {
+        label: 'Request Extended-Area Quote',
+        variant: 'primary',
+        messageTemplate:
+          'Hi Nova Detailing, I checked my address and it looks like I am in your extended area. Can you quote a mobile appointment at [address]?',
+      },
+      {
+        label: 'Chat Now',
+        variant: 'secondary',
+        messageTemplate:
+          'Hi Nova Detailing, I checked my address and I want to ask about booking mobile detailing at [address].',
+      },
+    ],
+  },
+  outside: {
+    title: 'Outside Normal Range',
+    message:
+      'This address is outside our normal mobile range, but bigger jobs may still make sense. We may travel farther for ceramic coatings, paint correction, fleet work, dealership work, or multiple vehicles at the same address.',
+    tags: [
+      'Quote required',
+      'Larger jobs considered',
+      'Fleet work considered',
+      'Multi-vehicle bookings considered',
+    ],
+    ctas: [
+      {
+        label: 'Ask Anyway',
+        variant: 'primary',
+        messageTemplate:
+          'Hi Nova Detailing, I checked my address and it looks like I am outside the normal range. I still want to ask about a job at [address].',
+      },
+      {
+        label: 'Send Photos For Quote',
+        variant: 'secondary',
+        messageTemplate:
+          'Hi Nova Detailing, I checked my address and I want to send photos and get a quote for a bigger job at [address].',
+      },
+    ],
+  },
+  error: {
+    title: 'We could not place that address yet',
+    message:
+      'Try a fuller street address or pick the closest match from the list. If it still does not match, open chat and send us the address directly.',
+    tags: ['Pick the closest match', 'Try a fuller address', 'Chat works as a fallback'],
+    ctas: [
+      {
+        label: 'Chat Now',
+        variant: 'primary',
+        messageTemplate:
+          'Hi Nova Detailing, the service-area checker could not place my address. Can I send it to you directly?',
+      },
+      {
+        label: 'Request a Quote',
+        variant: 'secondary',
+        messageTemplate:
+          'Hi Nova Detailing, I want a quote and I need help confirming whether you can come to my address.',
+      },
+    ],
+  },
+};
 ---
 
 <SiteLayout
   title="Service Area | Nova Detailing"
-  description="Nova Detailing serves Kentville, Nova Scotia and surrounding Annapolis Valley communities with a normal 40 km mobile service range."
+  description="Check whether Nova Detailing can come to your address for mobile detailing across Kentville and the Annapolis Valley, with regular, extended, and quote-only guidance."
   canonicalPath="/service-area"
   pageStyles={['/styles/service-area.css']}
 >
@@ -44,178 +275,451 @@ const mapLocations = [
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
     />
   </Fragment>
 
   <main class="service-area-page">
     <section class="service-area-hero">
-      <div class="service-area-shell service-area-grid">
-        <div class="service-area-copy">
-          <p class="service-area-eyebrow">Mobile Detailing Coverage</p>
-          <h1>Serving Kentville and the surrounding Annapolis Valley</h1>
+      <div class="service-area-shell service-area-hero-grid">
+        <div class="service-area-hero-copy service-area-reveal is-visible">
+          <p class="service-area-eyebrow">Service Area</p>
+          <h1>Mobile Detailing Across Kentville &amp; The Annapolis Valley</h1>
+          <span class="service-area-title-accent" aria-hidden="true"></span>
           <p class="service-area-hero-description">
-            Nova Detailing is based around Kentville, Nova Scotia, and our normal mobile detailing
-            service range is 40 km from Kentville. We come to homes, workplaces, and dealerships
-            across the Valley so you can get the service without rearranging your whole day.
+            Nova Detailing is based in Kentville and provides mobile detailing across the
+            Annapolis Valley. Use the address checker below to see if your location is in
+            our regular service area, extended travel area, or needs a custom quote.
           </p>
-
           <div class="service-area-badges">
-            <span class="service-area-badge">40 km normal service radius</span>
-            <span class="service-area-badge">Kentville-based mobile service</span>
-            <span class="service-area-badge">$2 per km beyond range</span>
+            <span class="service-area-badge">Based in Kentville</span>
+            <span class="service-area-badge">Serving the Annapolis Valley</span>
+            <span class="service-area-badge">Extended travel available for larger jobs</span>
           </div>
-
           <div class="service-area-cta-row">
-            <button type="button" class="service-area-button service-area-button-primary open-chat">Chat Now</button>
-            <a href="/contact" class="service-area-button service-area-button-secondary">Ask About Your Address</a>
+            <button
+              type="button"
+              id="jump-to-checker"
+              class="service-area-button service-area-button-primary"
+            >
+              Check My Address
+            </button>
+            <button
+              type="button"
+              class="service-area-button service-area-button-secondary open-chat"
+              data-chat-message="Hi Nova Detailing, I want to check whether you can come to my address for mobile detailing."
+            >
+              Chat Now
+            </button>
           </div>
         </div>
-
-        <div class="service-area-hero-visual">
+        <div class="service-area-hero-visual service-area-reveal is-visible">
           <div class="service-area-image-frame">
             <Image
               src={whyUsImage}
-              alt="Nova Detailing serving customers across the Annapolis Valley"
+              alt="A Nova Detailing vehicle ready for mobile service across the Annapolis Valley"
               widths={[520, 760, 960]}
               sizes="(max-width: 960px) calc(100vw - 3rem), 520px"
               loading="eager"
               fetchpriority="high"
               class="service-area-image"
             />
-            <div class="service-area-stat-card">
-              <strong>40 km from Kentville</strong>
-              <span>
-                Our normal mobile detailing zone covers Kentville and many of the surrounding
-                Valley communities.
-              </span>
+            <div class="service-area-stat-stack">
+              <div class="service-area-stat-card">
+                <strong>Regular service area</strong>
+                <ul class="service-area-stat-list">
+                  <li>Kentville</li>
+                  <li>New Minas</li>
+                  <li>Wolfville</li>
+                  <li>Coldbrook / Centreville</li>
+                  <li>Nearby Valley stops</li>
+                </ul>
+              </div>
+              <div class="service-area-stat-card">
+                <strong>Farther travel possible</strong>
+                <span>Larger jobs, multiple vehicles, coatings, and fleet work can make extended travel worthwhile.</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="service-area-section">
-      <div class="service-area-shell service-area-summary-grid">
-        <div class="service-area-copy">
-          <p class="service-area-section-label">Coverage overview</p>
-          <h2>Where we normally travel for mobile detailing</h2>
+    <section id="service-area-checker" class="service-area-section service-area-section-tight">
+      <div class="service-area-shell">
+        <div class="service-area-section-head service-area-section-head-centered service-area-reveal">
+          <p class="service-area-section-label">Check If We Come To You</p>
+          <h2>See where your appointment fits</h2>
           <p>
-            Kentville is the center of our normal service zone, and from there we regularly serve
-            surrounding Annapolis Valley communities within roughly 40 km. That covers a large part
-            of the Valley and keeps most appointments simple to schedule.
-          </p>
-          <p>
-            If you are outside the standard radius, that does not automatically mean no. It just
-            means we may need to add a travel fee depending on how far beyond the included range
-            the address is.
+            Start typing your address and pick the closest match. We will show whether the location
+            looks like part of our regular service area, an extended area, or a location that needs
+            a custom quote.
           </p>
         </div>
 
-        <aside class="service-area-card">
-          <p class="service-area-section-label">Outside the standard zone</p>
-          <h3>Still possible in many cases</h3>
+        <div class="service-area-checker-grid">
+          <div class="service-area-checker-card service-area-reveal">
+            <form id="service-area-form" class="service-area-form">
+              <label for="service-area-address">Vehicle address or appointment location</label>
+              <div class="service-area-input-row">
+                <div class="service-area-search-shell">
+                  <input
+                    id="service-area-address"
+                    name="address"
+                    type="text"
+                    placeholder="Start typing your address"
+                    autocomplete="street-address"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-controls="service-area-suggestions"
+                    aria-expanded="false"
+                    required
+                  />
+                  <div
+                    id="service-area-suggestions"
+                    class="service-area-suggestions"
+                    role="listbox"
+                    hidden
+                  ></div>
+                  <p
+                    id="service-area-suggestion-source"
+                    class="service-area-suggestion-source"
+                    hidden
+                  >
+                    Address suggestions powered by Google
+                  </p>
+                </div>
+                <button
+                  type="submit"
+                  id="service-area-submit"
+                  class="service-area-button service-area-button-primary"
+                >
+                  Check Address
+                </button>
+              </div>
+              <p class="service-area-helper">
+                Use a street address, workplace, apartment building, or dealership lot in Nova
+                Scotia. If the street name is common, pick the closest match from the list for the
+                best result.
+              </p>
+            </form>
+            <p id="service-area-feedback" class="service-area-feedback" hidden></p>
+          </div>
+
+          <aside
+            id="service-area-result"
+            class="service-area-result-card service-area-reveal"
+            data-zone="idle"
+            aria-live="polite"
+          >
+            <p class="service-area-card-label">Address result</p>
+            <div id="service-area-result-body" class="service-area-result-body">
+              <h3>Start with your address</h3>
+              <p>
+                We will show whether the location looks like part of our regular service area, an
+                extended area, or a location that needs a custom quote.
+              </p>
+              <div class="service-area-result-tags">
+                <span>Regular service area</span>
+                <span>Extended area beyond that</span>
+                <span>Bigger jobs can still travel farther</span>
+              </div>
+              <div class="service-area-cta-row service-area-cta-row-compact">
+                <button
+                  type="button"
+                  class="service-area-button service-area-button-secondary open-chat"
+                  data-chat-message="Hi Nova Detailing, I want to check whether you can come to my address for mobile detailing."
+                >
+                  Chat Now
+                </button>
+                <button
+                  type="button"
+                  class="service-area-button service-area-button-primary open-chat"
+                  data-chat-message="Hi Nova Detailing, I want a quote and I also want to confirm whether my address is inside your normal service area."
+                >
+                  Get My Quote
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section service-area-section-muted">
+      <div class="service-area-shell">
+        <div class="service-area-section-head service-area-section-head-centered service-area-reveal">
+          <p class="service-area-section-label">Service Area Map</p>
+          <h2>See our regular area and farther travel zones</h2>
           <p>
-            We can often still book addresses outside the 40 km range with an added travel fee of
-            about <strong>$2 per km beyond the included radius</strong>.
+            The map shows our Kentville base, regular service area, and extended travel
+            area. It is meant as a guide, not a final quote.
           </p>
+        </div>
+
+        <div class="service-area-zone-grid">
+          <div class="service-area-zone-card service-area-reveal">
+            <div
+              id="service-area-map"
+              class="service-area-map"
+              role="img"
+              aria-label="Map showing the Kentville base, the core area, the regular service range, and the extended area."
+            ></div>
+            <div class="service-area-map-legend">
+              <span><i class="service-area-map-key service-area-map-key-home"></i>Kentville base</span>
+              <span><i class="service-area-map-key service-area-map-key-core"></i>Core area</span>
+              <span><i class="service-area-map-key service-area-map-key-regular"></i>Regular 40 km area</span>
+              <span><i class="service-area-map-key service-area-map-key-extended"></i>Extended area</span>
+              <span><i class="service-area-map-key service-area-map-key-checked"></i>Checked address</span>
+            </div>
+            <p class="service-area-map-note">
+              Larger packages, multiple vehicles, fleet work, ceramic coatings, and paint
+              correction can make extended travel easier to schedule.
+            </p>
+          </div>
+
+          <div class="service-area-zone-copy-grid">
+            <article class="service-area-info-card service-area-reveal">
+              <p class="service-area-section-label">Core area</p>
+              <h3>Core Area</h3>
+              <p>
+                Kentville, New Minas, Coldbrook, Centreville, and nearby stops. These are usually
+                the easiest areas to schedule for mobile detailing.
+              </p>
+            </article>
+            <article class="service-area-info-card service-area-reveal">
+              <p class="service-area-section-label">Regular mobile area</p>
+              <h3>Regular Mobile Area</h3>
+              <p>
+                Most nearby Annapolis Valley appointments fit here. This is usually best for Basic,
+                Standard, and Premium details at homes, workplaces, and driveways.
+              </p>
+            </article>
+            <article class="service-area-info-card service-area-reveal">
+              <p class="service-area-section-label">Extended quote area</p>
+              <h3>Extended Area</h3>
+              <p>
+                Farther appointments may still be possible depending on distance, schedule,
+                package, and number of vehicles. Bigger jobs, multiple vehicles, ceramic coatings,
+                paint correction, and fleet work are more likely to make extended travel worthwhile.
+              </p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section">
+      <div class="service-area-shell">
+        <div class="service-area-section-head service-area-section-head-centered service-area-reveal">
+          <p class="service-area-section-label">Popular Areas We Serve</p>
+          <h2>Places we are asked about most often</h2>
+          <p>
+            These are some of the most common appointment areas around Kentville and the Annapolis
+            Valley, along with how they usually fit into scheduling.
+          </p>
+        </div>
+        <div class="service-area-town-grid">
+          {popularAreas.map((area) => (
+            <article class={`service-area-town-card service-area-town-card-${area.tone} service-area-reveal`}>
+              <p class="service-area-card-label">
+                {area.tone === 'extended' ? 'Extended area' : area.tone === 'core' ? 'Kentville base' : 'Regular mobile area'}
+              </p>
+              <h3>{area.name}</h3>
+              <p>{area.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section service-area-section-muted">
+      <div class="service-area-shell">
+        <div class="service-area-section-head service-area-section-head-centered service-area-reveal">
+          <p class="service-area-section-label">Where We Can Work</p>
+          <h2>The town matters, but the setup matters too</h2>
+          <p>
+            For mobile detailing, the location needs enough space to work safely around
+            the vehicle. Some services may also require access to water, power, or a
+            sheltered area.
+          </p>
+        </div>
+        <div class="service-area-location-grid">
+          {locationTypes.map((location) => (
+            <article class="service-area-location-card service-area-reveal">
+              <h3>{location.title}</h3>
+              <p>{location.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section">
+      <div class="service-area-shell service-area-travel-grid">
+        <div class="service-area-copy-block service-area-reveal">
+          <p class="service-area-section-label">Simple, Fair Travel Expectations</p>
+          <h2>Clear expectations without overcomplicating it</h2>
+          <p>
+            Nearby appointments are usually included. If the job is farther out, we will
+            confirm any travel fee before booking so there are no surprises.
+          </p>
+          <p>
+            Larger details, multiple vehicles, ceramic coatings, paint correction, and
+            fleet work can make longer travel easier to fit into the schedule.
+          </p>
+        </div>
+
+        <aside class="service-area-info-card service-area-reveal">
+          <p class="service-area-section-label">How We Usually Look At It</p>
+          <h3>What affects travel the most</h3>
           <ul class="service-area-list">
-            <li>Tell us the address or community when you reach out</li>
-            <li>We will confirm if you are inside the standard zone</li>
-            <li>If not, we can estimate the extra travel charge before booking</li>
+            <li>Nearby appointments are usually the easiest to schedule.</li>
+            <li>Farther appointments are quoted case by case.</li>
+            <li>Travel depends on distance, route, timing, package, and vehicle count.</li>
+            <li>Multiple vehicles at the same address can make farther travel more realistic.</li>
+            <li>Final travel cost is confirmed before the appointment.</li>
           </ul>
         </aside>
       </div>
     </section>
 
-    <section class="service-area-section">
+    <section class="service-area-section service-area-section-muted">
       <div class="service-area-shell">
-        <div class="service-area-section-head">
-          <p class="service-area-section-label">Service map</p>
-          <h2>Kentville-centered 40 km mobile service radius</h2>
+        <div class="service-area-section-head service-area-section-head-centered service-area-reveal">
+          <p class="service-area-section-label">Bigger Jobs</p>
+          <h2>Multiple vehicles can make farther travel worthwhile</h2>
           <p>
-            The map below shows Kentville as the center point and the normal 40 km radius we use
-            for regular mobile detailing appointments.
+            If there are multiple vehicles at one address, or the job is a larger service,
+            we may be able to travel farther than usual.
           </p>
         </div>
 
-        <div class="service-area-map-card">
-          <div class="service-area-map-header">
-            <div>
-              <h3>Nova Detailing Service Radius</h3>
-              <p>Centered on Kentville, Nova Scotia</p>
-            </div>
-
-            <div class="map-legend" aria-hidden="true">
-              <span><i class="map-legend-dot"></i>Kentville / town markers</span>
-              <span><i class="map-legend-ring"></i>40 km normal radius</span>
-            </div>
-          </div>
-
-          <div id="service-area-map" aria-label="Map showing Kentville and Nova Detailing's 40 kilometre service radius"></div>
-          <p class="service-area-map-fallback">
-            If the map does not load on your device, message us with your location and we can still
-            confirm coverage manually.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="service-area-section">
-      <div class="service-area-shell service-area-policy-grid">
-        <div>
-          <p class="service-area-section-label">Communities we commonly serve</p>
-          <h2>Nearby towns and areas we cover</h2>
-
-          <div class="service-area-town-columns">
-            <div class="service-area-card">
-              <h3>Core service communities</h3>
-              <ul class="service-area-town-list">
-                {nearbyTowns.map((town) => (
-                  <li>{town}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div class="service-area-card">
-              <h3>Extended Valley coverage</h3>
-              <ul class="service-area-town-list">
-                {extendedTowns.map((town) => (
-                  <li>{town}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <aside class="service-area-card">
-          <p class="service-area-section-label">Booking note</p>
-          <h3>Not sure if you are in range?</h3>
-          <p>
-            That is completely fine. Send us your town, road, or address and we can quickly tell
-            you whether you are inside the normal service area or if a small travel fee would apply.
-          </p>
-          <p>
-            Later on we can build an address checker into the page, but for now the easiest move is
-            just to ask and we will confirm it for you.
-          </p>
-        </aside>
-      </div>
-    </section>
-
-    <section class="service-area-section">
-      <div class="service-area-shell">
-        <div class="service-area-cta-band">
-          <div>
-            <p class="service-area-section-label">Ready to check your location?</p>
-            <h2>Tell us where the vehicle is parked and we will take it from there.</h2>
+        <div class="service-area-job-grid">
+          <article class="service-area-job-card service-area-reveal">
+            <p class="service-area-card-label">Booking More Than One Vehicle?</p>
+            <h3>Multi-vehicle appointments are easier to schedule</h3>
             <p>
-              Whether you are in Kentville, around the Valley, or a little outside the normal
-              radius, we can let you know what is possible and what the travel cost would look like.
+              If you have more than one vehicle at the same address, let us know. Grouped
+              appointments can be easier to route and may be priced differently than a
+              one-off job.
+            </p>
+            <button
+              type="button"
+              class="service-area-button service-area-button-primary open-chat"
+              data-chat-message="Hi Nova Detailing, I want to ask about multi-vehicle pricing for more than one vehicle at the same address."
+            >
+              Ask About Multi-Vehicle Pricing
+            </button>
+          </article>
+
+          <article class="service-area-job-card service-area-reveal">
+            <p class="service-area-card-label">Outside Our Usual Range?</p>
+            <h3>Bigger jobs may still work</h3>
+            <p>
+              For dealerships, construction companies, company trucks, real estate teams, fleet
+              vehicles, ceramic coatings, paint correction, or grouped appointments, we may be able
+              to travel farther.
+            </p>
+            <div class="service-area-cta-row service-area-cta-row-compact">
+              <button
+                type="button"
+                class="service-area-button service-area-button-primary open-chat"
+                data-chat-message="Hi Nova Detailing, I want to request a fleet or dealership quote outside your usual mobile range."
+              >
+                Request Fleet Quote
+              </button>
+              <button
+                type="button"
+                class="service-area-button service-area-button-secondary open-chat"
+                data-chat-message="Hi Nova Detailing, I want to ask about a bigger job outside your normal range."
+              >
+                Chat Now
+              </button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section">
+      <div class="service-area-shell">
+        <div class="service-area-section-head service-area-section-head-centered service-area-reveal">
+          <p class="service-area-section-label">Why Mobile Detailing</p>
+          <h2>Skip the drop-off routine</h2>
+          <p>
+            If your schedule is busy, the biggest advantage is not just the clean vehicle. It is
+            not having to build your day around a shop appointment.
+          </p>
+        </div>
+
+        <div class="service-area-comparison-grid">
+          <article class="service-area-comparison-card service-area-reveal">
+            <p class="service-area-card-label">Traditional Detail Shop</p>
+            <h3>More driving, more waiting, more arranging</h3>
+            <ul class="service-area-list">
+              <li>Drive there and drop the vehicle off</li>
+              <li>Arrange a ride or wait around</li>
+              <li>Pick it up later</li>
+              <li>Less convenient for busy schedules</li>
+            </ul>
+          </article>
+
+          <article class="service-area-comparison-card service-area-comparison-card-highlight service-area-reveal">
+            <p class="service-area-card-label">Nova Mobile Detailing</p>
+            <h3>We come to your location instead</h3>
+            <ul class="service-area-list">
+              <li>We come to your address</li>
+              <li>Keep working or stay home</li>
+              <li>Vehicle is cleaned where it sits</li>
+              <li>Great for families, workers, students, and multi-vehicle bookings</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section service-area-section-muted">
+      <div class="service-area-shell">
+        <div class="service-area-section-head service-area-section-head-centered service-area-reveal">
+          <p class="service-area-section-label">FAQ</p>
+          <h2>Questions people usually ask before booking</h2>
+        </div>
+
+        <div class="service-area-faq-list">
+          {faqItems.map((item) => (
+            <details class="service-area-faq-item service-area-reveal">
+              <summary>
+                <span>{item.question}</span>
+                <span class="service-area-faq-icon" aria-hidden="true"></span>
+              </summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="service-area-section">
+      <div class="service-area-shell">
+        <div class="service-area-final-cta service-area-reveal">
+          <div>
+            <h2>Not sure if we can come to you?</h2>
+            <p>
+              Send us your address, vehicle details, and the service you are interested in.
+              We will let you know if it fits our regular area, extended area, or needs a
+              custom quote.
             </p>
           </div>
 
           <div class="service-area-cta-row">
-            <button type="button" class="service-area-button service-area-button-primary open-chat">Chat Now</button>
+            <button
+              type="button"
+              class="service-area-button service-area-button-primary open-chat"
+              data-chat-message="Hi Nova Detailing, I am not sure if I am in range. Can I send you my address and vehicle details?"
+            >
+              Chat Now
+            </button>
             <a href="/contact" class="service-area-button service-area-button-secondary">Request a Quote</a>
           </div>
         </div>
@@ -223,75 +727,10 @@ const mapLocations = [
     </section>
   </main>
 
-  <script slot="scripts" define:vars={{ mapLocations }}>
-    const loadLeaflet = () => {
-      if (window.L) {
-        return Promise.resolve(window.L);
-      }
+  <script slot="scripts" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        script.async = true;
-        script.onload = () => resolve(window.L);
-        script.onerror = reject;
-        document.head.append(script);
-      });
-    };
-
-    const initializeServiceAreaMap = () => {
-      const mapElement = document.getElementById('service-area-map');
-      if (!mapElement || !window.L) {
-        return;
-      }
-
-      const kentville = mapLocations.find((location) => location.center) || mapLocations[0];
-      const map = window.L.map(mapElement, {
-        scrollWheelZoom: false,
-        zoomControl: true,
-      }).setView([kentville.lat, kentville.lng], 10);
-
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(map);
-
-      const radiusCircle = window.L.circle([kentville.lat, kentville.lng], {
-        radius: 40000,
-        color: '#ff5c5c',
-        weight: 2,
-        fillColor: '#d62828',
-        fillOpacity: 0.14,
-      }).addTo(map);
-
-      mapLocations.forEach((location) => {
-        const marker = window.L.circleMarker([location.lat, location.lng], {
-          radius: location.center ? 7 : 5,
-          color: '#ffffff',
-          weight: 1.5,
-          fillColor: location.center ? '#d62828' : '#ff7a7a',
-          fillOpacity: 1,
-        }).addTo(map);
-
-        marker.bindPopup(
-          location.center
-            ? `<strong>${location.name}, NS</strong><br />Center of the normal 40 km service radius`
-            : `<strong>${location.name}, NS</strong>`
-        );
-      });
-
-      map.fitBounds(radiusCircle.getBounds(), {
-        padding: [24, 24],
-      });
-    };
-
-    document.addEventListener(
-      'DOMContentLoaded',
-      () => {
-        loadLeaflet().then(initializeServiceAreaMap).catch(() => {
-          // Leave the fallback note in place if the map library fails to load.
-        });
-      },
-      { once: true }
-    );
+  <script slot="scripts" define:vars={{ checkerCopy }}>
+    window.NOVA_SERVICE_AREA_CONFIG = { checkerCopy };
   </script>
+  <script slot="scripts" src="/js/service-area.js"></script>
 </SiteLayout>
