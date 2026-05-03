@@ -54,7 +54,12 @@ function initChatWidget() {
       openChatPopup(prefillMessage);
     }
   
-    if (chatBtn) chatBtn.onclick = toggleChatPopup;
+    if (chatBtn) {
+      chatBtn.addEventListener('click', () => {
+        toggleChatPopup('');
+      });
+    }
+
     document.addEventListener('click', (event) => {
       const trigger = event.target.closest('.open-chat');
 
@@ -65,7 +70,10 @@ function initChatWidget() {
       event.preventDefault();
       toggleChatPopup(trigger.dataset.chatMessage || '');
     });
-    if (chatClose) chatClose.onclick = closeChatPopup;
+
+    if (chatClose) {
+      chatClose.addEventListener('click', closeChatPopup)
+    }
   
     if (chatForm) {
       chatForm.addEventListener('submit', async (e) => {
@@ -82,15 +90,18 @@ function initChatWidget() {
   
           if (res.ok) {
             const chatBtnSend = document.getElementById('chat-now-button');
-            chatBtnSend.textContent = "Message Sent ✅";
-            chatBtnSend.disabled = true;
-            chatBtnSend.classList.add('sent');
-  
-            setTimeout(() => {
-              chatBtnSend.textContent = "Chat Now";
-              chatBtnSend.disabled = false;
-            chatBtnSend.classList.remove('sent');
-          }, 4000);
+
+            if (chatBtnSend){
+              chatBtnSend.textContent = "Message Sent ✅";
+              chatBtnSend.disabled = true;
+              chatBtnSend.classList.add('sent');
+
+              setTimeout(() => {
+                chatBtnSend.textContent = "Chat Now";
+                chatBtnSend.disabled = false;
+              chatBtnSend.classList.remove('sent');
+            }, 4000);
+          }
   
           chatForm.reset();
           closeChatPopup();
@@ -124,16 +135,28 @@ function initChatWidget() {
     }
   }
   
-  // ✅ No DOMContentLoaded — just observe
+function bootChatWidget() {
+  if (document.getElementById('chat-button')) {
+    initChatWidget();
+    return;
+  }
+
   const observer = new MutationObserver((mutations, obs) => {
     if (document.getElementById('chat-button')) {
       initChatWidget();
       obs.disconnect();
     }
   });
-  
+
   observer.observe(document.body, {
     childList: true,
     subtree: true,
   });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootChatWidget, { once: true });
+} else {
+  bootChatWidget();
+}
   
