@@ -7,6 +7,7 @@ interface Props {
 }
 
 const { content } = Astro.props;
+const hasPricingCards = content.pricingCards.length > 0;
 ---
 
 <main class="service-page">
@@ -76,12 +77,63 @@ const { content } = Astro.props;
       <div class="service-best-for-grid">
         {content.bestFor.map((item) => (
           <article class="service-best-for-card service-reveal">
-            <h3>{item}</h3>
+            <p class="service-best-for-text">{item}</p>
           </article>
         ))}
       </div>
     </div>
   </section>
+
+  {
+    content.educationSection && (
+      <section class="service-section service-section-muted">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.educationSection.label}</p>
+            <h2>{content.educationSection.title}</h2>
+            <p>{content.educationSection.intro}</p>
+          </div>
+
+          <div class="service-columns-grid">
+            {content.educationSection.columns.map((column) => (
+              <article class="service-list-panel service-reveal">
+                <h3>{column.title}</h3>
+                {column.intro && <p>{column.intro}</p>}
+                <ul class="service-list">
+                  {column.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    content.processSection && (
+      <section class="service-section">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.processSection.label}</p>
+            <h2>{content.processSection.title}</h2>
+            <p>{content.processSection.intro}</p>
+          </div>
+
+          <div class="service-steps-grid">
+            {content.processSection.steps.map((step) => (
+              <article class="service-step-card service-reveal">
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <section class="service-section">
     <div class="service-shell">
@@ -102,24 +154,230 @@ const { content } = Astro.props;
     </div>
   </section>
 
+  {
+    (hasPricingCards || content.pricingTableSection) && (
+      <section class="service-section">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.pricingSectionLabel}</p>
+            <h2>{content.pricingSectionTitle}</h2>
+            <p>{content.pricingIntro}</p>
+          </div>
+
+          {hasPricingCards && (
+            <div class="service-pricing-grid">
+              {content.pricingCards.map((card) => (
+                <article class="service-pricing-card service-reveal">
+                  <p class="service-pricing-name">{card.name}</p>
+                  <p class="service-pricing-value">{card.price}</p>
+                  <p class="service-pricing-description">{card.description}</p>
+                </article>
+              ))}
+            </div>
+          )}
+
+          {
+            content.pricingTableSection && (
+              <div class="service-table-card service-reveal">
+                <div class="service-table-head">
+                  <p class="service-pricing-name">{content.pricingTableSection.label}</p>
+                  <h3>{content.pricingTableSection.title}</h3>
+                  <p>{content.pricingTableSection.intro}</p>
+                </div>
+
+                <div class="service-table-wrap">
+                  <table class="service-data-table">
+                    <thead>
+                      <tr>
+                        <th>Package</th>
+                        {content.pricingTableSection.columns.map((column) => (
+                          <th>{column}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.pricingTableSection.rows.map((row) => (
+                        <tr>
+                          <th>{row.label}</th>
+                          {row.values.map((value) => (
+                            <td>{value}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {content.pricingTableSection.footnote && (
+                  <p class="service-table-footnote">{content.pricingTableSection.footnote}</p>
+                )}
+
+                {
+                  content.pricingTableSection.noteItems && content.pricingTableSection.noteItems.length > 0 && (
+                    <div class="service-adjustments-card service-adjustments-card-nested">
+                      {content.pricingTableSection.noteTitle && <h3>{content.pricingTableSection.noteTitle}</h3>}
+                      <ul class="service-list">
+                        {content.pricingTableSection.noteItems.map((item) => (
+                          <li>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                }
+              </div>
+            )
+          }
+        </div>
+      </section>
+    )
+  }
+
+  {
+    content.estimatorSection && (
+      <section class="service-section service-section-muted">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.estimatorSection.label}</p>
+            <h2>{content.estimatorSection.title}</h2>
+            <p>{content.estimatorSection.intro}</p>
+          </div>
+
+          <div class="service-steps-grid">
+            {content.estimatorSection.steps.map((step) => (
+              <article class="service-step-card service-reveal">
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    content.comparisonTableSection && (
+      <section class="service-section">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.comparisonTableSection.label}</p>
+            <h2>{content.comparisonTableSection.title}</h2>
+            <p>{content.comparisonTableSection.intro}</p>
+          </div>
+
+          <div class="service-table-card service-reveal">
+            <div class="service-table-wrap">
+              <table class="service-data-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    {content.comparisonTableSection.columns.map((column) => (
+                      <th>{column}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {content.comparisonTableSection.rows.map((row) => (
+                    <tr>
+                      <th>{row.label}</th>
+                      {row.values.map((value) => (
+                        <td>{value}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    content.addOnSection && (
+      <section class="service-section service-section-muted">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.addOnSection.label}</p>
+            <h2>{content.addOnSection.title}</h2>
+            <p>{content.addOnSection.intro}</p>
+          </div>
+
+          <div class="service-addon-grid">
+            {content.addOnSection.items.map((item) => (
+              <article class="service-addon-card service-reveal">
+                <div class="service-addon-head">
+                  <h3>{item.name}</h3>
+                  <p class="service-addon-price">{item.price}</p>
+                </div>
+                <p>{item.description}</p>
+              </article>
+            ))}
+          </div>
+
+          {content.addOnSection.note && <p class="service-addon-note service-reveal">{content.addOnSection.note}</p>}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    content.maintenanceSection && (
+      <section id="maintenance-plans" class="service-section">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.maintenanceSection.label}</p>
+            <h2>{content.maintenanceSection.title}</h2>
+            <p>{content.maintenanceSection.intro}</p>
+          </div>
+
+          <div class="service-maintenance-intro service-reveal">
+            <p>{content.maintenanceSection.qualificationNote}</p>
+          </div>
+
+          <div class="service-maintenance-grid">
+            {content.maintenanceSection.plans.map((plan) => (
+              <article class="service-maintenance-card service-reveal">
+                <p class="service-pricing-name">{plan.cadence}</p>
+                <p class="service-pricing-value">{plan.price}</p>
+                <p class="service-pricing-description">{plan.description}</p>
+              </article>
+            ))}
+          </div>
+
+          <div class="service-maintenance-layout">
+            <article class="service-list-panel service-reveal">
+              <h3>{content.maintenanceSection.includesHeading}</h3>
+              <ul class="service-list">
+                {content.maintenanceSection.includes.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article class="service-maintenance-note service-reveal">
+              <h3>Important note</h3>
+              <p>{content.maintenanceSection.conditionNote}</p>
+              <h3>{content.maintenanceSection.ctaHeading}</h3>
+              <p>{content.maintenanceSection.ctaText}</p>
+              <div class="service-cta-row">
+                <button type="button" class="service-button service-button-primary open-chat">
+                  {content.maintenanceSection.primaryButtonLabel}
+                </button>
+                <button type="button" class="service-button service-button-secondary open-chat">
+                  {content.maintenanceSection.secondaryButtonLabel}
+                </button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   <section class="service-section">
     <div class="service-shell">
-      <div class="service-section-head service-section-head-centered service-reveal">
-        <p class="service-section-label">Pricing guide</p>
-        <h2>Starting pricing and quote guidance</h2>
-        <p>{content.pricingIntro}</p>
-      </div>
-
-      <div class="service-pricing-grid">
-        {content.pricingCards.map((card) => (
-          <article class="service-pricing-card service-reveal">
-            <p class="service-pricing-name">{card.name}</p>
-            <p class="service-pricing-value">{card.price}</p>
-            <p class="service-pricing-description">{card.description}</p>
-          </article>
-        ))}
-      </div>
-
       <div class="service-adjustments-card service-reveal">
         <h3>What can affect final pricing?</h3>
         <p>

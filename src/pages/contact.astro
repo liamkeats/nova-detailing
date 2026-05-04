@@ -31,8 +31,8 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         <div class="contact-content">
           <div class="contact-text">
             <h2>Let’s Get in Touch</h2>
-            <p>Looking for professional car detailing in Kentville or the Annapolis Valley? Whether you need a full interior deep clean, ceramic coating, paint correction, or seasonal vehicle protection, Nova Detailing is ready to help. We provide mobile auto detailing services at your home or workplace, saving you time and hassle.</p>
-            <p>Have a question about our services, pricing, or availability? Fill out the form below and we’ll get back to you as soon as possible. You can also reach us directly by phone or email.</p>
+            <p>Looking for mobile detailing in Kentville or the Annapolis Valley? Whether you need an interior reset, exterior cleanup, paint correction, ceramic coating, or help choosing the right package, Nova Detailing can help.</p>
+            <p>Fill out the form and we’ll get back to you with the next step. You can also reach us directly by phone, email, or Chat Now.</p>
             <p><strong>Phone:</strong> <a href="tel:+19023001267">(902) 300-1267</a></p>
             <p><strong>Email:</strong> <a href="mailto:thenovadetailing@gmail.com">thenovadetailing@gmail.com</a></p>
           </div>
@@ -41,18 +41,19 @@ import SiteLayout from '../layouts/SiteLayout.astro';
             <form
               id="contact-form"
               class="booking-form"
-              action="https://docs.google.com/forms/d/e/1FAIpQLSetKRNgTfaF5WI2zMEsjEZ0hipHPEgjCvcgIKbVAYSwYwOK4Q/formResponse"
-              method="POST"
-              target="hidden_iframe"
             >
               <label for="service">Select a Service</label>
               <select id="service" name="entry.2144809380" required>
                 <option value="">Select a Service</option>
-                <option value="Interior Detailing">Interior Detailing</option>
+                <option value="Basic Detail">Basic Detail</option>
+                <option value="Standard Detail">Standard Detail</option>
+                <option value="Premium Detail">Premium Detail</option>
                 <option value="Exterior Detailing">Exterior Detailing</option>
-                <option value="Full Detail(Interior and Exterior)">Full Detail(Interior and Exterior)</option>
-                <option value="Scratch Removal">Scratch Removal</option>
-                <option value="New Vehicle Prep">New Vehicle Prep</option>
+                <option value="Paint Correction">Paint Correction</option>
+                <option value="Ceramic Coating / Vehicle Protection">Ceramic Coating / Vehicle Protection</option>
+                <option value="New Vehicle Detailing">New Vehicle Detailing</option>
+                <option value="Recurring Maintenance">Recurring Maintenance</option>
+                <option value="Not Sure Yet">Not Sure Yet</option>
               </select>
 
               <p class="contact-info">Contact Details</p>
@@ -99,8 +100,14 @@ import SiteLayout from '../layouts/SiteLayout.astro';
                 </div>
 
                 <div class="form-row">
-                  <div class="form-col">
-                    <button type="submit">Submit</button>
+                  <div class="form-col form-submit-col">
+                    <button type="submit" class="contact-submit-btn">
+                      <span class="submit-text">Submit Request</span>
+                      <span class="submit-loader" aria-hidden="true"></span>
+                      <span class="submit-check" aria-hidden="true">✓</span>
+                    </button>
+
+                    <p class="form-submit-message" aria-live="polite"></p>
                   </div>
                 </div>
               </div>
@@ -109,7 +116,6 @@ import SiteLayout from '../layouts/SiteLayout.astro';
               <input type="hidden" name="entry.362240232_month" />
               <input type="hidden" name="entry.362240232_day" />
             </form>
-            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
           </div>
         </div>
       </div>
@@ -118,68 +124,146 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 
   <script slot="scripts">
     document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('contact-form') as HTMLFormElement | null;
-      const iframe = document.getElementById('hidden_iframe') as HTMLIFrameElement | null;
-      const dateInput = document.querySelector('#contact-form input[name="entry.362240232"]') as HTMLInputElement | null;
-      const yearInput = document.querySelector('#contact-form input[name="entry.362240232_year"]') as HTMLInputElement | null;
-      const monthInput = document.querySelector('#contact-form input[name="entry.362240232_month"]') as HTMLInputElement | null;
-      const dayInput = document.querySelector('#contact-form input[name="entry.362240232_day"]') as HTMLInputElement | null;
-      const contactPhone = document.querySelector('#contact-form input[name="entry.153198611"]') as HTMLInputElement | null;
+      const form = document.getElementById('contact-form');
+      const dateInput = document.querySelector('#contact-form input[name="entry.362240232"]');
+      const yearInput = document.querySelector('#contact-form input[name="entry.362240232_year"]');
+      const monthInput = document.querySelector('#contact-form input[name="entry.362240232_month"]');
+      const dayInput = document.querySelector('#contact-form input[name="entry.362240232_day"]');
+      const contactPhone = document.querySelector('#contact-form input[name="entry.153198611"]');
 
-      if (form && iframe) {
-        const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-        let submitted = false;
+      if (form) {
+        const submitButton = form.querySelector('.contact-submit-btn');
+        const submitMessage = form.querySelector('.form-submit-message');
+        let isSubmitting = false;
+        let successShown = false;
+        let longWaitTimer = null;
 
-        if (submitButton) {
-          form.addEventListener('submit', () => {
-            submitted = true;
+        const clearLongWaitTimer = () => {
+          if (longWaitTimer) {
+            window.clearTimeout(longWaitTimer);
+            longWaitTimer = null;
+          }
+        };
+
+        const showSuccess = () => {
+          if (!submitButton || !isSubmitting || successShown) {
+            return;
+          }
+
+          clearLongWaitTimer();
+          successShown = true;
+          isSubmitting = false;
+
+          submitButton.classList.remove('is-loading');
+          submitButton.classList.add('is-success');
+
+          if (submitMessage) {
+            submitMessage.textContent =
+              'Thanks! Your request has been sent. We’ll get back to you as soon as possible.';
+            submitMessage.classList.add('is-success');
+            submitMessage.classList.remove('is-error', 'is-pending');
+          }
+
+          form.reset();
+
+          window.setTimeout(() => {
+            submitButton.disabled = false;
+            submitButton.classList.remove('is-success');
+
+            if (submitMessage) {
+              submitMessage.textContent = '';
+              submitMessage.classList.remove('is-success', 'is-error', 'is-pending');
+            }
+
+            successShown = false;
+          }, 6500);
+        };
+
+        const showError = (message) => {
+          clearLongWaitTimer();
+          isSubmitting = false;
+          successShown = false;
+
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('is-loading', 'is-success');
+          }
+
+          if (submitMessage) {
+            submitMessage.textContent =
+              message || 'Something went wrong. Please try again or send us a message with Chat Now.';
+            submitMessage.classList.add('is-error');
+            submitMessage.classList.remove('is-success', 'is-pending');
+          }
+        };
+
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+
+          if (isSubmitting) {
+            return;
+          }
+
+          isSubmitting = true;
+          successShown = false;
+
+          if (submitButton) {
             submitButton.disabled = true;
-            submitButton.style.opacity = '0.7';
-            submitButton.textContent = 'Sending... ⏳';
-          });
+            submitButton.classList.remove('is-success');
+            submitButton.classList.add('is-loading');
+          }
 
-          iframe.addEventListener('load', () => {
-            if (!submitted) {
+          if (submitMessage) {
+            submitMessage.textContent = 'Sending your request...';
+            submitMessage.classList.remove('is-success', 'is-error', 'is-pending');
+          }
+
+          // Keep the user in a pending state if the server-side submit is slow,
+          // but only show success after Google accepts the request.
+          clearLongWaitTimer();
+          longWaitTimer = window.setTimeout(() => {
+            if (!isSubmitting || successShown || !submitMessage) {
               return;
             }
 
-            submitted = false;
-            submitButton.textContent = 'Request Sent! ✅';
-            submitButton.style.backgroundColor = '#4CAF50';
-            submitButton.style.borderColor = '#4CAF50';
-            submitButton.style.color = 'white';
-            submitButton.style.transform = 'scale(1.05)';
-            submitButton.style.transition = 'all 0.3s ease';
+            submitMessage.textContent =
+              'This is taking longer than usual. Please keep this page open and do not resubmit yet.';
+            submitMessage.classList.add('is-pending');
+            submitMessage.classList.remove('is-success', 'is-error');
+          }, 6000);
 
-            form.reset();
+          try {
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
 
-            window.setTimeout(() => {
-              submitButton.disabled = false;
-              submitButton.style.opacity = '1';
-              submitButton.textContent = 'Submit';
-              submitButton.style.backgroundColor = '';
-              submitButton.style.borderColor = '';
-              submitButton.style.color = '';
-              submitButton.style.transform = 'scale(1)';
-            }, 5000);
-
-            fetch('/.netlify/functions/send-form-notification', {
+            const response = await fetch('/.netlify/functions/submit-contact-form', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({}),
-            })
-              .then((res) => res.json())
-              .catch((err) => {
-                console.error('Failed to send SMS notification', err);
-              });
-          });
-        }
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok || result.success !== true) {
+              throw new Error(
+                result.error ||
+                  'Something went wrong. Please try again or send us a message with Chat Now.',
+              );
+            }
+
+            showSuccess();
+          } catch (error) {
+            console.error('Contact form submit failed', error);
+            showError(error?.message);
+          }
+        });
       }
 
       if (dateInput && yearInput && monthInput && dayInput) {
         dateInput.addEventListener('change', (event) => {
-          const target = event.target as HTMLInputElement;
-          const dateValue = target.value;
+          const dateValue = event.target.value;
 
           if (!dateValue) {
             yearInput.value = '';
@@ -188,23 +272,23 @@ import SiteLayout from '../layouts/SiteLayout.astro';
             return;
           }
 
-          const [year, month, day] = dateValue.split('-');
-          yearInput.value = year;
-          monthInput.value = month;
-          dayInput.value = day;
+          const parts = dateValue.split('-');
+          yearInput.value = parts[0] || '';
+          monthInput.value = parts[1] || '';
+          dayInput.value = parts[2] || '';
         });
       }
 
       if (contactPhone) {
         contactPhone.addEventListener('input', (event) => {
-          const target = event.target as HTMLInputElement;
-          let digits = target.value.replace(/\D/g, '');
+          let digits = event.target.value.replace(/\D/g, '');
 
           if (digits.length > 10) {
             digits = digits.slice(0, 10);
           }
 
           let formatted = digits;
+
           if (digits.length >= 7) {
             formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
           } else if (digits.length >= 4) {
@@ -213,7 +297,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
             formatted = `(${digits}`;
           }
 
-          target.value = formatted;
+          event.target.value = formatted;
         });
       }
     });

@@ -104,7 +104,13 @@ body {
 .service-pricing-description,
 .service-adjustments-card p,
 .service-cta-band p,
-.service-best-for-card p {
+.service-best-for-card p,
+.service-step-card p,
+.service-list-panel p,
+.service-addon-card p,
+.service-addon-note,
+.service-table-head p,
+.service-table-footnote {
   color: rgba(255, 255, 255, 0.8);
   font-family: 'Inter', sans-serif;
   line-height: 1.72;
@@ -294,7 +300,10 @@ body {
 .service-feature-grid,
 .service-pricing-grid,
 .service-trust-grid,
-.service-best-for-grid {
+.service-best-for-grid,
+.service-steps-grid,
+.service-columns-grid,
+.service-addon-grid {
   display: grid;
   gap: 1.25rem;
 }
@@ -313,11 +322,40 @@ body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.service-steps-grid,
+.service-columns-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.service-addon-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.service-maintenance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.service-maintenance-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
 .service-copy-card,
 .service-feature-card,
 .service-pricing-card,
 .service-trust-card,
 .service-best-for-card,
+.service-step-card,
+.service-list-panel,
+.service-addon-card,
+.service-maintenance-card,
+.service-maintenance-intro,
+.service-maintenance-note,
+.service-table-card,
 .service-adjustments-card,
 .service-cta-band {
   border-radius: 22px;
@@ -331,6 +369,13 @@ body {
 .service-pricing-card,
 .service-trust-card,
 .service-best-for-card,
+.service-step-card,
+.service-list-panel,
+.service-addon-card,
+.service-maintenance-card,
+.service-maintenance-intro,
+.service-maintenance-note,
+.service-table-card,
 .service-adjustments-card {
   padding: 1.55rem;
 }
@@ -356,7 +401,12 @@ body {
 .service-best-for-card h3,
 .service-feature-card h3,
 .service-trust-card h3,
+.service-step-card h3,
+.service-list-panel h3,
+.service-addon-card h3,
+.service-maintenance-note h3,
 .service-adjustments-card h3,
+.service-table-card h3,
 .service-cta-band h3 {
   margin: 0 0 0.8rem;
   font-size: 1.22rem;
@@ -394,6 +444,147 @@ body {
   margin: 0;
 }
 
+.service-step-card,
+.service-list-panel,
+.service-addon-card {
+  position: relative;
+  border-left: 5px solid #d62828;
+}
+
+.service-step-card::before,
+.service-list-panel::before,
+.service-addon-card::before,
+.service-maintenance-card::before,
+.service-maintenance-note::before {
+  display: none;
+}
+
+.service-step-card h3,
+.service-list-panel h3,
+.service-addon-card h3,
+.service-maintenance-note h3 {
+  padding-left: 0.35rem;
+}
+
+.service-maintenance-card,
+.service-maintenance-note {
+  position: relative;
+  border-left: 5px solid #d62828;
+}
+
+.service-maintenance-intro p,
+.service-maintenance-note p:last-of-type {
+  margin-bottom: 0;
+}
+
+.service-maintenance-note {
+  margin-top: 0.75rem;
+}
+
+.service-maintenance-note .service-cta-row {
+  margin-top: 1.5rem;
+}
+
+.service-list-panel .service-list {
+  margin-top: 0.9rem;
+}
+
+#maintenance-plans .service-section-head {
+  margin-bottom: 2.5rem;
+}
+
+.service-addon-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.service-addon-price {
+  margin: 0;
+  color: #ff8a8a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.service-addon-note {
+  margin: 1.15rem 0 0;
+}
+
+.service-table-card {
+  margin-top: 1.5rem;
+}
+
+.service-table-head {
+  margin-bottom: 1.25rem;
+}
+
+.service-table-head h3 {
+  margin-bottom: 0.6rem;
+}
+
+.service-table-wrap {
+  overflow-x: auto;
+}
+
+.service-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.service-data-table th,
+.service-data-table td {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.service-data-table thead th {
+  color: #ff8a8a;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.service-data-table tbody th {
+  color: #ffffff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.service-data-table tbody td {
+  color: rgba(255, 255, 255, 0.82);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+.service-data-table tbody tr:last-child th,
+.service-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.service-table-footnote {
+  margin: 1rem 0 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.95rem;
+}
+
+.service-adjustments-card-nested {
+  margin-top: 1.2rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: none;
+}
+
 .service-adjustments-card {
   margin-top: 1.5rem;
 }
@@ -417,6 +608,29 @@ body {
   padding: clamp(1.85rem, 4vw, 2.6rem);
 }
 
+.service-step-card,
+.service-list-panel,
+.service-addon-card,
+.service-maintenance-card,
+.service-maintenance-note {
+  transition:
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    border-color 0.24s ease;
+}
+
+.service-step-card:hover,
+.service-list-panel:hover,
+.service-addon-card:hover,
+.service-maintenance-card:hover,
+.service-maintenance-note:hover {
+  transform: translateY(-3px);
+  border-left-color: #ff4d4d;
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.24),
+    0 0 16px rgba(214, 40, 40, 0.14);
+}
+
 .service-cta-band p:last-child {
   margin-bottom: 0;
 }
@@ -428,6 +642,11 @@ body {
   .service-pricing-grid,
   .service-trust-grid,
   .service-best-for-grid,
+  .service-steps-grid,
+  .service-columns-grid,
+  .service-addon-grid,
+  .service-maintenance-grid,
+  .service-maintenance-layout,
   .service-cta-band {
     grid-template-columns: 1fr;
   }
@@ -489,8 +708,24 @@ body {
   .service-pricing-card,
   .service-trust-card,
   .service-best-for-card,
+  .service-step-card,
+  .service-list-panel,
+  .service-addon-card,
+  .service-maintenance-card,
+  .service-maintenance-intro,
+  .service-maintenance-note,
+  .service-table-card,
   .service-adjustments-card,
   .service-cta-band {
     border-radius: 18px;
+  }
+
+  .service-addon-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .service-data-table {
+    min-width: 560px;
   }
 }

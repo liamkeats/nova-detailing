@@ -13,6 +13,7 @@ const FALLBACK_SUMMARY_BULLETS = [
   'Cars look brand new after service',
   'Great value for the price',
 ];
+const OPENAI_RETRY_COOLDOWN_MS = 6 * 60 * 60 * 1000;
 
 function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -40,8 +41,13 @@ let cachedSummary = null;
 let lastReviewCount = 0;
 let cachedPayload = null;
 let cachedPayloadAt = 0;
+let openAICooldownUntil = 0;
 
 async function buildSummaryBullets(reviews) {
+  if (Date.now() < openAICooldownUntil) {
+    return FALLBACK_SUMMARY_BULLETS;
+  }
+
   const textBlock = reviews
     .map((review, index) => `${index + 1}. ${review.text || ''}`.trim())
     .filter(Boolean)
@@ -81,7 +87,13 @@ Only return a JSON array of 3 strings.
 
     return JSON.parse(raw);
   } catch (error) {
-    console.error('AI review summary failed:', error);
+    if (error?.status === 429 || error?.code === 'insufficient_quota') {
+      openAICooldownUntil = Date.now() + OPENAI_RETRY_COOLDOWN_MS;
+      console.warn('AI review summary quota unavailable. Using fallback bullets for now.');
+    } else {
+      console.error('AI review summary failed:', error);
+    }
+
     return FALLBACK_SUMMARY_BULLETS;
   }
 }

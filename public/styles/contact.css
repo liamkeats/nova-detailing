@@ -199,7 +199,7 @@ body {
   }
   
   /* Submit Button */
-  .booking-form button[type='submit'] {
+  .booking-form button[type='submit']:not(.contact-submit-btn) {
     background-color: #d40000;
     border: none;
     color: white;
@@ -209,7 +209,7 @@ body {
     cursor: pointer;
     transition: background 0.3s ease;
   }
-  .booking-form button[type='submit']:hover {
+  .booking-form button[type='submit']:not(.contact-submit-btn):hover {
     background-color: #a30000;
   }
   
@@ -401,3 +401,162 @@ body {
   }
   
   
+.form-submit-message.is-error {
+  color: #a30000;
+}
+
+/* ========== Contact Form Submit Animation ========== */
+.form-submit-col {
+  flex-direction: column;
+  gap: 0;
+}
+
+.booking-form .contact-submit-btn {
+  position: relative;
+  width: 100%;
+  min-height: 54px;
+  background: linear-gradient(135deg, #d40000 0%, #9b0000 100%);
+  border: 1px solid rgba(212, 0, 0, 0.95);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.booking-form .contact-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ee1010 0%, #a30000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(212, 0, 0, 0.32);
+}
+
+.booking-form .contact-submit-btn:disabled {
+  cursor: not-allowed;
+}
+
+.booking-form .contact-submit-btn .submit-text,
+.booking-form .contact-submit-btn .submit-loader,
+.booking-form .contact-submit-btn .submit-check {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.booking-form .contact-submit-btn .submit-loader,
+.booking-form .contact-submit-btn .submit-check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.75);
+}
+
+.booking-form .contact-submit-btn .submit-loader {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: contact-submit-spin 0.75s linear infinite;
+}
+
+.booking-form .contact-submit-btn .submit-check {
+  width: 34px;
+  height: 34px;
+  background: #ffffff;
+  color: #1f9d55;
+  border-radius: 50%;
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 34px;
+  text-align: center;
+}
+
+.booking-form .contact-submit-btn.is-loading .submit-text {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.booking-form .contact-submit-btn.is-loading .submit-loader {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.booking-form .contact-submit-btn.is-success {
+  background: linear-gradient(135deg, #1f9d55 0%, #13743c 100%);
+  border-color: #1f9d55;
+  animation: contact-submit-pop 0.35s ease;
+}
+
+.booking-form .contact-submit-btn.is-success .submit-text,
+.booking-form .contact-submit-btn.is-success .submit-loader {
+  opacity: 0;
+}
+
+.booking-form .contact-submit-btn.is-success .submit-check {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.form-submit-message {
+  min-height: 24px;
+  margin: 12px 0 0;
+  color: #333333;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    color 0.25s ease;
+}
+
+.form-submit-message:not(:empty) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.form-submit-message.is-success {
+  color: #13743c;
+}
+
+.form-submit-message.is-pending {
+  color: #8b4f00;
+}
+
+.form-submit-message.is-error {
+  color: #a30000;
+}
+
+@keyframes contact-submit-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes contact-submit-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  55% {
+    transform: scale(1.04);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
