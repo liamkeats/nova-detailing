@@ -8,15 +8,13 @@ const SERVICE_FIELD = 'entry.2144809380';
 const NOTES_FIELD = 'entry.1161262287';
 
 const SERVICE_VALUE_MAP = {
-  'Basic Detail': 'Full Detail(Interior and Exterior)',
-  'Standard Detail': 'Full Detail(Interior and Exterior)',
-  'Premium Detail': 'Full Detail(Interior and Exterior)',
+  'Interior Detailing': 'Interior Detailing',
   'Exterior Detailing': 'Exterior Detailing',
-  'Paint Correction': 'Scratch Removal',
-  'Ceramic Coating / Vehicle Protection': 'New Vehicle Prep',
-  'New Vehicle Detailing': 'New Vehicle Prep',
-  'Recurring Maintenance': 'Full Detail(Interior and Exterior)',
-  'Not Sure Yet': 'Full Detail(Interior and Exterior)',
+  'Full Detail': 'Full Detail(Interior and Exterior)',
+  'Executive Detail': 'Full Detail(Interior and Exterior)',
+  'Recurring Detailing': 'Full Detail(Interior and Exterior)',
+  'Protection / Correction': 'New Vehicle Prep',
+  'Other / Not Sure': 'Full Detail(Interior and Exterior)',
 };
 
 const REQUIRED_FIELDS = [

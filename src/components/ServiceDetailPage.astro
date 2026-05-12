@@ -51,6 +51,84 @@ const hasPricingCards = content.pricingCards.length > 0;
     </div>
   </section>
 
+  {
+    (hasPricingCards || content.pricingTableSection) && (
+      <section class="service-section service-section-pricing-first">
+        <div class="service-shell">
+          <div class="service-section-head service-section-head-centered service-reveal">
+            <p class="service-section-label">{content.pricingSectionLabel}</p>
+            <h2>{content.pricingSectionTitle}</h2>
+            <p>{content.pricingIntro}</p>
+          </div>
+
+          {hasPricingCards && (
+            <div class="service-pricing-grid">
+              {content.pricingCards.map((card) => (
+                <article class="service-pricing-card service-reveal">
+                  <p class="service-pricing-name">{card.name}</p>
+                  <p class="service-pricing-value">{card.price}</p>
+                  <p class="service-pricing-description">{card.description}</p>
+                </article>
+              ))}
+            </div>
+          )}
+
+          {
+            content.pricingTableSection && (
+              <div class="service-table-card service-reveal">
+                <div class="service-table-head">
+                  <p class="service-pricing-name">{content.pricingTableSection.label}</p>
+                  <h3>{content.pricingTableSection.title}</h3>
+                  <p>{content.pricingTableSection.intro}</p>
+                </div>
+
+                <div class="service-table-wrap">
+                  <table class="service-data-table">
+                    <thead>
+                      <tr>
+                        <th>Package</th>
+                        {content.pricingTableSection.columns.map((column) => (
+                          <th>{column}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.pricingTableSection.rows.map((row) => (
+                        <tr>
+                          <th>{row.label}</th>
+                          {row.values.map((value) => (
+                            <td>{value}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {content.pricingTableSection.footnote && (
+                  <p class="service-table-footnote">{content.pricingTableSection.footnote}</p>
+                )}
+
+                {
+                  content.pricingTableSection.noteItems && content.pricingTableSection.noteItems.length > 0 && (
+                    <div class="service-adjustments-card service-adjustments-card-nested">
+                      {content.pricingTableSection.noteTitle && <h3>{content.pricingTableSection.noteTitle}</h3>}
+                      <ul class="service-list">
+                        {content.pricingTableSection.noteItems.map((item) => (
+                          <li>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                }
+              </div>
+            )
+          }
+        </div>
+      </section>
+    )
+  }
+
   <section class="service-section">
     <div class="service-shell">
       <div class="service-section-head service-section-head-centered service-reveal">
@@ -153,84 +231,6 @@ const hasPricingCards = content.pricingCards.length > 0;
       </div>
     </div>
   </section>
-
-  {
-    (hasPricingCards || content.pricingTableSection) && (
-      <section class="service-section">
-        <div class="service-shell">
-          <div class="service-section-head service-section-head-centered service-reveal">
-            <p class="service-section-label">{content.pricingSectionLabel}</p>
-            <h2>{content.pricingSectionTitle}</h2>
-            <p>{content.pricingIntro}</p>
-          </div>
-
-          {hasPricingCards && (
-            <div class="service-pricing-grid">
-              {content.pricingCards.map((card) => (
-                <article class="service-pricing-card service-reveal">
-                  <p class="service-pricing-name">{card.name}</p>
-                  <p class="service-pricing-value">{card.price}</p>
-                  <p class="service-pricing-description">{card.description}</p>
-                </article>
-              ))}
-            </div>
-          )}
-
-          {
-            content.pricingTableSection && (
-              <div class="service-table-card service-reveal">
-                <div class="service-table-head">
-                  <p class="service-pricing-name">{content.pricingTableSection.label}</p>
-                  <h3>{content.pricingTableSection.title}</h3>
-                  <p>{content.pricingTableSection.intro}</p>
-                </div>
-
-                <div class="service-table-wrap">
-                  <table class="service-data-table">
-                    <thead>
-                      <tr>
-                        <th>Package</th>
-                        {content.pricingTableSection.columns.map((column) => (
-                          <th>{column}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {content.pricingTableSection.rows.map((row) => (
-                        <tr>
-                          <th>{row.label}</th>
-                          {row.values.map((value) => (
-                            <td>{value}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {content.pricingTableSection.footnote && (
-                  <p class="service-table-footnote">{content.pricingTableSection.footnote}</p>
-                )}
-
-                {
-                  content.pricingTableSection.noteItems && content.pricingTableSection.noteItems.length > 0 && (
-                    <div class="service-adjustments-card service-adjustments-card-nested">
-                      {content.pricingTableSection.noteTitle && <h3>{content.pricingTableSection.noteTitle}</h3>}
-                      <ul class="service-list">
-                        {content.pricingTableSection.noteItems.map((item) => (
-                          <li>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )
-                }
-              </div>
-            )
-          }
-        </div>
-      </section>
-    )
-  }
 
   {
     content.estimatorSection && (

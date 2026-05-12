@@ -129,6 +129,7 @@ export interface ServicePageContent {
 }
 
 const commonAdjustments = [
+  'Basic is only for vehicles already in decent condition. Heavy salt, heavy stains, bad pet hair, smoke smell, or problem cleanup should move into Premium, Executive, or the right add-ons.',
   'Larger SUVs, trucks, vans, and third-row vehicles take more time and usually cost more than a regular sedan.',
   'Heavy pet hair, salt buildup, staining, smoke smell, and extra cleanup time can all increase the final quote.',
   'Truck beds, engine bays, and specialty add-ons are priced separately when requested.',
@@ -138,17 +139,17 @@ const commonAdjustments = [
 export const detailingPageContent: ServicePageContent = {
   title: 'Mobile Detailing Packages Built Around Your Vehicle',
   description:
-    'Compare Basic, Standard, and Premium detailing packages, see what affects the starting price, and get a clearer idea of what your vehicle may need before you book.',
+    'Compare Interior, Exterior, Full Detail, and Executive packages, see what affects the starting price, and get a clearer idea of what your vehicle may need before you book.',
   eyebrow: 'Detailing Packages + Quote Guide',
   heroSummary:
     'Most customers start here because they want to know which package fits, what changes the quote, and why size or condition can affect the final price.',
-  heroBadges: ['Basic from $120+', 'Standard from $180+', 'Premium from $250+'],
+  heroBadges: ['Basic Detail $195+', 'Standard Detail $375+', 'Premium Detail $575+', 'Executive $850+'],
   heroNote:
     'These are starting prices for regular-sized vehicles in average condition. Larger vehicles, extra rows, pet hair, stains, smoke smell, truck beds, engine bays, or heavier cleanup can increase the final price.',
   image: detailingImage,
   imageAlt: 'A freshly cleaned vehicle exterior after a full mobile detail',
   overview: [
-    'Our detailing packages are built to cover very different kinds of vehicles. Some need a lighter maintenance clean, some need the normal full reset, and some need deeper work because the interior or exterior has been heavily used.',
+    'Our detailing packages are built to cover very different kinds of vehicles. Some need a light refresh, some need the main full detail, some need a deeper reset, and some need a high-end package with more add-ons included.',
     'That is why we price detailing in layers instead of pretending every vehicle takes the same time. Use the package guide, vehicle-size notes, and add-on list below to get closer to the right starting point before you reach out.',
   ],
   includedHeading: 'What a detailing appointment is built around',
@@ -168,7 +169,7 @@ export const detailingPageContent: ServicePageContent = {
     {
       title: 'Package-based depth',
       description:
-        'Basic is more maintenance-focused, Standard is the normal full reset, and Premium allows more time for deeper cleanup and refinement.',
+        'Basic is the light refresh, Standard is the main full detail, Premium is the deeper reset, and Executive is the high-end package with more add-ons included.',
     },
     {
       title: 'Condition-based extras',
@@ -189,45 +190,55 @@ export const detailingPageContent: ServicePageContent = {
   pricingSectionLabel: 'Package overview',
   pricingSectionTitle: 'Choose the level first, then narrow it down',
   pricingIntro:
-    'Think of Basic as maintenance, Standard as the normal full reset, and Premium as the deeper clean for dirtier vehicles or owners wanting more time spent.',
+    'Think of Basic as a light refresh, Standard as the main full detail, Premium as the deeper reset, and Executive as the high-end package with more add-ons included.',
   pricingCards: [
     {
       name: 'Basic Detail',
-      price: '$120+',
+      price: '$195+',
       description:
-        'Best for lighter upkeep and vehicles that are already in fairly regular shape.',
+        'Best for a light full-vehicle refresh when the vehicle is already in decent condition.',
     },
     {
       name: 'Standard Detail',
-      price: '$180+',
+      price: '$375+',
       description:
-        'The normal full reset for most daily drivers that need both interior and exterior attention.',
+        'The main regular full detail for most daily drivers that need both interior and exterior attention.',
     },
     {
       name: 'Premium Detail',
-      price: '$250+',
+      price: '$575+',
       description:
-        'Built for heavier cleanup, more neglected vehicles, or owners who want the most time spent on the detail.',
+        'Built as a deeper reset for heavier cleanup, more neglected vehicles, or owners who want more time spent on the detail.',
+    },
+    {
+      name: 'Executive Detail',
+      price: '$850+',
+      description:
+        'The high-end non-ceramic package for customers who want Premium plus more add-ons included.',
     },
   ],
   pricingTableSection: {
     label: 'Starting pricing',
-    title: 'Basic, Standard, and Premium starting prices',
+    title: 'Interior, exterior, full detail, and Executive starting prices',
     intro:
       'These are starting prices for regular-sized vehicles in average condition. Final pricing can change based on size, condition, and add-ons.',
     columns: ['Interior Only', 'Exterior Only', 'Interior + Exterior'],
     rows: [
       {
         label: 'Basic',
-        values: ['$90+', '$70+', '$120+'],
+        values: ['$125+', '$90+', '$195+'],
       },
       {
         label: 'Standard',
-        values: ['$140+', '$100+', '$180+'],
+        values: ['$225+', '$175+', '$375+'],
       },
       {
         label: 'Premium',
-        values: ['$200+', '$140+', '$250+'],
+        values: ['$350+', '$275+', '$575+'],
+      },
+      {
+        label: 'Executive',
+        values: ['Custom', 'Custom', '$850+'],
       },
     ],
     footnote:
@@ -249,7 +260,7 @@ export const detailingPageContent: ServicePageContent = {
       {
         title: '1. Pick your package',
         description:
-          'Basic is maintenance, Standard is the normal full reset, and Premium is the deeper clean for dirtier vehicles or owners wanting more time spent.',
+          'Basic is a light refresh, Standard is the main full detail, Premium is the deeper reset, and Executive is the high-end non-ceramic package.',
       },
       {
         title: '2. Pick interior, exterior, or both',
@@ -270,45 +281,49 @@ export const detailingPageContent: ServicePageContent = {
   },
   comparisonTableSection: {
     label: 'Package comparison',
-    title: 'What changes between Basic, Standard, and Premium',
+    title: 'What changes between Basic, Standard, Premium, and Executive',
     intro:
       'This table is here to help you choose the level, not to replace the final quote.',
-    columns: ['Basic', 'Standard', 'Premium'],
+    columns: ['Basic', 'Standard', 'Premium', 'Executive'],
     rows: [
       {
         label: 'Overall feel',
-        values: ['Maintenance detail', 'Normal full reset', 'Deeper clean'],
+        values: ['Light refresh', 'Main full detail', 'Deeper reset', 'Top full-detail package'],
       },
       {
         label: 'Best for',
         values: [
-          'Regularly maintained vehicles',
+          'Vehicles already in decent condition',
           'Most daily drivers and family vehicles',
           'Heavier buildup or owners wanting more time spent',
+          'Customers who want our most complete detailing service',
         ],
       },
       {
-        label: 'Interior depth',
+        label: 'Interior level',
         values: [
-          'Lighter cleanup and refresh',
-          'Stronger interior reset',
-          'More time for deeper problem areas',
+          'Basic vacuum and wipe-down',
+          'Detailed wipe-down with light spot work',
+          'Deeper reset with more extractor use where needed',
+          'Premium interior with shampooing and heavier attention where needed',
         ],
       },
       {
-        label: 'Exterior depth',
+        label: 'Exterior level',
         values: [
-          'Safe wash and finished look',
-          'More complete exterior refresh',
-          'More attention and finishing time',
+          'Simple exterior wash',
+          'Proper exterior clean and finish',
+          'Premium exterior with spray wax / paint sealant',
+          'Premium exterior plus ceramic spray sealant',
         ],
       },
       {
-        label: 'Typical use',
+        label: 'Best result',
         values: [
-          'Ongoing upkeep',
-          'Seasonal cleanups or normal resets',
-          'Neglected vehicles or a deeper one-time cleanup',
+          'Cleaner daily driver',
+          'Fresh, properly cleaned vehicle',
+          'Deep reset inside and out',
+          'The highest level full detail we offer',
         ],
       },
     ],
@@ -321,46 +336,76 @@ export const detailingPageContent: ServicePageContent = {
     items: [
       {
         name: 'Pet Hair Removal',
-        price: '$30+',
-        description: 'For heavy pet hair that needs extra removal time beyond a normal vacuum.',
+        price: '$60+',
+        description: 'For visible pet hair beyond a normal vacuum.',
       },
       {
-        name: 'Heavy Salt or Stain Treatment',
-        price: '$30+',
-        description: 'For heavier salt buildup, staining, or problem areas that need extra attention.',
+        name: 'Heavy Salt Treatment',
+        price: '$60+',
+        description: 'For winter salt buildup or crusted carpets and mats.',
+      },
+      {
+        name: 'Heavy Stain Removal',
+        price: '$40+ per stain',
+        description: 'For individual stain treatment beyond normal light spot cleaning.',
       },
       {
         name: 'Smoke Smell Treatment',
-        price: '$40+',
-        description: 'For vehicles with smoke smell that need extra odor-focused interior work.',
+        price: '$75+',
+        description: 'For smoke odor. Severe cases may need a custom quote.',
       },
       {
-        name: 'Truck Bed Cleaning',
-        price: '$25+',
-        description: 'Added when the truck bed needs a proper cleanout or washdown.',
+        name: 'Truck Bed Rinse',
+        price: '$35+',
+        description: 'Basic truck bed rinse only, not a full truck bed restoration.',
       },
       {
         name: 'Engine Bay Cleaning',
-        price: '$40+',
-        description: 'Quoted separately because engine bays vary and not every setup is a good fit.',
+        price: '$60+',
+        description: 'Light engine bay clean/detail when the setup is safe and appropriate.',
       },
       {
-        name: 'Carpet or Seat Shampoo Upgrade',
+        name: 'Seat or Mat Shampooing',
+        price: '$30 each',
+        description: 'Priced per seat or mat when deeper shampooing is needed.',
+      },
+      {
+        name: 'Carpet Shampooing',
+        price: '$75+',
+        description: 'For carpet areas beyond basic spot work.',
+      },
+      {
+        name: 'Spray Wax / Paint Sealant',
+        price: '$75+',
+        description: 'Basic gloss and short-term protection.',
+      },
+      {
+        name: 'Ceramic Spray Sealant',
+        price: '$125+',
+        description: 'Better water-beading protection, not a true ceramic coating.',
+      },
+      {
+        name: 'Clay Bar Treatment',
+        price: '$100+',
+        description: 'Paint decontamination add-on.',
+      },
+      {
+        name: 'Iron/Fallout Removal',
+        price: '$75+',
+        description: 'Removes embedded iron contamination.',
+      },
+      {
+        name: 'Heavy Tar/Bug Removal',
         price: '$50+',
-        description: 'For seats or carpets that need deeper fabric cleaning beyond the base package.',
+        description: 'For heavy tar, sap, bug buildup, or grime.',
       },
       {
         name: 'Headlight Restoration',
-        price: '$80+',
-        description: 'For oxidized or hazy headlights that need machine restoration work.',
-      },
-      {
-        name: 'Spray Wax / Paint Sealant Upgrade',
-        price: '$40+',
-        description: 'For owners wanting a little more short-term exterior protection.',
+        price: '$100+',
+        description: 'Separate add-on, not included in Executive.',
       },
     ],
-    note: 'Add-ons are starting prices and are confirmed based on condition and how much extra work is required.',
+    note: 'If a customer starts adding lots of extras to Basic or Standard, we may recommend Premium or Executive instead. It keeps the quote cleaner and avoids underquoting.',
   },
   maintenanceSection: {
     label: 'Recurring details',
@@ -368,23 +413,23 @@ export const detailingPageContent: ServicePageContent = {
     intro:
       'Once a vehicle has had the right reset, recurring maintenance makes it easier to keep clean through the year without starting from scratch every visit.',
     qualificationNote:
-      'Maintenance plans are available after an initial Standard or Premium Detail. We reset the vehicle first so future visits can focus on upkeep instead of a full clean every time.',
+      'Maintenance plans are available after an initial Standard, Premium, Executive, or New Vehicle Prep service. We reset the vehicle first so future visits can focus on upkeep instead of a full clean every time.',
     plans: [
       {
         cadence: 'Every 2 Weeks',
-        price: '$90+ per visit',
+        price: '$125+ per visit',
         description:
           'Best for high-use vehicles, work vehicles, kids, pets, or messy daily drivers that need frequent upkeep.',
       },
       {
         cadence: 'Monthly',
-        price: '$120+ per visit',
+        price: '$175+ per visit',
         description:
           'Best for most recurring customers who want the vehicle kept consistently clean without waiting too long between visits.',
       },
       {
         cadence: 'Every 2 Months',
-        price: '$150+ per visit',
+        price: '$250+ per visit',
         description:
           'Best for lighter upkeep between deeper details when the vehicle is still being kept in fairly good shape.',
       },
@@ -399,10 +444,10 @@ export const detailingPageContent: ServicePageContent = {
       'Exterior hand wash',
       'Wheels and tires cleaned',
       'Exterior windows',
-      'Quick spray protection if included or needed',
+      'Quick spray protection if included or added',
     ],
     conditionNote:
-      'Maintenance pricing assumes the vehicle has already been reset and is being kept in reasonable condition. Heavy pet hair, salt, staining, smoke smell, excessive dirt, or skipped maintenance may require a Standard or Premium Detail instead.',
+      'Maintenance pricing assumes the vehicle has already been reset and is being kept in reasonable condition. Heavy pet hair, salt, staining, smoke smell, excessive dirt, skipped maintenance, or shampooing may require a regular detail or add-ons instead.',
     ctaHeading: 'Want to keep the vehicle easier to manage year-round?',
     ctaText:
       'If you are thinking about recurring upkeep, let us know after the first reset detail and we can talk through which schedule makes the most sense for your vehicle.',
@@ -444,20 +489,20 @@ export const detailingPageContent: ServicePageContent = {
 };
 
 export const protectionPageContent: ServicePageContent = {
-  title: 'Ceramic Coating Starts With Proper Paint Prep',
+  title: 'Vehicle Protection, Ceramic Spray, and True Ceramic Coating',
   description:
     'Vehicle protection is not just about adding a coating. It starts with inspection, cleaning, decontamination, and sometimes polishing or paint correction before the coating even goes on.',
   eyebrow: 'Ceramic Coating + Vehicle Protection',
   heroSummary:
     'This page explains what ceramic coating actually does, why prep matters, and why we do not coat dirty or contaminated paint just to rush the job.',
-  heroBadges: ['Quote-based coating plans', 'Prep comes first', 'Built for long-term easier maintenance'],
+  heroBadges: ['Spray Wax $75+', 'Ceramic Spray $125+', 'True Ceramic quote required'],
   heroNote:
     'Ceramic coating is quoted after we inspect the vehicle because wash, decontamination, polishing, or correction may all be needed before the coating can be applied properly.',
   image: protectionImage,
   imageAlt: 'A vehicle finish with strong gloss after prep and protection work',
   overview: [
-    'Ceramic coating helps with gloss, protection, easier washing, water and dirt release, and long-term help against UV exposure and environmental contamination. What it does not do is skip the prep. If the paint is dirty, contaminated, or already damaged, coating over that does not solve the underlying issue.',
-    'That is why protection jobs are built around process. We inspect the paint, wash the vehicle, decontaminate the surfaces, check whether the finish needs polishing or correction, and only then move toward panel prep and coating application.',
+    'Protection can mean a simple spray wax, a stronger ceramic spray sealant, or a true ceramic coating. The right option depends on your goal, the vehicle condition, and how much prep the paint needs.',
+    'Ceramic spray sealant is not the same as a true ceramic coating. True ceramic coating is quote-only because size, prep, paint condition, coating choice, and workspace can all change the job.',
   ],
   educationSection: {
     label: 'What it actually does',
@@ -567,27 +612,27 @@ export const protectionPageContent: ServicePageContent = {
     },
   ],
   pricingSectionLabel: 'Pricing guide',
-  pricingSectionTitle: 'Protection pricing starts with prep',
+  pricingSectionTitle: 'Protection pricing depends on the level you want',
   pricingIntro:
-    'Coating itself is quote-based, but the prep side often starts from a proper detail or correction conversation first.',
+    'Spray wax and ceramic spray have simple starting prices. True ceramic coating is quoted after inspection because the prep matters so much.',
   pricingCards: [
     {
-      name: 'Prep Detail',
-      price: '$180+',
+      name: 'Spray Wax / Paint Sealant',
+      price: '$75+',
       description:
-        'A common starting point when the vehicle needs a proper wash, interior/exterior reset, and prep foundation before protection.',
+        'Basic gloss and short-term protection. A good add-on for exterior or full details.',
     },
     {
-      name: 'Polishing or correction prep',
-      price: 'Quote Required',
+      name: 'Ceramic Spray Sealant',
+      price: '$125+',
       description:
-        'Needed when the paint has swirl marks, haze, or defects you do not want locked under the coating.',
+        'Better gloss and water-beading than spray wax. This is a premium protection upgrade, not a true ceramic coating.',
     },
     {
-      name: 'Ceramic Coating',
+      name: 'True Ceramic Coating',
       price: 'Quote Required',
       description:
-        'Quoted after inspection because size, prep, paint condition, and coating goals all matter.',
+        'Quoted after inspection because size, prep, paint condition, coating choice, and workspace all matter.',
     },
   ],
   bestFor: [
@@ -631,7 +676,7 @@ export const correctionPageContent: ServicePageContent = {
   eyebrow: 'Paint Correction',
   heroSummary:
     'This page explains what correction can realistically improve, what may still remain visible, and how we think about light enhancement versus deeper correction work.',
-  heroBadges: ['Paint Enhancement $250+', 'One-Step Correction $400+', 'Multi-Step quote required'],
+  heroBadges: ['Spot Polishing $50/panel', 'Paint Enhancement $400+', 'One-Step $650+'],
   heroNote:
     'Paint correction improves many defects, but not everything can be safely removed. Deep scratches through the clear coat, rock chips, rust, peeling clear coat, or failed paint may need more than polishing alone.',
   image: correctionImage,
@@ -710,22 +755,28 @@ export const correctionPageContent: ServicePageContent = {
     'The right level depends on paint condition, vehicle size, and how much improvement you are actually chasing.',
   pricingCards: [
     {
-      name: 'Paint Enhancement',
-      price: '$250+',
+      name: 'Spot Polishing',
+      price: '$50 per panel',
       description:
-        'A lighter polishing step for vehicles that mainly need more gloss, better clarity, and a cleaner overall finish.',
+        'For one panel or a small area that needs gloss improvement or light polishing.',
     },
     {
-      name: 'One-Step Correction',
+      name: 'Paint Enhancement',
       price: '$400+',
       description:
-        'The most common correction level when the vehicle has swirl marks, haze, and light-to-moderate defects that need stronger improvement.',
+        'A lighter polishing step for dull paint, better gloss, minor haze, and light swirl improvement.',
+    },
+    {
+      name: 'One-Step Paint Correction',
+      price: '$650+',
+      description:
+        'For swirl and haze reduction across the vehicle with stronger gloss improvement.',
     },
     {
       name: 'Multi-Step Correction',
       price: 'Quote Required',
       description:
-        'Used when the finish needs a more involved correction approach and the job should be quoted around the actual paint condition.',
+        'Used when defects are more serious or expectations are high. Quoted after inspection.',
     },
   ],
   bestFor: [
@@ -774,9 +825,9 @@ export const newVehiclePageContent: ServicePageContent = {
   eyebrow: 'New Vehicle Detailing',
   heroSummary:
     'New vehicles can still have dealer wash marks, transport contamination, dust, fingerprints, or light defects. A proper first detail gives the vehicle a cleaner starting point before regular wear builds up.',
-  heroBadges: ['Protection from day one', 'Dealer wash marks still happen', 'Coating-ready prep available'],
+  heroBadges: ['Refresh $195+', 'Prep Detail $250+', 'Protection Package $475+'],
   heroNote:
-    'New vehicles often start from our Standard or Premium detail range, then move into protection or coating based on paint condition and how far you want to go.',
+    'New vehicles can start with a light refresh, move into prep before protection, or get a ceramic spray protection package. True ceramic coating is quoted after inspection.',
   image: newVehicleImage,
   imageAlt: 'A new vehicle being carefully cleaned and protected early in its life',
   overview: [
@@ -871,27 +922,33 @@ export const newVehiclePageContent: ServicePageContent = {
     },
   ],
   pricingSectionLabel: 'Starting pricing',
-  pricingSectionTitle: 'Most new-vehicle jobs start from detail prep, then protection',
+  pricingSectionTitle: 'New vehicle packages start with cleanup, prep, and protection',
   pricingIntro:
-    'New vehicles often need less correction than older cars, but they still benefit from proper prep and protection planning.',
+    'New vehicles often need less correction than older cars, but they still benefit from proper cleanup, prep, and protection planning.',
   pricingCards: [
     {
-      name: 'Standard Detail',
-      price: '$180+',
+      name: 'New Vehicle Refresh',
+      price: '$195+',
       description:
-        'A strong starting point when the vehicle mainly needs proper cleanup, inspection, and prep.',
+        'A simple new vehicle clean with light interior refresh, exterior hand wash, glass, mats, and basic cleanup.',
     },
     {
-      name: 'Premium Detail',
+      name: 'New Vehicle Prep Detail',
       price: '$250+',
       description:
-        'A better fit when you want more time spent on refinement, cleanup depth, or prep before protection.',
+        'A better starting point before protection. Includes proper cleanup, exterior prep, wheels, tires, glass, and readiness for protection add-ons.',
     },
     {
-      name: 'Ceramic Coating / Protection',
+      name: 'New Vehicle Protection Package',
+      price: '$475+',
+      description:
+        'Includes New Vehicle Prep Detail plus Ceramic Spray Sealant for better gloss and water-beading protection.',
+    },
+    {
+      name: 'True Ceramic Coating',
       price: 'Quote Required',
       description:
-        'Quoted around the real paint condition and how much protection you want from the beginning.',
+        'Quoted after inspection based on paint condition, prep needed, vehicle size, coating choice, and workspace.',
     },
   ],
   bestFor: [
