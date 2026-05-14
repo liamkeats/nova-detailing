@@ -8,6 +8,17 @@ interface Props {
 
 const { content } = Astro.props;
 const hasPricingCards = content.pricingCards.length > 0;
+
+const getPackageId = (name: string) =>
+  `package-${name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')}`;
+
+const packageLinks = content.pricingCards.map((card, index) => ({
+  label: content.heroBadges[index] ?? `${card.name} ${card.price}`,
+  id: getPackageId(card.name),
+}));
 ---
 
 <main class="service-page">
@@ -17,11 +28,14 @@ const hasPricingCards = content.pricingCards.length > 0;
         <p class="service-eyebrow">{content.eyebrow}</p>
         <h1>{content.title}</h1>
         <span class="service-title-accent" aria-hidden="true"></span>
-        <p class="service-hero-description">{content.description}</p>
+        <p class="service-badge-helper">Tap a package to jump to the details.</p>
 
-        <div class="service-badge-row">
-          {content.heroBadges.map((badge) => (
-            <span class="service-badge">{badge}</span>
+        <div class="service-badge-row" aria-label="Jump to package details">
+          {packageLinks.map((link) => (
+            <a class="service-badge service-badge-link" href={`#${link.id}`}>
+              {link.label}
+              <span class="service-badge-arrow" aria-hidden="true">↓</span>
+            </a>
           ))}
         </div>
 
@@ -63,13 +77,61 @@ const hasPricingCards = content.pricingCards.length > 0;
 
           {hasPricingCards && (
             <div class="service-pricing-grid">
-              {content.pricingCards.map((card) => (
-                <article class="service-pricing-card service-reveal">
-                  <p class="service-pricing-name">{card.name}</p>
-                  <p class="service-pricing-value">{card.price}</p>
-                  <p class="service-pricing-description">{card.description}</p>
-                </article>
-              ))}
+              {content.pricingCards.map((card) => {
+                const packageId = getPackageId(card.name);
+                const detailsId = `${packageId}-details`;
+                const hasDetails = Boolean(card.details?.length || card.note);
+
+                return (
+                  <article
+                    id={packageId}
+                    class={`service-pricing-card service-reveal ${hasDetails ? 'service-pricing-card-expandable' : ''}`}
+                    tabindex={hasDetails ? '0' : undefined}
+                  >
+                    {hasDetails ? (
+                      <>
+                        <div
+                          class="service-pricing-toggle"
+                          role="button"
+                          aria-expanded="false"
+                          aria-controls={detailsId}
+                        >
+                          <span class="service-pricing-main">
+                            <span class="service-pricing-name">{card.name}</span>
+                            <span class="service-pricing-value">{card.price}</span>
+                            <span class="service-pricing-description">{card.description}</span>
+                          </span>
+
+                          <span class="service-pricing-icon" aria-hidden="true">+</span>
+                        </div>
+
+                        <div id={detailsId} class="service-pricing-details">
+                          <div class="service-pricing-details-inner">
+                            {card.details?.map((section) => (
+                              <div class="service-pricing-detail-section">
+                                <h4>{section.title}</h4>
+                                <ul>
+                                  {section.items.map((item) => (
+                                    <li>{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+
+                            {card.note && <p class="service-pricing-note">{card.note}</p>}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p class="service-pricing-name">{card.name}</p>
+                        <p class="service-pricing-value">{card.price}</p>
+                        <p class="service-pricing-description">{card.description}</p>
+                      </>
+                    )}
+                  </article>
+                );
+              })}
             </div>
           )}
 
@@ -459,4 +521,166 @@ const hasPricingCards = content.pricingCards.length > 0;
   } else {
     revealItems.forEach((item) => item.classList.add('is-visible'));
   }
+
+  const pricingCards = Array.from(document.querySelectorAll('.service-pricing-card-expandable'));
+
+  function canReorderPricingCards() {
+    return window.matchMedia('(min-width: 1180px)').matches;
+  }
+
+  function getCardPositions() {
+    const positions = new Map();
+
+    pricingCards.forEach((card) => {
+      positions.set(card, card.getBoundingClientRect());
+    });
+
+    return positions;
+  }
+
+  function animateCardMove(firstPositions) {
+    if (!canReorderPricingCards()) return;
+
+    pricingCards.forEach((card) => {
+      const first = firstPositions.get(card);
+      const last = card.getBoundingClientRect();
+
+      if (!first) return;
+
+      const deltaX = first.left - last.left;
+      const deltaY = first.top - last.top;
+
+      if (!deltaX && !deltaY) return;
+
+      card.animate(
+        [
+          {
+            transform: `translate(${deltaX}px, ${deltaY}px)`,
+          },
+          {
+            transform: 'translate(0, 0)',
+          },
+        ],
+        {
+          duration: 420,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        }
+      );
+    });
+  }
+
+  function updateCardOrder() {
+    if (!canReorderPricingCards()) {
+      pricingCards.forEach((card) => {
+        card.style.order = '';
+      });
+
+      return;
+    }
+
+    let order = 0;
+
+    // open cards first, in original order
+    pricingCards.forEach((card) => {
+      if (card.classList.contains('is-open')) {
+        card.style.order = String(order);
+        order += 1;
+      }
+    });
+
+    // closed cards second, in original order
+    pricingCards.forEach((card) => {
+      if (!card.classList.contains('is-open')) {
+        card.style.order = String(order);
+        order += 1;
+      }
+    });
+  }
+
+  function setCardClosed(card) {
+    card.classList.remove('is-open');
+
+    const button = card.querySelector('.service-pricing-toggle');
+    const icon = card.querySelector('.service-pricing-icon');
+
+    if (button) {
+      button.setAttribute('aria-expanded', 'false');
+    }
+
+    if (icon) {
+      icon.textContent = '+';
+    }
+  }
+
+  function setCardOpen(card) {
+    card.classList.add('is-open');
+
+    const button = card.querySelector('.service-pricing-toggle');
+    const icon = card.querySelector('.service-pricing-icon');
+
+    if (button) {
+      button.setAttribute('aria-expanded', 'true');
+    }
+
+    if (icon) {
+      icon.textContent = '−';
+    }
+  }
+
+  function togglePricingCard(card) {
+    if (!card) return;
+
+    const firstPositions = canReorderPricingCards() ? getCardPositions() : null;
+    const isOpen = card.classList.contains('is-open');
+
+    if (isOpen) {
+      setCardClosed(card);
+    } else {
+      setCardOpen(card);
+    }
+
+    updateCardOrder();
+
+    if (firstPositions) {
+      animateCardMove(firstPositions);
+    }
+  }
+
+  pricingCards.forEach((card) => {
+    card.addEventListener('click', () => {
+      togglePricingCard(card);
+    });
+
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        togglePricingCard(card);
+      }
+    });
+  });
+
+  function openCardFromHash() {
+    const hash = window.location.hash;
+
+    if (!hash) return;
+
+    const target = document.querySelector(hash);
+
+    if (target && target.classList.contains('service-pricing-card-expandable')) {
+      const firstPositions = canReorderPricingCards() ? getCardPositions() : null;
+
+      setCardOpen(target);
+      updateCardOrder();
+
+      if (firstPositions) {
+        animateCardMove(firstPositions);
+      }
+    }
+  }
+
+  window.addEventListener('resize', updateCardOrder);
+
+  updateCardOrder();
+  openCardFromHash();
+  window.addEventListener('hashchange', openCardFromHash);
 </script>

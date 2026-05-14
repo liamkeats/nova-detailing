@@ -10,10 +10,17 @@ export interface ServiceFeature {
   description: string;
 }
 
+export interface ServicePriceCardDetailSection {
+  title: string;
+  items: string[];
+}
+
 export interface ServicePriceCard {
   name: string;
   price: string;
   description: string;
+  details?: ServicePriceCardDetailSection[];
+  note?: string;
 }
 
 export interface ServiceTrustPoint {
@@ -197,24 +204,144 @@ export const detailingPageContent: ServicePageContent = {
       price: '$195+',
       description:
         'Best for a light full-vehicle refresh when the vehicle is already in decent condition.',
+      details: [
+        {
+          title: 'Best for',
+          items: [
+            'Vehicles that are already in decent shape',
+            'Customers who want a lighter refresh',
+            'Maintenance-style cleanup instead of a deep reset',
+          ],
+        },
+        {
+          title: 'Usually includes',
+          items: [
+            'Interior vacuum',
+            'Basic wipe down of main surfaces',
+            'Floor mats cleaned',
+            'Exterior hand wash',
+            'Wheels and tires cleaned',
+          ],
+        },
+        {
+          title: 'Watch for',
+          items: [
+            'Not meant for heavy stains, heavy salt, smoke smell, or major pet hair',
+            'Larger vehicles, extra rows, or very dirty vehicles may increase the final price',
+          ],
+        },
+      ],
+      note: 'Basic is for vehicles that are already in decent condition. If the vehicle needs a real reset, Standard or Premium usually makes more sense.',
     },
     {
       name: 'Standard Detail',
       price: '$375+',
       description:
         'The main regular full detail for most daily drivers that need both interior and exterior attention.',
+      details: [
+        {
+          title: 'Best for',
+          items: [
+            'Most daily drivers',
+            'Vehicles with normal dirt, dust, and buildup',
+            'Customers who want a proper interior and exterior clean without going all the way to Premium',
+          ],
+        },
+        {
+          title: 'Usually includes',
+          items: [
+            'Everything in Basic Detail',
+            'More detailed interior wipe down',
+            'More complete vacuuming and mat cleaning',
+            'Light spot cleaning where needed',
+            'Exterior hand wash',
+            'Wheels, tires, and door jambs cleaned',
+            'Exterior finish for a cleaner final look',
+          ],
+        },
+        {
+          title: 'Watch for',
+          items: [
+            'Heavy stains, major pet hair, smoke smell, or heavy salt may require Premium or extra charges',
+            'Oversized vehicles or vehicles with extra rows may increase the final price',
+          ],
+        },
+      ],
+      note: 'Standard is the safest starting point for most normal full-detail customers.',
     },
     {
       name: 'Premium Detail',
       price: '$575+',
       description:
         'Built as a deeper reset for heavier cleanup, more neglected vehicles, or owners who want more time spent on the detail.',
+      details: [
+        {
+          title: 'Best for',
+          items: [
+            'Vehicles that need a deeper reset',
+            'Dirtier interiors with more buildup',
+            'Customers who want extra time spent on problem areas',
+            'Vehicles that have not been detailed in a while',
+          ],
+        },
+        {
+          title: 'Usually includes',
+          items: [
+            'Everything in Standard Detail',
+            'Deeper interior cleaning',
+            'More detailed cleaning of cracks, trim, and tight areas',
+            'More attention to stains and dirty areas',
+            'More complete mat and floor cleaning',
+            'Exterior wash and finish',
+            'Extra time spent improving the overall result',
+          ],
+        },
+        {
+          title: 'Watch for',
+          items: [
+            'Extreme stains, excessive pet hair, smoke smell, mold, or biohazard may still need a custom quote',
+            'Final price depends on condition, vehicle size, and add-ons',
+          ],
+        },
+      ],
+      note: 'Premium is the better choice when the vehicle needs a noticeable reset, not just a lighter clean.',
     },
     {
       name: 'Executive Detail',
       price: '$850+',
       description:
         'The high-end non-ceramic package for customers who want Premium plus more add-ons included.',
+      details: [
+        {
+          title: 'Best for',
+          items: [
+            'Customers who want the most complete non-ceramic detail',
+            'Higher-end vehicles or owners who want the best result possible',
+            'Vehicles needing extra time across the interior and exterior',
+            'Customers who want more add-ons included instead of a basic clean',
+          ],
+        },
+        {
+          title: 'Usually includes',
+          items: [
+            'Everything in Premium Detail',
+            'Extra time on detailed interior areas',
+            'Extra attention to problem spots',
+            'More complete exterior finish',
+            'More included add-on style work depending on the vehicle',
+            'Priority-level full vehicle cleanup',
+          ],
+        },
+        {
+          title: 'Watch for',
+          items: [
+            'This is still starting-at pricing',
+            'Final quote depends on vehicle size, condition, add-ons, and customer expectations',
+            'Ceramic coating and paint correction are still quote-only services',
+          ],
+        },
+      ],
+      note: 'Executive is for customers who want the most complete detailing package before moving into quote-only services like ceramic coating or paint correction.',
     },
   ],
   pricingTableSection: {
