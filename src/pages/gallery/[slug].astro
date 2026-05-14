@@ -1,17 +1,9 @@
 ---
+export const prerender = false;
 import { Image } from 'astro:assets';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { client } from '../../lib/sanityClient';
 import { urlFor } from '../../lib/sanityImage';
-
-export async function getStaticPaths() {
-  const query = `*[_type == "galleryPost"]{ "slug": slug.current }`;
-  const slugs = await client.fetch(query);
-
-  return slugs.map((post: { slug: string }) => ({
-    params: { slug: post.slug },
-  }));
-}
 
 const { slug } = Astro.params;
 
@@ -126,64 +118,112 @@ const afterPhotos = (post.afterPhotos ?? []).map((photo: any, index: number) => 
     <div class="edge-label before-stick">Before</div>
     <div class="edge-label after-stick">After</div>
 
-    <div class="lightbox-overlay" id="lightbox">
-      <div id="lightbox-stage" class="lightbox-stage" role="img" aria-label="Expanded gallery image"></div>
+    <div class="lightbox-overlay" id="lightbox" aria-hidden="true">
+      <button
+        id="lightbox-close"
+        class="lightbox-close"
+        type="button"
+        aria-label="Close image"
+      >
+        ×
+      </button>
+
+      <div
+        id="lightbox-stage"
+        class="lightbox-stage"
+        role="img"
+        aria-label="Expanded gallery image"
+      ></div>
     </div>
   </main>
 
-  <script slot="scripts">
-    const lightbox = document.getElementById('lightbox') as HTMLElement | null;
-    const lightboxStage = document.getElementById('lightbox-stage') as HTMLElement | null;
-    const allImages = Array.from(document.querySelectorAll('.image-gallery img')) as HTMLImageElement[];
+  <script slot="scripts" is:inline>
+    (() => {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxStage = document.getElementById('lightbox-stage');
+      const closeButton = document.getElementById('lightbox-close');
+      const allImages = Array.from(document.querySelectorAll('.image-gallery img'));
 
-    let currentIndex = -1;
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    const getFullImageSrc = (img: HTMLImageElement) => img.dataset.fullsrc || img.src;
-
-    const showImageAtIndex = (index: number) => {
-      currentIndex = index;
-      if (lightboxStage) {
-        const activeImage = allImages[currentIndex];
-        lightboxStage.style.backgroundImage = `url("${getFullImageSrc(activeImage)}")`;
-        lightboxStage.setAttribute('aria-label', activeImage.alt || 'Expanded gallery image');
+      if (!lightbox || !lightboxStage || !closeButton || !allImages.length) {
+        return;
       }
-    };
+      let currentIndex = -1;
+      let touchStartX = 0;
 
-    if (lightbox && lightboxStage && allImages.length) {
-      allImages.forEach((img, index) => {
-        img.addEventListener('click', () => {
-          lightbox.style.display = 'flex';
-          showImageAtIndex(index);
-        });
-      });
+      const getFullImageSrc = (img) => img.dataset.fullsrc || img.currentSrc || img.src;
 
-      lightbox.addEventListener('click', () => {
-        lightbox.style.display = 'none';
-        lightboxStage.style.backgroundImage = '';
-        lightboxStage.setAttribute('aria-label', 'Expanded gallery image');
-        currentIndex = -1;
-      });
+      const openLightbox = (index) => {
+        const activeImage = allImages[index];
 
-      document.addEventListener('keydown', (event) => {
-        if (lightbox.style.display !== 'flex') {
+        if (!activeImage) {
           return;
         }
 
-        if (event.key === 'ArrowRight') {
-          showImageAtIndex((currentIndex + 1) % allImages.length);
-        }
+        currentIndex = index;
+        lightboxStage.style.backgroundImage = `url("${getFullImageSrc(activeImage)}")`;
+        lightboxStage.setAttribute('aria-label', activeImage.alt || 'Expanded gallery image');
+        lightbox.classList.add('is-open');
+        document.body.classList.add('lightbox-open');
+      };
 
-        if (event.key === 'ArrowLeft') {
-          showImageAtIndex((currentIndex - 1 + allImages.length) % allImages.length);
+      const closeLightbox = () => {
+        lightbox.classList.remove('is-open');
+        document.body.classList.remove('lightbox-open');
+        lightboxStage.style.backgroundImage = '';
+        lightboxStage.setAttribute('aria-label', 'Expanded gallery image');
+        currentIndex = -1;
+      };
+
+      const showNextImage = () => {
+        openLightbox((currentIndex + 1) % allImages.length);
+      };
+
+      const showPreviousImage = () => {
+        openLightbox((currentIndex - 1 + allImages.length) % allImages.length);
+      };
+
+      allImages.forEach((img, index) => {
+        img.setAttribute('tabindex', '0');
+        img.setAttribute('role', 'button');
+
+        img.addEventListener('click', () => {
+          openLightbox(index);
+        });
+
+        img.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openLightbox(index);
+          }
+        });
+      });
+
+      lightbox.addEventListener('click', closeLightbox);
+
+      lightboxStage.addEventListener('click', (event) => {
+        event.stopPropagation();
+      });
+
+      closeButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        closeLightbox();
+      });
+      
+      document.addEventListener('keydown', (event) => {
+        if (!lightbox.classList.contains('is-open')) {
+          return;
         }
 
         if (event.key === 'Escape') {
-          lightbox.style.display = 'none';
-          lightboxStage.style.backgroundImage = '';
-          lightboxStage.setAttribute('aria-label', 'Expanded gallery image');
-          currentIndex = -1;
+          closeLightbox();
+        }
+
+        if (event.key === 'ArrowRight') {
+          showNextImage();
+        }
+
+        if (event.key === 'ArrowLeft') {
+          showPreviousImage();
         }
       });
 
@@ -192,20 +232,20 @@ const afterPhotos = (post.afterPhotos ?? []).map((photo: any, index: number) => 
       });
 
       lightbox.addEventListener('touchend', (event) => {
-        touchEndX = event.changedTouches[0].screenX;
+        const touchEndX = event.changedTouches[0].screenX;
         const swipeDistance = touchEndX - touchStartX;
 
-        if (lightbox.style.display !== 'flex' || Math.abs(swipeDistance) <= 50) {
+        if (!lightbox.classList.contains('is-open') || Math.abs(swipeDistance) <= 50) {
           return;
         }
 
         if (swipeDistance < 0) {
-          showImageAtIndex((currentIndex + 1) % allImages.length);
+          showNextImage();
         } else {
-          showImageAtIndex((currentIndex - 1 + allImages.length) % allImages.length);
+          showPreviousImage();
         }
       });
-    }
+    })();
   </script>
 
   <script slot="scripts">

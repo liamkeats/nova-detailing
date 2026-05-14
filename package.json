@@ -9,9 +9,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/netlify": "^7.0.9",
     "@sanity/client": "^7.22.0",
     "@sanity/image-url": "^2.1.1",
-    "astro": "^6.1.10",
+    "astro": "^6.3.2",
     "axios": "^1.15.2",
     "openai": "^6.35.0",
     "twilio": "^6.0.0"
