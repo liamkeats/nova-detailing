@@ -1,11 +1,28 @@
+import { randomUUID } from 'node:crypto';
 import axios from 'axios';
+import { normalizeNorthAmericanPhone } from '../lib/phone.js';
 import { sendFormSmsNotification } from '../lib/sendFormSms.js';
+import {
+  createWebsiteContactLead,
+  markWebsiteContactNotification,
+} from '../lib/websiteContactLead.js';
 
 const GOOGLE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSetKRNgTfaF5WI2zMEsjEZ0hipHPEgjCvcgIKbVAYSwYwOK4Q/formResponse';
 
-const SERVICE_FIELD = 'entry.2144809380';
-const NOTES_FIELD = 'entry.1161262287';
+const FIELDS = {
+  service: 'entry.2144809380',
+  firstName: 'entry.1977954969',
+  lastName: 'entry.1289566118',
+  phone: 'entry.153198611',
+  email: 'entry.1562851891',
+  vehicleMake: 'entry.1548587124',
+  vehicleModel: 'entry.1550545176',
+  vehicleYear: 'entry.1033767936',
+  vehicleColor: 'entry.1297957681',
+  preferredDate: 'entry.362240232',
+  notes: 'entry.1161262287',
+};
 
 const SERVICE_VALUE_MAP = {
   'Interior Detailing': 'Interior Detailing',
@@ -18,13 +35,14 @@ const SERVICE_VALUE_MAP = {
 };
 
 const REQUIRED_FIELDS = [
-  SERVICE_FIELD,
-  'entry.1977954969',
-  'entry.1289566118',
-  'entry.153198611',
-  'entry.1562851891',
-  'entry.362240232',
+  FIELDS.service,
+  FIELDS.firstName,
+  FIELDS.lastName,
+  FIELDS.phone,
+  FIELDS.email,
+  FIELDS.preferredDate,
 ];
+const MAX_NOTIFICATION_LENGTH = 300;
 
 function jsonResponse(statusCode, body) {
   return {
@@ -48,8 +66,12 @@ function parseEventBody(event) {
   }
 }
 
-function buildNotes(selectedService, mappedService, currentNotes = '') {
-  const trimmedNotes = String(currentNotes || '').trim();
+function cleanText(value) {
+  return String(value || '').trim();
+}
+
+function buildGoogleNotes(selectedService, mappedService, currentNotes = '') {
+  const trimmedNotes = cleanText(currentNotes);
   const lines = [`Requested service: ${selectedService}`];
 
   if (mappedService && mappedService !== selectedService) {
@@ -65,12 +87,174 @@ function buildNotes(selectedService, mappedService, currentNotes = '') {
 
 function validatePayload(payload) {
   for (const field of REQUIRED_FIELDS) {
-    if (!String(payload[field] ?? '').trim()) {
-      return false;
+    if (!cleanText(payload[field])) {
+      throw new Error('Please fill out the required contact form fields.');
     }
   }
 
-  return true;
+  normalizeNorthAmericanPhone(payload[FIELDS.phone]);
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleanText(payload[FIELDS.preferredDate]))) {
+    throw new Error('Please choose a valid preferred date.');
+  }
+}
+
+function getSubmission(rawPayload) {
+  validatePayload(rawPayload);
+
+  const submittedId = cleanText(rawPayload.submissionId);
+  const firstName = cleanText(rawPayload[FIELDS.firstName]);
+  const lastName = cleanText(rawPayload[FIELDS.lastName]);
+  const service = cleanText(rawPayload[FIELDS.service]);
+  const vehicleMake = cleanText(rawPayload[FIELDS.vehicleMake]);
+  const vehicleModel = cleanText(rawPayload[FIELDS.vehicleModel]);
+  const vehicleYear = cleanText(rawPayload[FIELDS.vehicleYear]);
+  const vehicleColor = cleanText(rawPayload[FIELDS.vehicleColor]);
+  const preferredDate = cleanText(rawPayload[FIELDS.preferredDate]);
+  const notes = cleanText(rawPayload[FIELDS.notes]);
+  const phone = cleanText(rawPayload[FIELDS.phone]);
+  const email = cleanText(rawPayload[FIELDS.email]);
+  const name = `${firstName} ${lastName}`.trim();
+  const submissionId =
+    submittedId && submittedId.length <= 128
+      ? submittedId
+      : `contact-${randomUUID()}`;
+  const vehicle = [vehicleYear, vehicleMake, vehicleModel].filter(Boolean).join(' ');
+  const message = [
+    `Service: ${service}`,
+    vehicle ? `Vehicle: ${vehicle}` : null,
+    vehicleColor ? `Color: ${vehicleColor}` : null,
+    `Preferred date: ${preferredDate}`,
+    notes ? `Notes: ${notes}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return {
+    submissionId,
+    name,
+    phone,
+    normalizedPhone: normalizeNorthAmericanPhone(phone),
+    email,
+    service,
+    vehicleMake,
+    vehicleModel,
+    vehicleYear,
+    vehicleColor,
+    preferredDate,
+    notes,
+    message,
+    rawPayload,
+  };
+}
+
+function buildGooglePayload(rawPayload, selectedService) {
+  const mappedService = SERVICE_VALUE_MAP[selectedService] || selectedService;
+  const payload = Object.fromEntries(
+    Object.entries(rawPayload).filter(([key]) => key.startsWith('entry.')),
+  );
+
+  payload[FIELDS.service] = mappedService;
+  payload[FIELDS.notes] = buildGoogleNotes(
+    selectedService,
+    mappedService,
+    rawPayload[FIELDS.notes],
+  );
+
+  return {
+    payload,
+    mappedService,
+  };
+}
+
+function toSmsText(value) {
+  return String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9 @_$!"#%&'()*+,\-./:;<=>?\n\r]/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .trim();
+}
+
+function truncateText(value, maxLength) {
+  const text = toSmsText(value);
+
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  return `${text.slice(0, Math.max(0, maxLength - 3))}...`;
+}
+
+function formatPreferredDate(value) {
+  const [year, month, day] = String(value || '').split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat('en-CA', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+function appendOptionalLine(lines, footer, label, value, maxValueLength) {
+  if (!value) {
+    return;
+  }
+
+  const remaining = MAX_NOTIFICATION_LENGTH
+    - lines.join('\n').length
+    - footer.join('\n').length
+    - label.length
+    - 3;
+
+  if (remaining < 12) {
+    return;
+  }
+
+  lines.push(`${label}${truncateText(value, Math.min(maxValueLength, remaining))}`);
+}
+
+function buildNotification(submission, savedLead) {
+  const vehicle = [
+    submission.vehicleYear,
+    submission.vehicleMake,
+    submission.vehicleModel,
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const heading = savedLead
+    ? `New detailed lead #${savedLead.leadNumber}`
+    : 'New detailed request (CRM save failed)';
+  const footer = savedLead
+    ? [
+        `Text ${savedLead.leadNumber} status for full details.`,
+        'Text commands for all options.',
+      ]
+    : ['The Google Sheet was saved. Add this lead to the CRM manually.'];
+  const detailLines = [
+    heading,
+    `Name: ${truncateText(submission.name, 35)}`,
+    `Phone: ${truncateText(submission.phone, 20)}`,
+    `Service: ${truncateText(submission.service, 30)}`,
+    vehicle ? `Vehicle: ${truncateText(vehicle, 45)}` : null,
+    `Preferred: ${formatPreferredDate(submission.preferredDate)}`,
+  ].filter(Boolean);
+
+  appendOptionalLine(detailLines, footer, 'Email: ', submission.email, 60);
+  appendOptionalLine(detailLines, footer, 'Color: ', submission.vehicleColor, 25);
+  appendOptionalLine(detailLines, footer, 'Notes: ', submission.notes, 120);
+
+  return [
+    ...detailLines,
+    '',
+    ...footer,
+  ]
+    .join('\n');
 }
 
 export async function handler(event) {
@@ -79,25 +263,26 @@ export async function handler(event) {
   }
 
   const rawPayload = parseEventBody(event);
-  const payload = { ...rawPayload };
+  let submission;
 
-  if (!validatePayload(payload)) {
+  try {
+    submission = getSubmission(rawPayload);
+  } catch (error) {
     return jsonResponse(400, {
       success: false,
-      error: 'Please fill out the required contact form fields.',
+      error: error.message,
     });
   }
 
-  const selectedService = String(payload[SERVICE_FIELD]).trim();
-  const mappedService = SERVICE_VALUE_MAP[selectedService] || selectedService;
-
-  payload[SERVICE_FIELD] = mappedService;
-  payload[NOTES_FIELD] = buildNotes(selectedService, mappedService, payload[NOTES_FIELD]);
+  const { payload: googlePayload, mappedService } = buildGooglePayload(
+    rawPayload,
+    submission.service,
+  );
 
   try {
     const response = await axios.post(
       GOOGLE_FORM_URL,
-      new URLSearchParams(payload),
+      new URLSearchParams(googlePayload),
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -110,7 +295,7 @@ export async function handler(event) {
     if (response.status < 200 || response.status >= 300) {
       console.error('Google Form rejected contact submission', {
         status: response.status,
-        selectedService,
+        selectedService: submission.service,
         mappedService,
       });
 
@@ -120,18 +305,68 @@ export async function handler(event) {
       });
     }
 
-    let notificationSent = true;
+    let savedLead = null;
 
     try {
-      await sendFormSmsNotification();
+      savedLead = await createWebsiteContactLead(submission);
+    } catch (error) {
+      console.error('Detailed website CRM save failed', {
+        submissionId: submission.submissionId,
+        error: error.message,
+      });
+    }
+
+    if (savedLead?.isDuplicate && savedLead.notificationStatus === 'sent') {
+      return jsonResponse(200, {
+        success: true,
+        crmSaved: true,
+        leadNumber: savedLead.leadNumber,
+        duplicate: true,
+        notificationSent: true,
+      });
+    }
+
+    let notificationResult = {
+      sentCount: 0,
+      failedCount: 0,
+    };
+
+    try {
+      notificationResult = await sendFormSmsNotification(
+        buildNotification(submission, savedLead),
+      );
     } catch (smsError) {
-      notificationSent = false;
       console.error('SMS notification failed after Google Form success:', smsError);
+    }
+
+    if (savedLead) {
+      const notificationStatus = notificationResult.sentCount === 0
+        ? 'failed'
+        : notificationResult.failedCount === 0
+          ? 'sent'
+          : 'partial';
+
+      try {
+        await markWebsiteContactNotification({
+          submissionId: submission.submissionId,
+          status: notificationStatus,
+          ...notificationResult,
+        });
+      } catch (error) {
+        console.error('Unable to record detailed lead notification result', {
+          submissionId: submission.submissionId,
+          error: error.message,
+        });
+      }
     }
 
     return jsonResponse(200, {
       success: true,
-      notificationSent,
+      crmSaved: Boolean(savedLead),
+      leadNumber: savedLead?.leadNumber,
+      duplicate: Boolean(savedLead?.isDuplicate),
+      notificationSent: notificationResult.sentCount > 0,
+      notificationPartial: notificationResult.failedCount > 0,
     });
   } catch (error) {
     console.error('Contact form submit failed:', error);

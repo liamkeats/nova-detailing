@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "test": "node --test",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -12,8 +13,10 @@
     "@astrojs/netlify": "^7.0.9",
     "@sanity/client": "^7.22.0",
     "@sanity/image-url": "^2.1.1",
+    "@supabase/supabase-js": "^2.108.1",
     "astro": "^6.3.2",
     "axios": "^1.15.2",
+    "luxon": "^3.7.2",
     "openai": "^6.35.0",
     "twilio": "^6.0.0"
   }

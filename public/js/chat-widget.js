@@ -7,7 +7,19 @@ function initChatWidget() {
     const chatForm = document.getElementById('chat-form');
     const chatNameInput = document.querySelector('#chat-form input[name="name"]');
     let activeChatMessage = '';
-  
+    let isSubmitting = false;
+    let pendingSubmissionId = '';
+
+    function createSubmissionId() {
+      if (window.crypto?.randomUUID) {
+        return window.crypto.randomUUID();
+      }
+
+      return `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random()
+        .toString(36)
+        .slice(2)}`;
+    }
+
     function openChatPopup(prefillMessage = '') {
       if (!chatPopup) return;
 
@@ -78,27 +90,47 @@ function initChatWidget() {
     if (chatForm) {
       chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        if (isSubmitting) {
+          return;
+        }
+
+        isSubmitting = true;
         const formData = new FormData(chatForm);
         const data = Object.fromEntries(formData.entries());
-  
+        const chatBtnSend = document.getElementById('chat-now-button');
+
+        if (!pendingSubmissionId) {
+          pendingSubmissionId = createSubmissionId();
+        }
+
+        data.submissionId = pendingSubmissionId;
+
+        if (chatBtnSend) {
+          chatBtnSend.textContent = 'Sending...';
+          chatBtnSend.disabled = true;
+        }
+
         try {
           const res = await fetch('/.netlify/functions/sendSMS', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
           });
-  
-          if (res.ok) {
-            const chatBtnSend = document.getElementById('chat-now-button');
 
-            if (chatBtnSend){
-              chatBtnSend.textContent = "Message Sent ✅";
-              chatBtnSend.disabled = true;
-              chatBtnSend.classList.add('sent');
+          const result = await res.json().catch(() => ({}));
 
-              setTimeout(() => {
-                chatBtnSend.textContent = "Chat Now";
-                chatBtnSend.disabled = false;
+          if (!res.ok || result.success !== true) {
+            throw new Error(result.error || 'Failed to send message. Try again later.');
+          }
+
+          if (chatBtnSend) {
+            chatBtnSend.textContent = "Message Sent ✅";
+            chatBtnSend.classList.add('sent');
+
+            setTimeout(() => {
+              chatBtnSend.textContent = 'Send';
+              chatBtnSend.disabled = false;
               chatBtnSend.classList.remove('sent');
             }, 4000);
           }
@@ -106,12 +138,17 @@ function initChatWidget() {
           chatForm.reset();
           closeChatPopup();
           activeChatMessage = '';
-        } else {
-          alert('❌ Failed to send message. Try again later.');
-        }
+          pendingSubmissionId = '';
         } catch (err) {
           console.error('Form error:', err);
-          alert('❌ Network error. Try again.');
+          alert(err?.message || 'Network error. Try again.');
+
+          if (chatBtnSend) {
+            chatBtnSend.textContent = 'Send';
+            chatBtnSend.disabled = false;
+          }
+        } finally {
+          isSubmitting = false;
         }
       });
     }
