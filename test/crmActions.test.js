@@ -73,6 +73,7 @@ test('accepts every approved quick action', () => {
     'done',
     'cancel',
     'archive',
+    'restore',
   ]) {
     const result = validateCrmActionPayload(
       payload({ action, note: undefined }),
@@ -193,6 +194,18 @@ test('dashboard migration leaves the existing SMS RPC definitions untouched', as
   );
   assert.match(
     migration,
+    /when\s+'restore'\s+then[\s\S]+v_next_archived_at\s*:=\s*null[\s\S]+v_next_archived_by_team_member_id\s*:=\s*null[\s\S]+v_update_type\s*:=\s*'restore'/i,
+  );
+  assert.match(
+    migration,
+    /v_current_status\s*=\s*'cancelled'[\s\S]+p_action\s+not\s+in\s*\([^)]*'restore'/i,
+  );
+  assert.match(
+    migration,
+    /v_current_status\s*=\s*'completed'[\s\S]+p_action\s+not\s+in\s*\([^)]*'restore'/i,
+  );
+  assert.match(
+    migration,
     /add\s+column\s+if\s+not\s+exists\s+archived_at\s+timestamptz/i,
   );
   assert.match(
@@ -230,7 +243,11 @@ test('dashboard quick actions use the in-app confirmation dialog', async () => {
   assert.match(script, /openConfirmation\(action,\s*quickAction\)/);
   assert.match(script, /data-crm-quick-action="unpaid"/);
   assert.match(script, /data-crm-quick-action="archive"/);
+  assert.match(script, /data-crm-quick-action="restore"/);
+  assert.match(script, /includeArchived=true/);
   assert.match(script, /Reopen this lead as/);
+  assert.match(page, /id="crm-show-archived"/);
+  assert.match(page, />Show archived</);
   assert.match(page, /id="crm-confirmation"/);
   assert.match(page, /role="alertdialog"/);
 });

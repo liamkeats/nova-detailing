@@ -133,7 +133,12 @@ export function getAppointmentBuckets(
   const todayStart = now.startOf('day');
   const tomorrowStart = todayStart.plus({ days: 1 });
   const booked = leads
-    .filter((lead) => lead.status === 'booked' && lead.appointmentAt)
+    .filter(
+      (lead) =>
+        !lead.archivedAt &&
+        lead.status === 'booked' &&
+        lead.appointmentAt,
+    )
     .map((lead) => ({
       lead,
       date: DateTime.fromISO(lead.appointmentAt, {
@@ -168,45 +173,52 @@ function indexLatestActivity(rows, predicate = () => true) {
   return result;
 }
 
-export async function getCrmOverview() {
+export async function getCrmOverview({ includeArchived = false } = {}) {
   const supabase = getSupabaseAdminClient();
+  let leadQuery = supabase
+    .from('leads')
+    .select(
+      [
+        'id',
+        'lead_number',
+        'status',
+        'source',
+        'lead_type',
+        'quote_price',
+        'payment_status',
+        'paid_at',
+        'appointment_text',
+        'appointment_at',
+        'service_requested',
+        'vehicle_make',
+        'vehicle_model',
+        'vehicle_year',
+        'vehicle_color',
+        'preferred_date',
+        'request_notes',
+        'created_at',
+        'updated_at',
+        'completed_at',
+        'archived_at',
+        'archived_by_team_member_id',
+        'customers(name, phone, email)',
+      ].join(','),
+    );
+
+  if (!includeArchived) {
+    leadQuery = leadQuery.is('archived_at', null);
+  }
+
+  leadQuery = leadQuery
+    .order('updated_at', { ascending: false })
+    .limit(500);
+
   const [
     { data: rawLeads, error: leadError },
     { data: rawMessages, error: messageError },
     { data: rawUpdates, error: updateError },
   ] = await Promise.all([
-    supabase
-      .from('leads')
-      .select(
-        [
-          'id',
-          'lead_number',
-          'status',
-          'source',
-          'lead_type',
-          'quote_price',
-          'payment_status',
-          'paid_at',
-          'appointment_text',
-          'appointment_at',
-          'service_requested',
-          'vehicle_make',
-          'vehicle_model',
-          'vehicle_year',
-          'vehicle_color',
-          'preferred_date',
-          'request_notes',
-          'created_at',
-          'updated_at',
-          'completed_at',
-          'archived_at',
-          'archived_by_team_member_id',
-          'customers(name, phone, email)',
-        ].join(','),
-      )
-      .is('archived_at', null)
-      .order('updated_at', { ascending: false })
-      .limit(500),
+    leadQuery,
     supabase
       .from('messages')
       .select('lead_id, direction, body, created_at')
@@ -251,9 +263,12 @@ export async function getCrmOverview() {
   };
 }
 
-export async function getCrmLeadDetail(leadNumber) {
+export async function getCrmLeadDetail(
+  leadNumber,
+  { includeArchived = false } = {},
+) {
   const supabase = getSupabaseAdminClient();
-  const { data: rawLead, error: leadError } = await supabase
+  let leadQuery = supabase
     .from('leads')
     .select(
       [
@@ -282,9 +297,14 @@ export async function getCrmLeadDetail(leadNumber) {
         'customers(name, phone, email, created_at, updated_at)',
       ].join(','),
     )
-    .eq('lead_number', leadNumber)
-    .is('archived_at', null)
-    .maybeSingle();
+    .eq('lead_number', leadNumber);
+
+  if (!includeArchived) {
+    leadQuery = leadQuery.is('archived_at', null);
+  }
+
+  const { data: rawLead, error: leadError } =
+    await leadQuery.maybeSingle();
 
   if (leadError) {
     throw new Error(`Unable to load CRM lead: ${leadError.message}`);
@@ -352,6 +372,8 @@ export async function getCrmLeadDetail(leadNumber) {
 
   return {
     ...lead,
+    archivedBy:
+      teamNames.get(rawLead.archived_by_team_member_id) || '',
     customer: {
       ...lead.customer,
       createdAt: getRelatedRecord(rawLead.customers)?.created_at || null,

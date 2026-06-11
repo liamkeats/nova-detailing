@@ -120,6 +120,11 @@ const userEmail = Astro.locals.crmUser?.email || '';
               <option value="paid">Paid</option>
             </select>
           </label>
+
+          <label class="crm-archive-toggle">
+            <input id="crm-show-archived" type="checkbox" />
+            <span>Show archived</span>
+          </label>
         </div>
 
         <nav

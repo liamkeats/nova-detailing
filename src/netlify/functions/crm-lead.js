@@ -51,7 +51,11 @@ export async function handler(event) {
   }
 
   try {
-    const lead = await getCrmLeadDetail(leadNumber);
+    const includeArchived =
+      event.queryStringParameters?.includeArchived === 'true';
+    const lead = await getCrmLeadDetail(leadNumber, {
+      includeArchived,
+    });
 
     if (!lead) {
       return crmJsonResponse(

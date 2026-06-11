@@ -93,7 +93,8 @@ alter table public.lead_updates
       'unpaid',
       'status',
       'reopen',
-      'archive'
+      'archive',
+      'restore'
     )
   );
 
@@ -184,7 +185,8 @@ begin
     'unpaid',
     'done',
     'cancel',
-    'archive'
+    'archive',
+    'restore'
   ) then
     raise exception 'crm_invalid: unsupported dashboard action';
   end if;
@@ -294,11 +296,23 @@ begin
       return;
     end if;
 
-    raise exception 'crm_conflict: archived leads cannot be changed';
+    if p_action <> 'restore' then
+      raise exception 'crm_conflict: archived leads can only be restored';
+    end if;
+  elsif p_action = 'restore' then
+    return query
+    select
+      v_lead_id,
+      p_lead_number,
+      p_action,
+      format('Lead #%s is already on the board.', p_lead_number),
+      v_current_updated_at,
+      false;
+    return;
   end if;
 
   if v_current_status = 'cancelled'
-    and p_action not in ('note', 'archive') then
+    and p_action not in ('note', 'archive', 'restore') then
     if p_action = 'cancel' then
       return query
       select
@@ -316,12 +330,20 @@ begin
 
   if v_current_status = 'completed'
     and v_current_payment_status = 'paid'
-    and p_action not in ('note', 'unpaid', 'status', 'archive') then
+    and p_action not in ('note', 'unpaid', 'status', 'archive', 'restore') then
     raise exception 'crm_conflict: completed paid leads can only receive notes, be marked unpaid, reopened, or archived';
   end if;
 
   if v_current_status = 'completed'
-    and p_action not in ('note', 'paid', 'unpaid', 'done', 'status', 'archive') then
+    and p_action not in (
+      'note',
+      'paid',
+      'unpaid',
+      'done',
+      'status',
+      'archive',
+      'restore'
+    ) then
     raise exception 'crm_conflict: completed unpaid leads can only receive notes, be marked paid, reopened, or archived';
   end if;
 
@@ -572,6 +594,19 @@ begin
       );
       v_response_text := format(
         'Lead #%s archived and removed from the board.',
+        p_lead_number
+      );
+
+    when 'restore' then
+      v_next_archived_at := null;
+      v_next_archived_by_team_member_id := null;
+      v_update_type := 'restore';
+      v_update_message := format(
+        'Restored to the CRM board by %s',
+        v_team_member_name
+      );
+      v_response_text := format(
+        'Lead #%s restored to the board.',
         p_lead_number
       );
   end case;

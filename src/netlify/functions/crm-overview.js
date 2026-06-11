@@ -38,7 +38,9 @@ export async function handler(event) {
   }
 
   try {
-    const overview = await getCrmOverview();
+    const includeArchived =
+      event.queryStringParameters?.includeArchived === 'true';
+    const overview = await getCrmOverview({ includeArchived });
 
     return crmJsonResponse(
       200,

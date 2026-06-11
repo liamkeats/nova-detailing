@@ -36,6 +36,7 @@ It does not modify customers, existing leads, existing history, or either
 - Cancel lead
 - Reopen a completed lead
 - Archive / remove a lead from the normal board
+- Show archived leads on demand and restore them to the board
 
 `done` records that the work is complete without changing payment. `paid`
 records payment and also completes any non-cancelled lead that is not already
@@ -46,6 +47,12 @@ always implies completed.
 Archiving is a soft removal only. It hides the lead from normal CRM overview,
 detail, search, filters, and appointment lists while preserving the customer,
 messages, notes, history, SMS command events, and intake records.
+
+The `Show archived` toggle is off by default. When enabled, archived leads
+appear in their previous workflow columns with an Archived label and can be
+searched or opened. Restoring clears the archive fields and records the
+authenticated team member in history. Archived bookings never appear in Today
+or Upcoming.
 
 All actions require:
 

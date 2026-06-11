@@ -95,16 +95,37 @@ test('normalizes a Supabase lead into a dashboard card', () => {
   assert.equal(lead.archivedAt, null);
 });
 
-test('server-side CRM reads exclude archived leads', async () => {
-  const dashboardModule = await readFile(
-    new URL('../src/netlify/lib/crmDashboard.js', import.meta.url),
-    'utf8',
-  );
+test('server-side CRM reads require an explicit archived opt-in', async () => {
+  const [dashboardModule, overviewEndpoint, leadEndpoint] =
+    await Promise.all([
+      readFile(
+        new URL('../src/netlify/lib/crmDashboard.js', import.meta.url),
+        'utf8',
+      ),
+      readFile(
+        new URL('../src/netlify/functions/crm-overview.js', import.meta.url),
+        'utf8',
+      ),
+      readFile(
+        new URL('../src/netlify/functions/crm-lead.js', import.meta.url),
+        'utf8',
+      ),
+    ]);
 
   assert.equal(
     dashboardModule.match(/\.is\('archived_at',\s*null\)/g)?.length,
     2,
   );
+  assert.match(
+    dashboardModule,
+    /getCrmOverview\(\{\s*includeArchived\s*=\s*false\s*\}/,
+  );
+  assert.match(
+    dashboardModule,
+    /getCrmLeadDetail\([\s\S]+includeArchived\s*=\s*false/,
+  );
+  assert.match(overviewEndpoint, /includeArchived\s*===\s*'true'/);
+  assert.match(leadEndpoint, /includeArchived\s*===\s*'true'/);
   assert.match(dashboardModule, /'archived_at'/);
   assert.match(dashboardModule, /'archived_by_team_member_id'/);
 });
@@ -162,6 +183,15 @@ test('groups Halifax-local today and upcoming appointments', () => {
         lead_number: 1003,
         status: 'completed',
         appointment_at: '2026-06-10T17:00:00.000Z',
+      }),
+    ),
+    normalizeCrmLead(
+      createLead({
+        id: 'archived-booking',
+        lead_number: 1004,
+        status: 'booked',
+        appointment_at: '2026-06-10T16:00:00.000Z',
+        archived_at: '2026-06-10T17:00:00.000Z',
       }),
     ),
   ];

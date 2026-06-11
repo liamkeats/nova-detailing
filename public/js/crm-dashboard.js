@@ -5,6 +5,7 @@
     status: '',
     source: '',
     payment: '',
+    showArchived: false,
     currentLead: null,
     actionPending: false,
     actionFeedback: null,
@@ -26,6 +27,7 @@
     statusFilter: document.getElementById('crm-status-filter'),
     sourceFilter: document.getElementById('crm-source-filter'),
     paymentFilter: document.getElementById('crm-payment-filter'),
+    showArchived: document.getElementById('crm-show-archived'),
     refresh: document.getElementById('crm-refresh'),
     mobileTabs: document.getElementById('crm-mobile-tabs'),
     drawer: document.getElementById('crm-lead-drawer'),
@@ -249,13 +251,20 @@
     return `
       <button
         type="button"
-        class="crm-lead-card"
+        class="crm-lead-card${lead.archivedAt ? ' is-archived' : ''}"
         data-lead-number="${lead.leadNumber}"
       >
         <span class="crm-card-topline">
           <strong>#${lead.leadNumber}</strong>
-          <span class="crm-payment-pill crm-payment-${escapeHtml(lead.paymentStatus)}">
-            ${escapeHtml(lead.paymentStatus)}
+          <span class="crm-card-pills">
+            ${
+              lead.archivedAt
+                ? '<span class="crm-archived-pill">Archived</span>'
+                : ''
+            }
+            <span class="crm-payment-pill crm-payment-${escapeHtml(lead.paymentStatus)}">
+              ${escapeHtml(lead.paymentStatus)}
+            </span>
           </span>
         </span>
         <span class="crm-card-name">${escapeHtml(lead.customer.name)}</span>
@@ -406,6 +415,7 @@
   }
 
   function renderActionSection(lead) {
+    const isArchived = Boolean(lead.archivedAt);
     const isCompleted = lead.status === 'completed';
     const isCompletedPaid =
       isCompleted && lead.paymentStatus === 'paid';
@@ -432,6 +442,36 @@
         </div>
       `
       : '';
+
+    if (isArchived) {
+      return `
+        <section class="crm-detail-section crm-actions-section">
+          <div class="crm-actions-heading">
+            <div>
+              <p class="crm-eyebrow">Archived lead</p>
+              <h3>Restore this lead</h3>
+            </div>
+            <span>All history has been preserved</span>
+          </div>
+
+          ${feedback}
+
+          <p class="crm-action-note">
+            This lead is hidden from the normal CRM board and search.
+            Restoring it returns it to its previous workflow column.
+          </p>
+
+          <button
+            type="button"
+            class="crm-restore-button"
+            data-crm-quick-action="restore"
+            data-crm-action-control
+          >
+            Restore to board
+          </button>
+        </section>
+      `;
+    }
 
     return `
       <section class="crm-detail-section crm-actions-section">
@@ -650,6 +690,11 @@
         <span class="crm-payment-pill crm-payment-${escapeHtml(lead.paymentStatus)}">
           ${escapeHtml(statusLabel(lead.paymentStatus))}
         </span>
+        ${
+          lead.archivedAt
+            ? '<span class="crm-archived-pill">Archived</span>'
+            : ''
+        }
       </span>
     `;
     elements.drawerContent.innerHTML = `
@@ -663,6 +708,8 @@
           ${detailRow('Source', sourceLabel(lead.source))}
           ${detailRow('Created', formatDate(lead.createdAt))}
           ${detailRow('Updated', formatDate(lead.updatedAt))}
+          ${detailRow('Archived at', formatDate(lead.archivedAt))}
+          ${detailRow('Archived by', lead.archivedBy)}
         </dl>
       </section>
 
@@ -768,6 +815,11 @@
       button: 'Remove from board',
       danger: true,
     },
+    restore: {
+      title: 'Restore this lead to the board?',
+      message: 'The archive fields will be cleared and the lead will return to its previous workflow column. The archive and restore history will remain.',
+      button: 'Restore to board',
+    },
   };
 
   function openConfirmation(action, trigger, values = {}, copyOverride) {
@@ -818,7 +870,9 @@
 
     try {
       const data = await requestJson(
-        `/api/crm-lead?leadNumber=${encodeURIComponent(leadNumber)}`,
+        `/api/crm-lead?leadNumber=${encodeURIComponent(leadNumber)}${
+          state.showArchived ? '&includeArchived=true' : ''
+        }`,
       );
       renderLeadDetail(data.lead);
     } catch (error) {
@@ -836,7 +890,11 @@
     }
 
     try {
-      state.overview = await requestJson('/api/crm-overview');
+      state.overview = await requestJson(
+        `/api/crm-overview${
+          state.showArchived ? '?includeArchived=true' : ''
+        }`,
+      );
       renderSummary();
       renderAppointments();
       populateFilters();
@@ -911,7 +969,9 @@
       if (error.status === 409) {
         try {
           const refreshed = await requestJson(
-            `/api/crm-lead?leadNumber=${encodeURIComponent(leadNumber)}`,
+            `/api/crm-lead?leadNumber=${encodeURIComponent(leadNumber)}${
+              state.showArchived ? '&includeArchived=true' : ''
+            }`,
           );
           state.currentLead = refreshed.lead;
           await loadOverview({ silent: true });
@@ -985,6 +1045,15 @@
   elements.paymentFilter.addEventListener('change', (event) => {
     state.payment = event.target.value;
     renderBoard();
+  });
+  elements.showArchived.addEventListener('change', (event) => {
+    state.showArchived = event.target.checked;
+
+    if (!state.showArchived && state.currentLead?.archivedAt) {
+      closeDrawer();
+    }
+
+    loadOverview();
   });
   elements.refresh.addEventListener('click', loadOverview);
   elements.drawerClose.addEventListener('click', closeDrawer);

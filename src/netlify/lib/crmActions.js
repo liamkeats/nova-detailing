@@ -13,6 +13,7 @@ const CRM_ACTIONS = new Set([
   'done',
   'cancel',
   'archive',
+  'restore',
 ]);
 const CRM_STATUSES = new Set([
   'new',
