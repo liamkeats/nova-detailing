@@ -5,6 +5,9 @@
     status: '',
     source: '',
     payment: '',
+    currentLead: null,
+    actionPending: false,
+    actionFeedback: null,
   };
 
   const elements = {
@@ -94,11 +97,13 @@
     elements.alert.textContent = message;
   }
 
-  async function requestJson(url) {
+  async function requestJson(url, options = {}) {
     const response = await fetch(url, {
       credentials: 'same-origin',
+      ...options,
       headers: {
         Accept: 'application/json',
+        ...(options.headers || {}),
       },
     });
 
@@ -110,7 +115,9 @@
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok || data.success !== true) {
-      throw new Error(data.error || 'Unable to load CRM data.');
+      const error = new Error(data.error || 'Unable to load CRM data.');
+      error.status = response.status;
+      throw error;
     }
 
     return data;
@@ -183,6 +190,7 @@
           `<option value="${escapeHtml(group.id)}">${escapeHtml(group.label)}</option>`,
       ),
     ].join('');
+    elements.statusFilter.value = state.status;
 
     const sources = [
       ...new Set(state.overview.leads.map((lead) => lead.source).filter(Boolean)),
@@ -194,6 +202,8 @@
           `<option value="${escapeHtml(source)}">${escapeHtml(sourceLabel(source))}</option>`,
       ),
     ].join('');
+    elements.sourceFilter.value = state.source;
+    elements.paymentFilter.value = state.payment;
   }
 
   function getFilteredLeads() {
@@ -354,7 +364,221 @@
       .join('');
   }
 
+  function formatAppointmentInput(value) {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    const parts = Object.fromEntries(
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Halifax',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      })
+        .formatToParts(date)
+        .filter((part) => part.type !== 'literal')
+        .map((part) => [part.type, part.value]),
+    );
+
+    return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+  }
+
+  function disabledAttribute(disabled) {
+    return disabled ? 'disabled data-disabled' : '';
+  }
+
+  function renderActionSection(lead) {
+    const isCompleted = lead.status === 'completed';
+    const isCancelled = lead.status === 'cancelled';
+    const isTerminal = isCompleted || isCancelled;
+    const canMarkPaid =
+      ['booked', 'completed'].includes(lead.status) &&
+      lead.paymentStatus !== 'paid';
+    const statusOptions = [
+      ['new', 'New'],
+      ['contacted', 'Contacted'],
+      ['waiting', 'Waiting'],
+      ['quoted', 'Quoted'],
+      ['booked', 'Booked'],
+    ];
+    const feedback = state.actionFeedback
+      ? `
+        <div class="crm-action-feedback is-${escapeHtml(state.actionFeedback.type)}" role="status">
+          ${escapeHtml(state.actionFeedback.message)}
+        </div>
+      `
+      : '';
+
+    return `
+      <section class="crm-detail-section crm-actions-section">
+        <div class="crm-actions-heading">
+          <div>
+            <p class="crm-eyebrow">Team actions</p>
+            <h3>Update this lead</h3>
+          </div>
+          <span>Saved changes appear in history</span>
+        </div>
+
+        ${feedback}
+
+        <div class="crm-action-grid">
+          <form class="crm-action-form" data-crm-action-form="status">
+            <label>
+              <span>Lead status</span>
+              <select
+                name="status"
+                data-crm-action-control
+                ${disabledAttribute(isTerminal)}
+                required
+              >
+                <option value="">Choose status</option>
+                ${statusOptions
+                  .map(
+                    ([value, label]) => `
+                      <option
+                        value="${value}"
+                        ${lead.status === value ? 'selected' : ''}
+                      >
+                        ${label}
+                      </option>
+                    `,
+                  )
+                  .join('')}
+              </select>
+            </label>
+            <button
+              type="submit"
+              data-crm-action-control
+              ${disabledAttribute(isTerminal)}
+            >
+              Save status
+            </button>
+          </form>
+
+          <form class="crm-action-form" data-crm-action-form="quote">
+            <label>
+              <span>Quote price</span>
+              <span class="crm-money-input">
+                <span>$</span>
+                <input
+                  type="number"
+                  name="amount"
+                  min="0.01"
+                  max="999999.99"
+                  step="0.01"
+                  value="${lead.quotePrice ?? ''}"
+                  inputmode="decimal"
+                  data-crm-action-control
+                  ${disabledAttribute(isTerminal)}
+                  required
+                />
+              </span>
+            </label>
+            <button
+              type="submit"
+              data-crm-action-control
+              ${disabledAttribute(isTerminal)}
+            >
+              Save quote
+            </button>
+          </form>
+        </div>
+
+        <form class="crm-action-form crm-book-form" data-crm-action-form="book">
+          <label>
+            <span>Appointment date and time</span>
+            <input
+              type="datetime-local"
+              name="appointmentLocal"
+              value="${escapeHtml(formatAppointmentInput(lead.appointmentAt))}"
+              data-crm-action-control
+              ${disabledAttribute(isTerminal)}
+              required
+            />
+          </label>
+          <button
+            type="submit"
+            data-crm-action-control
+            ${disabledAttribute(isTerminal)}
+          >
+            Book appointment
+          </button>
+        </form>
+
+        <form class="crm-action-form crm-note-form" data-crm-action-form="note">
+          <label>
+            <span>Add internal note</span>
+            <textarea
+              name="note"
+              maxlength="2000"
+              rows="3"
+              placeholder="Add a note for Liam and Elijah..."
+              data-crm-action-control
+              required
+            ></textarea>
+          </label>
+          <button type="submit" data-crm-action-control>Add note</button>
+        </form>
+
+        <div class="crm-quick-actions" aria-label="Lead quick actions">
+          <button
+            type="button"
+            data-crm-quick-action="no_reply"
+            data-crm-action-control
+            ${disabledAttribute(isTerminal || lead.status === 'no_reply')}
+          >
+            No reply
+          </button>
+          <button
+            type="button"
+            data-crm-quick-action="paid"
+            data-crm-action-control
+            ${disabledAttribute(!canMarkPaid)}
+          >
+            Mark paid
+          </button>
+          <button
+            type="button"
+            data-crm-quick-action="done"
+            data-crm-action-control
+            ${disabledAttribute(isTerminal)}
+          >
+            Mark done
+          </button>
+          <button
+            type="button"
+            class="is-danger"
+            data-crm-quick-action="cancel"
+            data-crm-action-control
+            ${disabledAttribute(isTerminal)}
+          >
+            Cancel lead
+          </button>
+        </div>
+
+        ${
+          isCancelled
+            ? '<p class="crm-action-note">Cancelled leads can still receive internal notes.</p>'
+            : isCompleted
+              ? '<p class="crm-action-note">Completed leads can receive notes and can be marked paid.</p>'
+              : ''
+        }
+      </section>
+    `;
+  }
+
   function renderLeadDetail(lead) {
+    state.currentLead = lead;
     const phoneLink = lead.customer.phone
       ? `<a href="tel:${escapeHtml(lead.customer.phone)}">${escapeHtml(lead.customer.phone)}</a>`
       : '';
@@ -392,6 +616,8 @@
       </span>
     `;
     elements.drawerContent.innerHTML = `
+      ${renderActionSection(lead)}
+
       <section class="crm-detail-section">
         <h3>Customer</h3>
         <dl class="crm-detail-list">
@@ -467,9 +693,12 @@
     elements.drawer.classList.remove('is-open');
     elements.drawerBackdrop.hidden = true;
     document.body.classList.remove('crm-drawer-open');
+    state.currentLead = null;
+    state.actionFeedback = null;
   }
 
   async function loadLead(leadNumber) {
+    state.actionFeedback = null;
     elements.drawerTitle.innerHTML = `
       <p class="crm-eyebrow">Lead #${escapeHtml(leadNumber)}</p>
       <h2>Loading details...</h2>
@@ -490,10 +719,12 @@
     }
   }
 
-  async function loadOverview() {
-    setAlert('');
-    elements.refresh.disabled = true;
-    elements.refresh.textContent = 'Refreshing...';
+  async function loadOverview({ silent = false } = {}) {
+    if (!silent) {
+      setAlert('');
+      elements.refresh.disabled = true;
+      elements.refresh.textContent = 'Refreshing...';
+    }
 
     try {
       state.overview = await requestJson('/api/crm-overview');
@@ -503,12 +734,100 @@
       renderBoard();
     } catch (error) {
       setAlert(error.message);
-      elements.board.innerHTML =
-        '<div class="crm-board-loading">The CRM could not be loaded.</div>';
+      if (!silent) {
+        elements.board.innerHTML =
+          '<div class="crm-board-loading">The CRM could not be loaded.</div>';
+      }
     } finally {
-      elements.refresh.disabled = false;
-      elements.refresh.textContent = 'Refresh';
+      if (!silent) {
+        elements.refresh.disabled = false;
+        elements.refresh.textContent = 'Refresh';
+      }
     }
+  }
+
+  function setActionPending(pending) {
+    state.actionPending = pending;
+    elements.drawer.classList.toggle('is-saving', pending);
+    elements.drawer
+      .querySelectorAll('[data-crm-action-control]')
+      .forEach((control) => {
+        control.disabled = pending || control.hasAttribute('data-disabled');
+      });
+  }
+
+  async function submitCrmAction(action, values = {}) {
+    if (!state.currentLead || state.actionPending) {
+      return;
+    }
+
+    const leadNumber = state.currentLead.leadNumber;
+    setActionPending(true);
+    setAlert('');
+
+    try {
+      const data = await requestJson('/api/crm-action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          leadNumber,
+          action,
+          requestId: crypto.randomUUID(),
+          expectedUpdatedAt: state.currentLead.updatedAt,
+          ...values,
+        }),
+      });
+
+      state.actionFeedback = {
+        type: 'success',
+        message: data.result.responseText,
+      };
+      renderLeadDetail(data.lead);
+      await loadOverview({ silent: true });
+    } catch (error) {
+      state.actionFeedback = {
+        type: 'error',
+        message: error.message,
+      };
+
+      if (error.status === 409) {
+        try {
+          const refreshed = await requestJson(
+            `/api/crm-lead?leadNumber=${encodeURIComponent(leadNumber)}`,
+          );
+          state.currentLead = refreshed.lead;
+          await loadOverview({ silent: true });
+        } catch {
+          // Keep the original conflict message visible.
+        }
+      }
+
+      if (state.currentLead) {
+        renderLeadDetail(state.currentLead);
+      }
+    } finally {
+      setActionPending(false);
+    }
+  }
+
+  function handleActionForm(form) {
+    const action = form.dataset.crmActionForm;
+    const formData = new FormData(form);
+    const values = {};
+
+    if (action === 'status') {
+      values.status = formData.get('status');
+    } else if (action === 'quote') {
+      values.amount = formData.get('amount');
+    } else if (action === 'book') {
+      values.appointmentLocal = formData.get('appointmentLocal');
+    } else if (action === 'note') {
+      values.note = formData.get('note');
+    }
+
+    submitCrmAction(action, values);
   }
 
   elements.search.addEventListener('input', (event) => {
@@ -531,7 +850,35 @@
   elements.drawerClose.addEventListener('click', closeDrawer);
   elements.drawerBackdrop.addEventListener('click', closeDrawer);
 
+  document.addEventListener('submit', (event) => {
+    const form = event.target.closest('[data-crm-action-form]');
+
+    if (!form) {
+      return;
+    }
+
+    event.preventDefault();
+    handleActionForm(form);
+  });
+
   document.addEventListener('click', (event) => {
+    const quickAction = event.target.closest('[data-crm-quick-action]');
+
+    if (quickAction) {
+      const action = quickAction.dataset.crmQuickAction;
+      const confirmations = {
+        no_reply: 'Mark this lead as no reply?',
+        paid: 'Mark this lead as paid?',
+        done: 'Mark this lead as completed?',
+        cancel: 'Cancel this lead? This removes it from open leads.',
+      };
+
+      if (window.confirm(confirmations[action])) {
+        submitCrmAction(action);
+      }
+      return;
+    }
+
     const leadButton = event.target.closest('[data-lead-number]');
 
     if (leadButton) {
