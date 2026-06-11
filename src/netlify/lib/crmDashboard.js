@@ -25,9 +25,16 @@ export const CRM_STATUS_GROUPS = [
     statuses: ['booked'],
   },
   {
-    id: 'completed',
-    label: 'Completed',
+    id: 'completed_unpaid',
+    label: 'Completed - Unpaid',
     statuses: ['completed'],
+    paymentStatuses: ['unpaid'],
+  },
+  {
+    id: 'completed_paid',
+    label: 'Completed - Paid',
+    statuses: ['completed'],
+    paymentStatuses: ['paid'],
   },
   {
     id: 'no_reply',
@@ -55,9 +62,14 @@ function truncate(value, maxLength = 180) {
   return `${text.slice(0, maxLength - 3)}...`;
 }
 
-export function getCrmStatusGroup(status) {
+export function getCrmStatusGroup(status, paymentStatus = 'unpaid') {
   return (
-    CRM_STATUS_GROUPS.find((group) => group.statuses.includes(status))?.id ||
+    CRM_STATUS_GROUPS.find(
+      (group) =>
+        group.statuses.includes(status) &&
+        (!group.paymentStatuses ||
+          group.paymentStatuses.includes(paymentStatus)),
+    )?.id ||
     'new'
   );
 }
@@ -76,12 +88,13 @@ export function normalizeCrmLead(lead, activity = {}) {
     lead.request_notes ||
     activity.originalMessage ||
     '';
+  const paymentStatus = lead.payment_status || 'unpaid';
 
   return {
     id: lead.id,
     leadNumber: Number(lead.lead_number),
     status: lead.status,
-    statusGroup: getCrmStatusGroup(lead.status),
+    statusGroup: getCrmStatusGroup(lead.status, paymentStatus),
     source: lead.source,
     leadType: lead.lead_type,
     customer: {
@@ -94,7 +107,7 @@ export function normalizeCrmLead(lead, activity = {}) {
     vehicleColor: lead.vehicle_color || '',
     quotePrice:
       lead.quote_price == null ? null : Number(lead.quote_price),
-    paymentStatus: lead.payment_status || 'unpaid',
+    paymentStatus,
     paidAt: lead.paid_at || null,
     appointmentText: lead.appointment_text || '',
     appointmentAt: lead.appointment_at || null,

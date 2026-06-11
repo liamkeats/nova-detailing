@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { DateTime } from 'luxon';
 import {
+  CRM_STATUS_GROUPS,
   getAppointmentBuckets,
   getCrmStatusGroup,
   normalizeCrmLead,
@@ -39,12 +40,32 @@ function createLead(overrides = {}) {
 }
 
 test('maps CRM statuses into the approved board columns', () => {
+  assert.deepEqual(
+    CRM_STATUS_GROUPS.map((group) => group.label),
+    [
+      'New',
+      'Contacted / Waiting',
+      'Quoted',
+      'Booked',
+      'Completed - Unpaid',
+      'Completed - Paid',
+      'No Reply',
+      'Cancelled',
+    ],
+  );
   assert.equal(getCrmStatusGroup('new'), 'new');
   assert.equal(getCrmStatusGroup('contacted'), 'contacted');
   assert.equal(getCrmStatusGroup('waiting'), 'contacted');
   assert.equal(getCrmStatusGroup('quoted'), 'quoted');
   assert.equal(getCrmStatusGroup('booked'), 'booked');
-  assert.equal(getCrmStatusGroup('completed'), 'completed');
+  assert.equal(
+    getCrmStatusGroup('completed', 'unpaid'),
+    'completed_unpaid',
+  );
+  assert.equal(
+    getCrmStatusGroup('completed', 'paid'),
+    'completed_paid',
+  );
   assert.equal(getCrmStatusGroup('no_reply'), 'no_reply');
   assert.equal(getCrmStatusGroup('cancelled'), 'cancelled');
 });
@@ -68,6 +89,18 @@ test('normalizes a Supabase lead into a dashboard card', () => {
   assert.equal(lead.vehicle, '2022 Honda Civic');
   assert.equal(lead.customer.name, 'Test Customer');
   assert.equal(lead.latestActivity, 'Customer asked about pet hair.');
+});
+
+test('splits completed leads by payment status', () => {
+  const unpaid = normalizeCrmLead(
+    createLead({ status: 'completed', payment_status: 'unpaid' }),
+  );
+  const paid = normalizeCrmLead(
+    createLead({ status: 'completed', payment_status: 'paid' }),
+  );
+
+  assert.equal(unpaid.statusGroup, 'completed_unpaid');
+  assert.equal(paid.statusGroup, 'completed_paid');
 });
 
 test('groups Halifax-local today and upcoming appointments', () => {

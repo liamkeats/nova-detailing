@@ -33,6 +33,11 @@ It does not modify customers, existing leads, existing history, or either
 - Mark completed
 - Cancel lead
 
+`done` records that the work is complete without changing payment. `paid`
+records payment and also completes any non-cancelled lead that is not already
+complete. The board shows completed unpaid and completed paid work in separate
+columns.
+
 All actions require:
 
 - a verified Supabase Auth session;

@@ -8,6 +8,8 @@
     currentLead: null,
     actionPending: false,
     actionFeedback: null,
+    confirmationAction: null,
+    confirmationTrigger: null,
   };
 
   const elements = {
@@ -30,6 +32,11 @@
     drawerTitle: document.getElementById('crm-drawer-title'),
     drawerContent: document.getElementById('crm-drawer-content'),
     drawerClose: document.getElementById('crm-drawer-close'),
+    confirmation: document.getElementById('crm-confirmation'),
+    confirmationTitle: document.getElementById('crm-confirmation-title'),
+    confirmationMessage: document.getElementById('crm-confirmation-message'),
+    confirmationCancel: document.getElementById('crm-confirmation-cancel'),
+    confirmationSubmit: document.getElementById('crm-confirmation-submit'),
   };
 
   if (!elements.board) {
@@ -399,11 +406,14 @@
 
   function renderActionSection(lead) {
     const isCompleted = lead.status === 'completed';
+    const isCompletedPaid =
+      isCompleted && lead.paymentStatus === 'paid';
+    const isCompletedUnpaid =
+      isCompleted && lead.paymentStatus !== 'paid';
     const isCancelled = lead.status === 'cancelled';
-    const isTerminal = isCompleted || isCancelled;
+    const isLocked = isCompleted || isCancelled;
     const canMarkPaid =
-      ['booked', 'completed'].includes(lead.status) &&
-      lead.paymentStatus !== 'paid';
+      !isCancelled && lead.paymentStatus !== 'paid';
     const statusOptions = [
       ['new', 'New'],
       ['contacted', 'Contacted'],
@@ -438,7 +448,7 @@
               <select
                 name="status"
                 data-crm-action-control
-                ${disabledAttribute(isTerminal)}
+                ${disabledAttribute(isLocked)}
                 required
               >
                 <option value="">Choose status</option>
@@ -459,7 +469,7 @@
             <button
               type="submit"
               data-crm-action-control
-              ${disabledAttribute(isTerminal)}
+              ${disabledAttribute(isLocked)}
             >
               Save status
             </button>
@@ -479,7 +489,7 @@
                   value="${lead.quotePrice ?? ''}"
                   inputmode="decimal"
                   data-crm-action-control
-                  ${disabledAttribute(isTerminal)}
+                  ${disabledAttribute(isLocked)}
                   required
                 />
               </span>
@@ -487,7 +497,7 @@
             <button
               type="submit"
               data-crm-action-control
-              ${disabledAttribute(isTerminal)}
+              ${disabledAttribute(isLocked)}
             >
               Save quote
             </button>
@@ -502,14 +512,14 @@
               name="appointmentLocal"
               value="${escapeHtml(formatAppointmentInput(lead.appointmentAt))}"
               data-crm-action-control
-              ${disabledAttribute(isTerminal)}
+              ${disabledAttribute(isLocked)}
               required
             />
           </label>
           <button
             type="submit"
             data-crm-action-control
-            ${disabledAttribute(isTerminal)}
+            ${disabledAttribute(isLocked)}
           >
             Book appointment
           </button>
@@ -535,7 +545,7 @@
             type="button"
             data-crm-quick-action="no_reply"
             data-crm-action-control
-            ${disabledAttribute(isTerminal || lead.status === 'no_reply')}
+            ${disabledAttribute(isLocked || lead.status === 'no_reply')}
           >
             No reply
           </button>
@@ -551,7 +561,7 @@
             type="button"
             data-crm-quick-action="done"
             data-crm-action-control
-            ${disabledAttribute(isTerminal)}
+            ${disabledAttribute(isLocked)}
           >
             Mark done
           </button>
@@ -560,7 +570,7 @@
             class="is-danger"
             data-crm-quick-action="cancel"
             data-crm-action-control
-            ${disabledAttribute(isTerminal)}
+            ${disabledAttribute(isLocked)}
           >
             Cancel lead
           </button>
@@ -569,8 +579,10 @@
         ${
           isCancelled
             ? '<p class="crm-action-note">Cancelled leads can still receive internal notes.</p>'
-            : isCompleted
-              ? '<p class="crm-action-note">Completed leads can receive notes and can be marked paid.</p>'
+            : isCompletedUnpaid
+              ? '<p class="crm-action-note">This job is completed but unpaid. Internal notes and Mark paid remain available.</p>'
+              : isCompletedPaid
+                ? '<p class="crm-action-note">This job is completed and paid. Internal notes remain available.</p>'
               : ''
         }
       </section>
@@ -611,8 +623,13 @@
     elements.drawerTitle.innerHTML = `
       <p class="crm-eyebrow">${escapeHtml(sourceLabel(lead.source))}</p>
       <h2>#${lead.leadNumber} ${escapeHtml(lead.customer.name)}</h2>
-      <span class="crm-status-pill crm-status-${escapeHtml(lead.status)}">
-        ${escapeHtml(statusLabel(lead.status))}
+      <span class="crm-lead-state-pills">
+        <span class="crm-status-pill crm-status-${escapeHtml(lead.status)}">
+          ${escapeHtml(statusLabel(lead.status))}
+        </span>
+        <span class="crm-payment-pill crm-payment-${escapeHtml(lead.paymentStatus)}">
+          ${escapeHtml(statusLabel(lead.paymentStatus))}
+        </span>
       </span>
     `;
     elements.drawerContent.innerHTML = `
@@ -689,12 +706,71 @@
   }
 
   function closeDrawer() {
+    closeConfirmation();
     elements.drawer.setAttribute('aria-hidden', 'true');
     elements.drawer.classList.remove('is-open');
     elements.drawerBackdrop.hidden = true;
     document.body.classList.remove('crm-drawer-open');
     state.currentLead = null;
     state.actionFeedback = null;
+  }
+
+  const confirmationCopy = {
+    no_reply: {
+      title: 'Mark this lead as no reply?',
+      message: 'The lead will move to No Reply. You can still reopen it later by changing its status.',
+      button: 'Mark no reply',
+    },
+    paid: {
+      title: 'Mark this job as paid?',
+      message: 'Payment will be recorded and the job will move to Completed - Paid if it is not already completed.',
+      button: 'Mark paid',
+    },
+    done: {
+      title: 'Mark this job as done?',
+      message: 'The job will move to Completed - Unpaid. Payment will remain unchanged until you use Mark paid.',
+      button: 'Mark done',
+    },
+    cancel: {
+      title: 'Cancel this lead?',
+      message: 'The lead will move to Cancelled and will be removed from the open pipeline.',
+      button: 'Cancel lead',
+      danger: true,
+    },
+  };
+
+  function openConfirmation(action, trigger) {
+    const copy = confirmationCopy[action];
+
+    if (!copy || state.actionPending) {
+      return;
+    }
+
+    state.confirmationAction = action;
+    state.confirmationTrigger = trigger;
+    elements.confirmationTitle.textContent = copy.title;
+    elements.confirmationMessage.textContent = copy.message;
+    elements.confirmationSubmit.textContent = copy.button;
+    elements.confirmationSubmit.classList.toggle('is-danger', copy.danger);
+    elements.confirmation.hidden = false;
+    document.body.classList.add('crm-confirmation-open');
+    elements.confirmationSubmit.focus();
+  }
+
+  function closeConfirmation({ restoreFocus = true } = {}) {
+    if (!elements.confirmation || elements.confirmation.hidden) {
+      return;
+    }
+
+    elements.confirmation.hidden = true;
+    document.body.classList.remove('crm-confirmation-open');
+
+    if (restoreFocus) {
+      state.confirmationTrigger?.focus();
+    }
+
+    state.confirmationAction = null;
+    state.confirmationTrigger = null;
   }
 
   async function loadLead(leadNumber) {
@@ -849,6 +925,20 @@
   elements.refresh.addEventListener('click', loadOverview);
   elements.drawerClose.addEventListener('click', closeDrawer);
   elements.drawerBackdrop.addEventListener('click', closeDrawer);
+  elements.confirmationCancel.addEventListener('click', closeConfirmation);
+  elements.confirmation.addEventListener('click', (event) => {
+    if (event.target === elements.confirmation) {
+      closeConfirmation();
+    }
+  });
+  elements.confirmationSubmit.addEventListener('click', () => {
+    const action = state.confirmationAction;
+    closeConfirmation({ restoreFocus: false });
+
+    if (action) {
+      submitCrmAction(action);
+    }
+  });
 
   document.addEventListener('submit', (event) => {
     const form = event.target.closest('[data-crm-action-form]');
@@ -866,16 +956,7 @@
 
     if (quickAction) {
       const action = quickAction.dataset.crmQuickAction;
-      const confirmations = {
-        no_reply: 'Mark this lead as no reply?',
-        paid: 'Mark this lead as paid?',
-        done: 'Mark this lead as completed?',
-        cancel: 'Cancel this lead? This removes it from open leads.',
-      };
-
-      if (window.confirm(confirmations[action])) {
-        submitCrmAction(action);
-      }
+      openConfirmation(action, quickAction);
       return;
     }
 
@@ -900,7 +981,12 @@
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && elements.drawer.classList.contains('is-open')) {
+    if (event.key === 'Escape' && !elements.confirmation.hidden) {
+      closeConfirmation();
+    } else if (
+      event.key === 'Escape' &&
+      elements.drawer.classList.contains('is-open')
+    ) {
       closeDrawer();
     }
   });

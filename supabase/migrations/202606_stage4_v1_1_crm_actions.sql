@@ -276,6 +276,12 @@ begin
   end if;
 
   if v_current_status = 'completed'
+    and v_current_payment_status = 'paid'
+    and p_action <> 'note' then
+    raise exception 'crm_conflict: completed paid leads can only receive notes';
+  end if;
+
+  if v_current_status = 'completed'
     and p_action not in ('note', 'paid', 'done') then
     raise exception 'crm_conflict: completed leads can only receive notes or payment updates';
   end if;
@@ -420,10 +426,6 @@ begin
       v_response_text := format('Lead #%s marked no reply.', p_lead_number);
 
     when 'paid' then
-      if v_current_status not in ('booked', 'completed') then
-        raise exception 'crm_invalid: lead must be booked or completed before marking it paid';
-      end if;
-
       if v_current_payment_status = 'paid' then
         return query
         select
@@ -436,11 +438,21 @@ begin
         return;
       end if;
 
+      v_next_status := 'completed';
       v_next_payment_status := 'paid';
       v_next_paid_at := now();
+      v_next_completed_at := coalesce(v_current_completed_at, now());
       v_update_type := 'paid';
-      v_update_message := format('Marked paid by %s', v_team_member_name);
-      v_response_text := format('Lead #%s marked paid.', p_lead_number);
+      v_update_message := case
+        when v_current_status = 'completed'
+          then format('Marked paid by %s', v_team_member_name)
+        else format('Marked paid and completed by %s', v_team_member_name)
+      end;
+      v_response_text := case
+        when v_current_status = 'completed'
+          then format('Lead #%s marked paid.', p_lead_number)
+        else format('Lead #%s marked paid and completed.', p_lead_number)
+      end;
 
     when 'done' then
       v_next_status := 'completed';

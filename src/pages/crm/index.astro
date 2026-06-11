@@ -156,5 +156,37 @@ const userEmail = Astro.locals.crmUser?.email || '';
     <div id="crm-drawer-content" class="crm-drawer-content"></div>
   </aside>
 
+  <div
+    id="crm-confirmation"
+    class="crm-confirmation-backdrop"
+    hidden
+  >
+    <section
+      class="crm-confirmation-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="crm-confirmation-title"
+      aria-describedby="crm-confirmation-message"
+    >
+      <p class="crm-eyebrow">Confirm update</p>
+      <h2 id="crm-confirmation-title"></h2>
+      <p id="crm-confirmation-message"></p>
+      <div class="crm-confirmation-actions">
+        <button
+          id="crm-confirmation-cancel"
+          class="crm-ghost-button"
+          type="button"
+        >
+          Keep editing
+        </button>
+        <button
+          id="crm-confirmation-submit"
+          class="crm-confirmation-submit"
+          type="button"
+        ></button>
+      </div>
+    </section>
+  </div>
+
   <script slot="scripts" src="/js/crm-dashboard.js" defer></script>
 </CrmLayout>

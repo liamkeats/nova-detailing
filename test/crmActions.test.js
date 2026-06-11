@@ -161,6 +161,17 @@ test('dashboard migration leaves the existing SMS RPC definitions untouched', as
   );
   assert.match(migration, /elijahkroezen@gmail\.com/i);
   assert.doesNotMatch(migration, /elijahkrozen@gmail\.com/i);
+  const paidBranch = migration.match(
+    /when\s+'paid'\s+then([\s\S]+?)when\s+'done'\s+then/i,
+  )?.[1];
+
+  assert.ok(paidBranch);
+  assert.match(paidBranch, /v_next_status\s*:=\s*'completed'/i);
+  assert.doesNotMatch(paidBranch, /v_current_status\s+not\s+in/i);
+  assert.match(
+    migration,
+    /when\s+'done'[\s\S]+v_next_status\s*:=\s*'completed'[\s\S]+v_next_completed_at\s*:=\s*now\(\)/i,
+  );
 });
 
 test('CRM action endpoint rejects non-POST methods without touching data', async () => {
@@ -174,4 +185,22 @@ test('CRM action endpoint rejects non-POST methods without touching data', async
     success: false,
     error: 'Method not allowed.',
   });
+});
+
+test('dashboard quick actions use the in-app confirmation dialog', async () => {
+  const [script, page] = await Promise.all([
+    readFile(
+      new URL('../public/js/crm-dashboard.js', import.meta.url),
+      'utf8',
+    ),
+    readFile(
+      new URL('../src/pages/crm/index.astro', import.meta.url),
+      'utf8',
+    ),
+  ]);
+
+  assert.doesNotMatch(script, /window\.confirm/);
+  assert.match(script, /openConfirmation\(action,\s*quickAction\)/);
+  assert.match(page, /id="crm-confirmation"/);
+  assert.match(page, /role="alertdialog"/);
 });
