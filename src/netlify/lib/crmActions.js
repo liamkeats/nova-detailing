@@ -59,10 +59,10 @@ export function validateCrmActionPayload(
   const leadNumber = Number(payload.leadNumber);
   const action = String(payload.action || '').trim().toLowerCase();
   const requestId = String(payload.requestId || '').trim();
-  const expectedUpdatedAt = DateTime.fromISO(
-    String(payload.expectedUpdatedAt || ''),
-    { setZone: true },
-  );
+  const expectedUpdatedAtText = String(payload.expectedUpdatedAt || '').trim();
+  const expectedUpdatedAt = DateTime.fromISO(expectedUpdatedAtText, {
+    setZone: true,
+  });
 
   if (!Number.isSafeInteger(leadNumber) || leadNumber < 1) {
     throw new CrmActionError('A valid lead number is required.');
@@ -84,7 +84,8 @@ export function validateCrmActionPayload(
     leadNumber,
     action,
     requestId,
-    expectedUpdatedAt: expectedUpdatedAt.toUTC().toISO(),
+    // Keep Supabase's microsecond precision for the optimistic-lock check.
+    expectedUpdatedAt: expectedUpdatedAtText,
     note: null,
     amount: null,
     status: null,

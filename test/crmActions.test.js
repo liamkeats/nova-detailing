@@ -55,6 +55,16 @@ test('validates dashboard note, status, and quote actions', () => {
   );
 });
 
+test('preserves Supabase microseconds in the stale-edit timestamp', () => {
+  const preciseTimestamp = '2026-06-10T22:14:10.533698+00:00';
+  const result = validateCrmActionPayload(
+    payload({ expectedUpdatedAt: preciseTimestamp }),
+    now,
+  );
+
+  assert.equal(result.expectedUpdatedAt, preciseTimestamp);
+});
+
 test('accepts every approved quick action', () => {
   for (const action of ['no_reply', 'paid', 'done', 'cancel']) {
     const result = validateCrmActionPayload(
