@@ -42,6 +42,9 @@ All actions require:
 - the lead's current `updated_at` value;
 - a unique request ID.
 
+The approved team emails are `keatsliam@gmail.com` and
+`elijahkroezen@gmail.com`.
+
 ## Audit records
 
 Successful mutations create:

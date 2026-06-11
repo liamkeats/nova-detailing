@@ -25,7 +25,7 @@ where
   )
   or (
     member.normalized_phone = '+19023001267'
-    and lower(auth_user.email) = 'elijahkrozen@gmail.com'
+    and lower(auth_user.email) = 'elijahkroezen@gmail.com'
   );
 
 do $$
@@ -46,7 +46,7 @@ begin
     from public.team_members
     where normalized_phone = '+19023001267'
       and auth_user_id is not null
-      and auth_email = 'elijahkrozen@gmail.com'
+      and auth_email = 'elijahkroezen@gmail.com'
       and active = true
   ) then
     raise exception 'Elijah CRM Auth user could not be mapped to team_members';

@@ -149,6 +149,8 @@ test('dashboard migration leaves the existing SMS RPC definitions untouched', as
     migration,
     /grant\s+execute\s+on\s+function\s+public\.apply_crm_dashboard_lead_action[\s\S]+to\s+service_role/i,
   );
+  assert.match(migration, /elijahkroezen@gmail\.com/i);
+  assert.doesNotMatch(migration, /elijahkrozen@gmail\.com/i);
 });
 
 test('CRM action endpoint rejects non-POST methods without touching data', async () => {
