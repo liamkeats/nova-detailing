@@ -1,0 +1,101 @@
+---
+export const prerender = false;
+
+import CrmLayout from '../../layouts/CrmLayout.astro';
+import {
+  createAstroSupabaseClient,
+  isAllowedCrmEmail,
+} from '../../lib/crmAuth';
+
+let errorMessage = '';
+let submittedEmail = '';
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  submittedEmail = String(formData.get('email') || '')
+    .trim()
+    .toLowerCase();
+  const password = String(formData.get('password') || '');
+
+  if (!submittedEmail || !password) {
+    errorMessage = 'Enter your email and password.';
+  } else if (!isAllowedCrmEmail(submittedEmail)) {
+    errorMessage = 'This account is not approved for the Nova CRM.';
+  } else {
+    try {
+      const supabase = createAstroSupabaseClient(
+        Astro.cookies,
+        Astro.request
+      );
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: submittedEmail,
+        password,
+      });
+
+      if (error || !data.user || !isAllowedCrmEmail(data.user.email)) {
+        errorMessage = 'The email or password was not accepted.';
+      } else {
+        return Astro.redirect('/crm');
+      }
+    } catch (error) {
+      console.error('CRM login failed', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      errorMessage = 'CRM login is not configured yet.';
+    }
+  }
+}
+---
+
+<CrmLayout title="Nova CRM Login" bodyClass="crm-login-page">
+  <main class="crm-login-shell">
+    <section class="crm-login-card" aria-labelledby="crm-login-title">
+      <a class="crm-login-brand" href="/" aria-label="Return to Nova Detailing">
+        <span class="crm-brand-mark">N</span>
+        <span>
+          <strong>NOVA</strong>
+          <small>DETAILING CRM</small>
+        </span>
+      </a>
+
+      <div class="crm-login-heading">
+        <p class="crm-eyebrow">Private team access</p>
+        <h1 id="crm-login-title">Welcome back</h1>
+        <p>Sign in with your approved Nova Detailing account.</p>
+      </div>
+
+      {errorMessage && (
+        <div class="crm-form-error" role="alert">{errorMessage}</div>
+      )}
+
+      <form method="post" class="crm-login-form">
+        <label>
+          <span>Email</span>
+          <input
+            type="email"
+            name="email"
+            value={submittedEmail}
+            autocomplete="username"
+            required
+          />
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+
+        <button type="submit">Sign in to CRM</button>
+      </form>
+
+      <p class="crm-login-note">
+        Access is limited to approved Nova Detailing team accounts.
+      </p>
+    </section>
+  </main>
+</CrmLayout>

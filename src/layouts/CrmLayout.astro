@@ -1,0 +1,40 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  bodyClass?: string;
+  pageStyles?: string[];
+}
+
+const {
+  title,
+  description = 'Private Nova Detailing CRM',
+  bodyClass = '',
+  pageStyles = [],
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#080a0f" />
+    <title>{title}</title>
+    <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles/crm.css" />
+    {pageStyles.map((href) => <link rel="stylesheet" href={href} />)}
+  </head>
+  <body class={bodyClass}>
+    <slot />
+    <slot name="scripts" />
+  </body>
+</html>

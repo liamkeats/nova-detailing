@@ -1,0 +1,160 @@
+---
+export const prerender = false;
+
+import CrmLayout from '../../layouts/CrmLayout.astro';
+
+const userEmail = Astro.locals.crmUser?.email || '';
+---
+
+<CrmLayout title="Nova Detailing CRM" bodyClass="crm-app-page">
+  <div class="crm-app">
+    <header class="crm-app-header">
+      <div class="crm-header-brand">
+        <span class="crm-brand-mark">N</span>
+        <div>
+          <strong>NOVA CRM</strong>
+          <span>Read-only overview</span>
+        </div>
+      </div>
+
+      <div class="crm-header-account">
+        <span>{userEmail}</span>
+        <form action="/crm/logout" method="post">
+          <button type="submit" class="crm-ghost-button">Sign out</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="crm-main">
+      <section class="crm-page-heading">
+        <div>
+          <p class="crm-eyebrow">Stage 4 V1</p>
+          <h1>Lead overview</h1>
+          <p>Everything currently stored in the Nova Supabase CRM.</p>
+        </div>
+        <button id="crm-refresh" class="crm-refresh-button" type="button">
+          Refresh
+        </button>
+      </section>
+
+      <div id="crm-alert" class="crm-alert" hidden></div>
+
+      <section
+        id="crm-summary"
+        class="crm-summary-grid"
+        aria-label="CRM status summary"
+      >
+        <div class="crm-summary-skeleton"></div>
+        <div class="crm-summary-skeleton"></div>
+        <div class="crm-summary-skeleton"></div>
+        <div class="crm-summary-skeleton"></div>
+      </section>
+
+      <section class="crm-schedule-grid" aria-label="Appointments">
+        <article class="crm-schedule-panel">
+          <div class="crm-section-heading">
+            <div>
+              <p class="crm-eyebrow">Schedule</p>
+              <h2>Today</h2>
+            </div>
+            <span id="crm-today-count" class="crm-count-badge">0</span>
+          </div>
+          <div id="crm-today" class="crm-appointment-list">
+            <p class="crm-muted">Loading today's jobs...</p>
+          </div>
+        </article>
+
+        <article class="crm-schedule-panel">
+          <div class="crm-section-heading">
+            <div>
+              <p class="crm-eyebrow">Next up</p>
+              <h2>Upcoming</h2>
+            </div>
+            <span id="crm-upcoming-count" class="crm-count-badge">0</span>
+          </div>
+          <div id="crm-upcoming" class="crm-appointment-list">
+            <p class="crm-muted">Loading upcoming jobs...</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="crm-board-section">
+        <div class="crm-board-heading">
+          <div>
+            <p class="crm-eyebrow">Pipeline</p>
+            <h2>All leads</h2>
+          </div>
+          <span id="crm-result-count" class="crm-result-count"></span>
+        </div>
+
+        <div class="crm-filter-bar">
+          <label class="crm-search-field">
+            <span class="sr-only">Search leads</span>
+            <input
+              id="crm-search"
+              type="search"
+              placeholder="Search name, phone, vehicle, or lead #"
+              autocomplete="off"
+            />
+          </label>
+
+          <label>
+            <span class="sr-only">Filter status</span>
+            <select id="crm-status-filter">
+              <option value="">All statuses</option>
+            </select>
+          </label>
+
+          <label>
+            <span class="sr-only">Filter source</span>
+            <select id="crm-source-filter">
+              <option value="">All sources</option>
+            </select>
+          </label>
+
+          <label>
+            <span class="sr-only">Filter payment</span>
+            <select id="crm-payment-filter">
+              <option value="">All payments</option>
+              <option value="unpaid">Unpaid</option>
+              <option value="paid">Paid</option>
+            </select>
+          </label>
+        </div>
+
+        <nav
+          id="crm-mobile-tabs"
+          class="crm-mobile-tabs"
+          aria-label="Jump to lead status"
+        ></nav>
+
+        <div id="crm-board" class="crm-board" aria-live="polite">
+          <div class="crm-board-loading">Loading CRM leads...</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="crm-drawer-backdrop" class="crm-drawer-backdrop" hidden></div>
+  <aside
+    id="crm-lead-drawer"
+    class="crm-lead-drawer"
+    aria-label="Lead details"
+    aria-hidden="true"
+  >
+    <div class="crm-drawer-header">
+      <div id="crm-drawer-title"></div>
+      <button
+        id="crm-drawer-close"
+        class="crm-icon-button"
+        type="button"
+        aria-label="Close lead details"
+      >
+        &times;
+      </button>
+    </div>
+    <div id="crm-drawer-content" class="crm-drawer-content"></div>
+  </aside>
+
+  <script slot="scripts" src="/js/crm-dashboard.js" defer></script>
+</CrmLayout>
