@@ -4,8 +4,10 @@ import {
   completeCommandEvent,
   executeLeadCommand,
   findActiveTeamMember,
+  formatTodayJobs,
   getOpenLeads,
   getOtherActiveTeamMembers,
+  getTodayJobs,
   reserveCommandEvent,
 } from '../lib/crmCommands.js';
 import { normalizeNorthAmericanPhone } from '../lib/phone.js';
@@ -95,6 +97,7 @@ function formatOpenLeads({ leads, total }) {
       lead.service_requested || null,
       vehicle || null,
       lead.quote_price == null ? null : `$${lead.quote_price}`,
+      lead.payment_status === 'paid' ? 'PAID' : null,
       lead.appointment_text || null,
     ].filter(Boolean);
 
@@ -294,6 +297,8 @@ export async function handler(event) {
       responseText = getCommandHelp();
     } else if (parsed.command === 'open') {
       responseText = formatOpenLeads(await getOpenLeads());
+    } else if (parsed.command === 'today') {
+      responseText = formatTodayJobs(await getTodayJobs());
     } else {
       responseText = getCommandHelp();
     }

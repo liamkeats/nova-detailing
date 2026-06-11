@@ -1,19 +1,17 @@
 import { parseBookingDate } from './appointmentDate.js';
 
 const HELP_TEXT = [
-  'Nova CRM commands',
-  'Replace 1000 with the lead number:',
-  '',
-  '1000 quote 180',
-  '1000 book Friday at noon',
-  '1000 book June 12 at 2pm',
-  '1000 note customer called',
+  'Nova CRM Commands:',
+  'open',
+  'today',
   '1000 status',
+  '1000 quote 180',
+  '1000 book Friday 10',
+  '1000 note customer wants pet hair removed',
   '1000 done',
   '1000 cancel',
-  '',
-  'open - list active leads',
-  'commands - show this menu',
+  '1000 no reply',
+  '1000 paid',
 ].join('\n');
 
 function cleanCommand(value) {
@@ -35,7 +33,7 @@ export function parseSmsCommand(value) {
     };
   }
 
-  if (normalized === 'commands' || normalized === 'menu') {
+  if (normalized === 'commands') {
     return {
       type: 'global',
       command: 'commands',
@@ -46,6 +44,13 @@ export function parseSmsCommand(value) {
     return {
       type: 'global',
       command: 'open',
+    };
+  }
+
+  if (normalized === 'today') {
+    return {
+      type: 'global',
+      command: 'today',
     };
   }
 
@@ -125,6 +130,22 @@ export function parseSmsCommand(value) {
       type: 'lead',
       leadNumber,
       command: 'cancel',
+    };
+  }
+
+  if (/^no[\s_-]*reply$/i.test(commandText)) {
+    return {
+      type: 'lead',
+      leadNumber,
+      command: 'no_reply',
+    };
+  }
+
+  if (lowerCommandText === 'paid') {
+    return {
+      type: 'lead',
+      leadNumber,
+      command: 'paid',
     };
   }
 

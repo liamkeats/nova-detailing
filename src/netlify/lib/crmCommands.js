@@ -4,6 +4,12 @@ import { getSupabaseAdminClient } from './supabase.js';
 const CRM_TIME_ZONE = 'America/Halifax';
 const MAX_STATUS_TEXT_LENGTH = 260;
 
+export function getLeadCommandRpcName(command) {
+  return ['no_reply', 'paid'].includes(command)
+    ? 'execute_lead_sms_followup_command'
+    : 'execute_lead_sms_command';
+}
+
 function truncateStatusText(value) {
   const text = String(value || '').trim();
 
@@ -43,7 +49,10 @@ async function buildDetailedStatusResponse(supabase, leadId, leadNumber) {
           'status',
           'source',
           'quote_price',
+          'payment_status',
+          'paid_at',
           'appointment_text',
+          'appointment_at',
           'service_requested',
           'vehicle_make',
           'vehicle_model',
@@ -110,6 +119,7 @@ async function buildDetailedStatusResponse(supabase, leadId, leadNumber) {
       ? `Preferred: ${formatPreferredDate(lead.preferred_date)}`
       : null,
     lead.quote_price == null ? null : `Quote: $${lead.quote_price}`,
+    `Payment: ${String(lead.payment_status || 'unpaid').toUpperCase()}`,
     lead.appointment_text ? `Booking: ${lead.appointment_text}` : null,
     lead.request_notes
       ? `Request notes: ${truncateStatusText(lead.request_notes)}`
@@ -157,7 +167,8 @@ export async function executeLeadCommand({
         }
       : {}),
   };
-  const { data, error } = await supabase.rpc('execute_lead_sms_command', {
+  const rpcName = getLeadCommandRpcName(parsed.command);
+  const { data, error } = await supabase.rpc(rpcName, {
     p_twilio_message_sid: messageSid,
     p_twilio_account_sid: accountSid,
     p_from_phone: fromPhone,
@@ -301,7 +312,9 @@ export async function getOpenLeads() {
         'lead_number',
         'status',
         'quote_price',
+        'payment_status',
         'appointment_text',
+        'appointment_at',
         'service_requested',
         'vehicle_make',
         'vehicle_model',
@@ -322,6 +335,79 @@ export async function getOpenLeads() {
     leads: data || [],
     total: count || 0,
   };
+}
+
+export function getTodayRange(nowValue = DateTime.now()) {
+  const now = DateTime.isDateTime(nowValue)
+    ? nowValue.setZone(CRM_TIME_ZONE)
+    : DateTime.fromJSDate(nowValue, { zone: CRM_TIME_ZONE });
+  const start = now.startOf('day');
+
+  return {
+    start: start.toUTC().toISO(),
+    end: start.plus({ days: 1 }).toUTC().toISO(),
+  };
+}
+
+export function formatTodayJobs(jobs) {
+  if (!jobs.length) {
+    return 'No jobs booked for today.';
+  }
+
+  const lines = jobs.map((lead) => {
+    const customer = getRelatedCustomer(lead)?.name || 'Unknown';
+    const appointment = DateTime.fromISO(lead.appointment_at, {
+      zone: CRM_TIME_ZONE,
+    });
+    const vehicle = [
+      lead.vehicle_year,
+      lead.vehicle_make,
+      lead.vehicle_model,
+    ]
+      .filter(Boolean)
+      .join(' ');
+    const details = [
+      lead.service_requested || null,
+      vehicle || null,
+      lead.payment_status === 'paid' ? 'PAID' : null,
+    ].filter(Boolean);
+
+    return `${appointment.toFormat('h:mm a')} - #${lead.lead_number} ${customer}${
+      details.length ? ` - ${details.join(' - ')}` : ''
+    }`;
+  });
+
+  return ['Today\'s booked jobs:', ...lines].join('\n');
+}
+
+export async function getTodayJobs(nowValue = DateTime.now()) {
+  const supabase = getSupabaseAdminClient();
+  const { start, end } = getTodayRange(nowValue);
+  const { data, error } = await supabase
+    .from('leads')
+    .select(
+      [
+        'lead_number',
+        'appointment_at',
+        'payment_status',
+        'service_requested',
+        'vehicle_make',
+        'vehicle_model',
+        'vehicle_year',
+        'customers(name)',
+      ].join(','),
+    )
+    .eq('status', 'booked')
+    .gte('appointment_at', start)
+    .lt('appointment_at', end)
+    .order('appointment_at', { ascending: true })
+    .limit(20);
+
+  if (error) {
+    throw new Error(`Unable to load today's jobs: ${error.message}`);
+  }
+
+  return data || [];
 }
 
 export async function getOtherActiveTeamMembers(senderId) {
