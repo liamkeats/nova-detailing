@@ -9,8 +9,10 @@ const CRM_ACTIONS = new Set([
   'book',
   'no_reply',
   'paid',
+  'unpaid',
   'done',
   'cancel',
+  'archive',
 ]);
 const CRM_STATUSES = new Set([
   'new',

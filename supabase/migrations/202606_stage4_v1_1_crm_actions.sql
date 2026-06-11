@@ -4,6 +4,15 @@ alter table public.team_members
   add column if not exists auth_user_id uuid,
   add column if not exists auth_email text;
 
+alter table public.leads
+  add column if not exists archived_at timestamptz,
+  add column if not exists archived_by_team_member_id uuid
+    references public.team_members(id);
+
+create index if not exists leads_active_updated_at_idx
+  on public.leads(updated_at desc)
+  where archived_at is null;
+
 create unique index if not exists team_members_auth_user_id_unique
   on public.team_members(auth_user_id)
   where auth_user_id is not null;
@@ -81,7 +90,10 @@ alter table public.lead_updates
       'cancel',
       'no_reply',
       'paid',
-      'status'
+      'unpaid',
+      'status',
+      'reopen',
+      'archive'
     )
   );
 
@@ -127,6 +139,8 @@ declare
   v_current_appointment_text text;
   v_current_appointment_at timestamptz;
   v_current_completed_at timestamptz;
+  v_current_archived_at timestamptz;
+  v_current_archived_by_team_member_id uuid;
   v_current_updated_at timestamptz;
   v_next_status text;
   v_next_quote_price numeric(10, 2);
@@ -135,6 +149,8 @@ declare
   v_next_appointment_text text;
   v_next_appointment_at timestamptz;
   v_next_completed_at timestamptz;
+  v_next_archived_at timestamptz;
+  v_next_archived_by_team_member_id uuid;
   v_update_type text;
   v_update_message text;
   v_response_text text;
@@ -165,8 +181,10 @@ begin
     'book',
     'no_reply',
     'paid',
+    'unpaid',
     'done',
-    'cancel'
+    'cancel',
+    'archive'
   ) then
     raise exception 'crm_invalid: unsupported dashboard action';
   end if;
@@ -233,6 +251,8 @@ begin
     lead.appointment_text,
     lead.appointment_at,
     lead.completed_at,
+    lead.archived_at,
+    lead.archived_by_team_member_id,
     lead.updated_at
   into
     v_lead_id,
@@ -245,6 +265,8 @@ begin
     v_current_appointment_text,
     v_current_appointment_at,
     v_current_completed_at,
+    v_current_archived_at,
+    v_current_archived_by_team_member_id,
     v_current_updated_at
   from public.leads as lead
   join public.customers as customer on customer.id = lead.customer_id
@@ -259,7 +281,24 @@ begin
     raise exception 'crm_conflict: lead changed after it was opened; refresh and try again';
   end if;
 
-  if v_current_status = 'cancelled' and p_action <> 'note' then
+  if v_current_archived_at is not null then
+    if p_action = 'archive' then
+      return query
+      select
+        v_lead_id,
+        p_lead_number,
+        p_action,
+        format('Lead #%s is already archived.', p_lead_number),
+        v_current_updated_at,
+        false;
+      return;
+    end if;
+
+    raise exception 'crm_conflict: archived leads cannot be changed';
+  end if;
+
+  if v_current_status = 'cancelled'
+    and p_action not in ('note', 'archive') then
     if p_action = 'cancel' then
       return query
       select
@@ -272,18 +311,18 @@ begin
       return;
     end if;
 
-    raise exception 'crm_conflict: cancelled leads can only receive notes';
+    raise exception 'crm_conflict: cancelled leads can only receive notes or be archived';
   end if;
 
   if v_current_status = 'completed'
     and v_current_payment_status = 'paid'
-    and p_action <> 'note' then
-    raise exception 'crm_conflict: completed paid leads can only receive notes';
+    and p_action not in ('note', 'unpaid', 'status', 'archive') then
+    raise exception 'crm_conflict: completed paid leads can only receive notes, be marked unpaid, reopened, or archived';
   end if;
 
   if v_current_status = 'completed'
-    and p_action not in ('note', 'paid', 'done') then
-    raise exception 'crm_conflict: completed leads can only receive notes or payment updates';
+    and p_action not in ('note', 'paid', 'unpaid', 'done', 'status', 'archive') then
+    raise exception 'crm_conflict: completed unpaid leads can only receive notes, be marked paid, reopened, or archived';
   end if;
 
   if v_current_status = 'completed' and p_action = 'done' then
@@ -305,6 +344,8 @@ begin
   v_next_appointment_text := v_current_appointment_text;
   v_next_appointment_at := v_current_appointment_at;
   v_next_completed_at := v_current_completed_at;
+  v_next_archived_at := v_current_archived_at;
+  v_next_archived_by_team_member_id := v_current_archived_by_team_member_id;
 
   case p_action
     when 'note' then
@@ -346,24 +387,55 @@ begin
         raise exception 'crm_invalid: book an appointment before changing the status to booked';
       end if;
 
-      if v_current_payment_status = 'paid' and p_status <> 'booked' then
-        raise exception 'crm_conflict: a paid lead cannot be moved out of booked status';
+      if v_current_status <> 'completed'
+        and v_current_payment_status = 'paid' then
+        raise exception 'crm_conflict: mark this lead unpaid before changing its active status';
       end if;
 
       v_next_status := p_status;
       v_next_completed_at := null;
-      v_update_type := 'status';
-      v_update_message := format(
-        'Status changed from %s to %s by %s',
-        upper(v_current_status),
-        upper(p_status),
-        v_team_member_name
-      );
-      v_response_text := format(
-        'Lead #%s status changed to %s.',
-        p_lead_number,
-        upper(p_status)
-      );
+      if v_current_status = 'completed' then
+        v_next_payment_status := 'unpaid';
+        v_next_paid_at := null;
+        v_update_type := 'reopen';
+        v_update_message := case
+          when v_current_payment_status = 'paid' then format(
+            'Reopened from COMPLETED - PAID to %s and marked unpaid by %s',
+            upper(p_status),
+            v_team_member_name
+          )
+          else format(
+            'Reopened from COMPLETED - UNPAID to %s by %s',
+            upper(p_status),
+            v_team_member_name
+          )
+        end;
+        v_response_text := case
+          when v_current_payment_status = 'paid' then format(
+            'Lead #%s reopened as %s and marked unpaid.',
+            p_lead_number,
+            upper(p_status)
+          )
+          else format(
+            'Lead #%s reopened as %s.',
+            p_lead_number,
+            upper(p_status)
+          )
+        end;
+      else
+        v_update_type := 'status';
+        v_update_message := format(
+          'Status changed from %s to %s by %s',
+          upper(v_current_status),
+          upper(p_status),
+          v_team_member_name
+        );
+        v_response_text := format(
+          'Lead #%s status changed to %s.',
+          p_lead_number,
+          upper(p_status)
+        );
+      end if;
 
     when 'quote' then
       if p_amount is null or p_amount <= 0 or p_amount > 999999.99 then
@@ -454,6 +526,25 @@ begin
         else format('Lead #%s marked paid and completed.', p_lead_number)
       end;
 
+    when 'unpaid' then
+      if v_current_payment_status <> 'paid' then
+        return query
+        select
+          v_lead_id,
+          p_lead_number,
+          p_action,
+          format('Lead #%s is already marked unpaid.', p_lead_number),
+          v_current_updated_at,
+          false;
+        return;
+      end if;
+
+      v_next_payment_status := 'unpaid';
+      v_next_paid_at := null;
+      v_update_type := 'unpaid';
+      v_update_message := format('Marked unpaid by %s', v_team_member_name);
+      v_response_text := format('Lead #%s marked unpaid.', p_lead_number);
+
     when 'done' then
       v_next_status := 'completed';
       v_next_completed_at := now();
@@ -470,6 +561,19 @@ begin
         'Lead #%s cancelled and removed from open leads.',
         p_lead_number
       );
+
+    when 'archive' then
+      v_next_archived_at := now();
+      v_next_archived_by_team_member_id := v_team_member_id;
+      v_update_type := 'archive';
+      v_update_message := format(
+        'Archived and removed from the CRM board by %s',
+        v_team_member_name
+      );
+      v_response_text := format(
+        'Lead #%s archived and removed from the board.',
+        p_lead_number
+      );
   end case;
 
   update public.leads as target
@@ -481,6 +585,8 @@ begin
     appointment_text = v_next_appointment_text,
     appointment_at = v_next_appointment_at,
     completed_at = v_next_completed_at,
+    archived_at = v_next_archived_at,
+    archived_by_team_member_id = v_next_archived_by_team_member_id,
     updated_at = now()
   where target.id = v_lead_id
   returning target.updated_at into v_current_updated_at;
@@ -519,7 +625,11 @@ begin
         'previous_appointment_at', v_current_appointment_at,
         'appointment_at', v_next_appointment_at,
         'previous_completed_at', v_current_completed_at,
-        'completed_at', v_next_completed_at
+        'completed_at', v_next_completed_at,
+        'previous_archived_at', v_current_archived_at,
+        'archived_at', v_next_archived_at,
+        'previous_archived_by_team_member_id', v_current_archived_by_team_member_id,
+        'archived_by_team_member_id', v_next_archived_by_team_member_id
       )
     ),
     'crm_dashboard',

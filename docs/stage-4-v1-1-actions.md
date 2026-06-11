@@ -15,7 +15,8 @@ The migration:
 
 - maps Liam and Elijah's Supabase Auth users to their existing team records;
 - adds dashboard audit fields to `lead_updates`;
-- adds `status` as an allowed history update type;
+- adds archive timestamps and actor ownership to `leads`;
+- adds dashboard status, reopen, payment reversal, and archive history types;
 - adds duplicate-request protection;
 - creates the service-role-only `apply_crm_dashboard_lead_action` function.
 
@@ -30,13 +31,21 @@ It does not modify customers, existing leads, existing history, or either
 - Book appointment
 - Mark no reply
 - Mark paid
+- Mark unpaid
 - Mark completed
 - Cancel lead
+- Reopen a completed lead
+- Archive / remove a lead from the normal board
 
 `done` records that the work is complete without changing payment. `paid`
 records payment and also completes any non-cancelled lead that is not already
 complete. The board shows completed unpaid and completed paid work in separate
-columns.
+columns. Reopening a paid completed lead also marks it unpaid so that paid
+always implies completed.
+
+Archiving is a soft removal only. It hides the lead from normal CRM overview,
+detail, search, filters, and appointment lists while preserving the customer,
+messages, notes, history, SMS command events, and intake records.
 
 All actions require:
 
@@ -60,6 +69,12 @@ Successful mutations create:
   values.
 
 No fake Twilio event is created.
+
+## Future manual lead import
+
+A later CRM stage should add a reviewed manual add/import workflow for existing
+customers and leads. It is intentionally outside V1.1 so this release stays
+focused on safely editing, reversing, and archiving existing records.
 
 ## Rollback
 

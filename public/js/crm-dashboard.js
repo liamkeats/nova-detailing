@@ -10,6 +10,7 @@
     actionFeedback: null,
     confirmationAction: null,
     confirmationTrigger: null,
+    confirmationValues: null,
   };
 
   const elements = {
@@ -411,9 +412,12 @@
     const isCompletedUnpaid =
       isCompleted && lead.paymentStatus !== 'paid';
     const isCancelled = lead.status === 'cancelled';
-    const isLocked = isCompleted || isCancelled;
+    const isEditingLocked = isCompleted || isCancelled;
+    const canChangeStatus = !isCancelled;
     const canMarkPaid =
       !isCancelled && lead.paymentStatus !== 'paid';
+    const canMarkUnpaid =
+      !isCancelled && lead.paymentStatus === 'paid';
     const statusOptions = [
       ['new', 'New'],
       ['contacted', 'Contacted'],
@@ -448,7 +452,7 @@
               <select
                 name="status"
                 data-crm-action-control
-                ${disabledAttribute(isLocked)}
+                ${disabledAttribute(!canChangeStatus)}
                 required
               >
                 <option value="">Choose status</option>
@@ -469,9 +473,9 @@
             <button
               type="submit"
               data-crm-action-control
-              ${disabledAttribute(isLocked)}
+              ${disabledAttribute(!canChangeStatus)}
             >
-              Save status
+              ${isCompleted ? 'Reopen lead' : 'Save status'}
             </button>
           </form>
 
@@ -489,7 +493,7 @@
                   value="${lead.quotePrice ?? ''}"
                   inputmode="decimal"
                   data-crm-action-control
-                  ${disabledAttribute(isLocked)}
+                  ${disabledAttribute(isEditingLocked)}
                   required
                 />
               </span>
@@ -497,7 +501,7 @@
             <button
               type="submit"
               data-crm-action-control
-              ${disabledAttribute(isLocked)}
+              ${disabledAttribute(isEditingLocked)}
             >
               Save quote
             </button>
@@ -512,14 +516,14 @@
               name="appointmentLocal"
               value="${escapeHtml(formatAppointmentInput(lead.appointmentAt))}"
               data-crm-action-control
-              ${disabledAttribute(isLocked)}
+              ${disabledAttribute(isEditingLocked)}
               required
             />
           </label>
           <button
             type="submit"
             data-crm-action-control
-            ${disabledAttribute(isLocked)}
+            ${disabledAttribute(isEditingLocked)}
           >
             Book appointment
           </button>
@@ -545,7 +549,7 @@
             type="button"
             data-crm-quick-action="no_reply"
             data-crm-action-control
-            ${disabledAttribute(isLocked || lead.status === 'no_reply')}
+            ${disabledAttribute(isEditingLocked || lead.status === 'no_reply')}
           >
             No reply
           </button>
@@ -559,9 +563,17 @@
           </button>
           <button
             type="button"
+            data-crm-quick-action="unpaid"
+            data-crm-action-control
+            ${disabledAttribute(!canMarkUnpaid)}
+          >
+            Mark unpaid
+          </button>
+          <button
+            type="button"
             data-crm-quick-action="done"
             data-crm-action-control
-            ${disabledAttribute(isLocked)}
+            ${disabledAttribute(isEditingLocked)}
           >
             Mark done
           </button>
@@ -570,19 +582,27 @@
             class="is-danger"
             data-crm-quick-action="cancel"
             data-crm-action-control
-            ${disabledAttribute(isLocked)}
+            ${disabledAttribute(isEditingLocked)}
           >
             Cancel lead
+          </button>
+          <button
+            type="button"
+            class="is-danger"
+            data-crm-quick-action="archive"
+            data-crm-action-control
+          >
+            Remove from board
           </button>
         </div>
 
         ${
           isCancelled
-            ? '<p class="crm-action-note">Cancelled leads can still receive internal notes.</p>'
+            ? '<p class="crm-action-note">Cancelled leads can receive internal notes or be removed from the board.</p>'
             : isCompletedUnpaid
-              ? '<p class="crm-action-note">This job is completed but unpaid. Internal notes and Mark paid remain available.</p>'
+              ? '<p class="crm-action-note">This job is completed but unpaid. You can add notes, mark it paid, or reopen it to an active status.</p>'
               : isCompletedPaid
-                ? '<p class="crm-action-note">This job is completed and paid. Internal notes remain available.</p>'
+                ? '<p class="crm-action-note">This job is completed and paid. You can add notes, mark it unpaid, or reopen it. Reopening also resets payment to unpaid.</p>'
               : ''
         }
       </section>
@@ -726,6 +746,11 @@
       message: 'Payment will be recorded and the job will move to Completed - Paid if it is not already completed.',
       button: 'Mark paid',
     },
+    unpaid: {
+      title: 'Mark this job as unpaid?',
+      message: 'Payment will reset to unpaid and the paid timestamp will be cleared. The job will remain completed.',
+      button: 'Mark unpaid',
+    },
     done: {
       title: 'Mark this job as done?',
       message: 'The job will move to Completed - Unpaid. Payment will remain unchanged until you use Mark paid.',
@@ -737,10 +762,16 @@
       button: 'Cancel lead',
       danger: true,
     },
+    archive: {
+      title: 'Remove this lead from the board?',
+      message: 'The lead will be archived and hidden from the normal CRM board and search. Customer details, messages, notes, history, commands, and intake records will be kept.',
+      button: 'Remove from board',
+      danger: true,
+    },
   };
 
-  function openConfirmation(action, trigger) {
-    const copy = confirmationCopy[action];
+  function openConfirmation(action, trigger, values = {}, copyOverride) {
+    const copy = copyOverride || confirmationCopy[action];
 
     if (!copy || state.actionPending) {
       return;
@@ -748,6 +779,7 @@
 
     state.confirmationAction = action;
     state.confirmationTrigger = trigger;
+    state.confirmationValues = values;
     elements.confirmationTitle.textContent = copy.title;
     elements.confirmationMessage.textContent = copy.message;
     elements.confirmationSubmit.textContent = copy.button;
@@ -771,6 +803,7 @@
 
     state.confirmationAction = null;
     state.confirmationTrigger = null;
+    state.confirmationValues = null;
   }
 
   async function loadLead(leadNumber) {
@@ -860,8 +893,15 @@
         type: 'success',
         message: data.result.responseText,
       };
-      renderLeadDetail(data.lead);
       await loadOverview({ silent: true });
+
+      if (action === 'archive') {
+        closeDrawer();
+        setAlert(data.result.responseText);
+        return;
+      }
+
+      renderLeadDetail(data.lead);
     } catch (error) {
       state.actionFeedback = {
         type: 'error',
@@ -903,6 +943,30 @@
       values.note = formData.get('note');
     }
 
+    if (action === 'status' && state.currentLead?.status === 'completed') {
+      const targetStatus = String(values.status || '');
+      const targetLabel =
+        targetStatus === 'waiting'
+          ? 'Contacted / Waiting'
+          : targetStatus.charAt(0).toUpperCase() + targetStatus.slice(1);
+      const resetsPayment =
+        state.currentLead.paymentStatus === 'paid';
+
+      openConfirmation(
+        action,
+        form.querySelector('button[type="submit"]'),
+        values,
+        {
+          title: `Reopen this lead as ${targetLabel}?`,
+          message: resetsPayment
+            ? 'The lead will return to the active pipeline. Because paid implies completed, reopening will also mark it unpaid and clear the paid timestamp.'
+            : 'The lead will return to the active pipeline and its completion timestamp will be cleared.',
+          button: 'Reopen lead',
+        },
+      );
+      return;
+    }
+
     submitCrmAction(action, values);
   }
 
@@ -933,10 +997,11 @@
   });
   elements.confirmationSubmit.addEventListener('click', () => {
     const action = state.confirmationAction;
+    const values = state.confirmationValues || {};
     closeConfirmation({ restoreFocus: false });
 
     if (action) {
-      submitCrmAction(action);
+      submitCrmAction(action, values);
     }
   });
 

@@ -66,7 +66,14 @@ test('preserves Supabase microseconds in the stale-edit timestamp', () => {
 });
 
 test('accepts every approved quick action', () => {
-  for (const action of ['no_reply', 'paid', 'done', 'cancel']) {
+  for (const action of [
+    'no_reply',
+    'paid',
+    'unpaid',
+    'done',
+    'cancel',
+    'archive',
+  ]) {
     const result = validateCrmActionPayload(
       payload({ action, note: undefined }),
       now,
@@ -172,6 +179,26 @@ test('dashboard migration leaves the existing SMS RPC definitions untouched', as
     migration,
     /when\s+'done'[\s\S]+v_next_status\s*:=\s*'completed'[\s\S]+v_next_completed_at\s*:=\s*now\(\)/i,
   );
+  assert.match(
+    migration,
+    /when\s+'unpaid'\s+then[\s\S]+v_next_payment_status\s*:=\s*'unpaid'[\s\S]+v_next_paid_at\s*:=\s*null/i,
+  );
+  assert.match(
+    migration,
+    /v_current_status\s*=\s*'completed'[\s\S]+v_next_payment_status\s*:=\s*'unpaid'[\s\S]+v_update_type\s*:=\s*'reopen'/i,
+  );
+  assert.match(
+    migration,
+    /when\s+'archive'\s+then[\s\S]+v_next_archived_at\s*:=\s*now\(\)[\s\S]+v_next_archived_by_team_member_id\s*:=\s*v_team_member_id/i,
+  );
+  assert.match(
+    migration,
+    /add\s+column\s+if\s+not\s+exists\s+archived_at\s+timestamptz/i,
+  );
+  assert.match(
+    migration,
+    /'previous_archived_at'[\s\S]+'archived_by_team_member_id'/i,
+  );
 });
 
 test('CRM action endpoint rejects non-POST methods without touching data', async () => {
@@ -201,6 +228,9 @@ test('dashboard quick actions use the in-app confirmation dialog', async () => {
 
   assert.doesNotMatch(script, /window\.confirm/);
   assert.match(script, /openConfirmation\(action,\s*quickAction\)/);
+  assert.match(script, /data-crm-quick-action="unpaid"/);
+  assert.match(script, /data-crm-quick-action="archive"/);
+  assert.match(script, /Reopen this lead as/);
   assert.match(page, /id="crm-confirmation"/);
   assert.match(page, /role="alertdialog"/);
 });

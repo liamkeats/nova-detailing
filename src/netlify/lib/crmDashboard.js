@@ -117,6 +117,9 @@ export function normalizeCrmLead(lead, activity = {}) {
     createdAt: lead.created_at,
     updatedAt: lead.updated_at,
     completedAt: lead.completed_at || null,
+    archivedAt: lead.archived_at || null,
+    archivedByTeamMemberId:
+      lead.archived_by_team_member_id || null,
   };
 }
 
@@ -196,9 +199,12 @@ export async function getCrmOverview() {
           'created_at',
           'updated_at',
           'completed_at',
+          'archived_at',
+          'archived_by_team_member_id',
           'customers(name, phone, email)',
         ].join(','),
       )
+      .is('archived_at', null)
       .order('updated_at', { ascending: false })
       .limit(500),
     supabase
@@ -271,10 +277,13 @@ export async function getCrmLeadDetail(leadNumber) {
         'created_at',
         'updated_at',
         'completed_at',
+        'archived_at',
+        'archived_by_team_member_id',
         'customers(name, phone, email, created_at, updated_at)',
       ].join(','),
     )
     .eq('lead_number', leadNumber)
+    .is('archived_at', null)
     .maybeSingle();
 
   if (leadError) {

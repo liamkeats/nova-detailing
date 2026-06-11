@@ -511,7 +511,8 @@ a {
 
 .crm-board {
   display: grid;
-  grid-template-columns: repeat(8, minmax(260px, 1fr));
+  grid-template-columns: repeat(8, 280px);
+  align-items: start;
   gap: 12px;
   overflow-x: auto;
   padding: 2px 2px 18px;
@@ -529,6 +530,9 @@ a {
 }
 
 .crm-board-column {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: min(68vh, 720px);
   min-height: 420px;
   padding: 12px;
   border: 1px solid var(--crm-border);
@@ -563,7 +567,13 @@ a {
 
 .crm-column-cards {
   display: grid;
+  min-height: 0;
+  align-content: start;
   gap: 9px;
+  overflow-y: auto;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+  scrollbar-color: #303643 transparent;
 }
 
 .crm-lead-card {
@@ -586,6 +596,15 @@ a {
   transform: translateY(-2px);
   border-color: rgba(237, 28, 36, 0.45);
   background: #11151d;
+}
+
+.crm-board-column[data-status-column="completed_paid"] .crm-lead-card {
+  gap: 5px;
+  padding: 11px;
+}
+
+.crm-board-column[data-status-column="completed_paid"] .crm-card-preview {
+  display: none;
 }
 
 .crm-card-topline,
@@ -917,7 +936,7 @@ a {
 
 .crm-quick-actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 10px;
 }
@@ -1204,6 +1223,7 @@ a {
   }
 
   .crm-board-column {
+    height: min(64vh, 620px);
     min-height: 360px;
   }
 

@@ -103,7 +103,10 @@ export async function handler(event) {
     }
 
     const result = await executeCrmAction(auth.user, action);
-    const lead = await getCrmLeadDetail(action.leadNumber);
+    const lead =
+      action.action === 'archive'
+        ? null
+        : await getCrmLeadDetail(action.leadNumber);
 
     return crmJsonResponse(
       200,

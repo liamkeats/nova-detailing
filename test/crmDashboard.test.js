@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { DateTime } from 'luxon';
 import {
@@ -30,6 +31,8 @@ function createLead(overrides = {}) {
     created_at: '2026-06-10T12:00:00.000Z',
     updated_at: '2026-06-10T12:00:00.000Z',
     completed_at: null,
+    archived_at: null,
+    archived_by_team_member_id: null,
     customers: {
       name: 'Test Customer',
       phone: '+19025550100',
@@ -89,6 +92,35 @@ test('normalizes a Supabase lead into a dashboard card', () => {
   assert.equal(lead.vehicle, '2022 Honda Civic');
   assert.equal(lead.customer.name, 'Test Customer');
   assert.equal(lead.latestActivity, 'Customer asked about pet hair.');
+  assert.equal(lead.archivedAt, null);
+});
+
+test('server-side CRM reads exclude archived leads', async () => {
+  const dashboardModule = await readFile(
+    new URL('../src/netlify/lib/crmDashboard.js', import.meta.url),
+    'utf8',
+  );
+
+  assert.equal(
+    dashboardModule.match(/\.is\('archived_at',\s*null\)/g)?.length,
+    2,
+  );
+  assert.match(dashboardModule, /'archived_at'/);
+  assert.match(dashboardModule, /'archived_by_team_member_id'/);
+});
+
+test('board columns use fixed widths and independent vertical scrolling', async () => {
+  const styles = await readFile(
+    new URL('../public/styles/crm.css', import.meta.url),
+    'utf8',
+  );
+
+  assert.match(styles, /grid-template-columns:\s*repeat\(8,\s*280px\)/);
+  assert.match(styles, /\.crm-column-cards\s*\{[\s\S]*overflow-y:\s*auto/);
+  assert.match(
+    styles,
+    /\[data-status-column="completed_paid"\][\s\S]*\.crm-card-preview\s*\{[\s\S]*display:\s*none/,
+  );
 });
 
 test('splits completed leads by payment status', () => {
