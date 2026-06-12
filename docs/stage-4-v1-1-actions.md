@@ -18,6 +18,7 @@ The migration:
 - adds archive timestamps and actor ownership to `leads`;
 - adds dashboard status, reopen, payment reversal, and archive history types;
 - adds duplicate-request protection;
+- adds overview/detail query indexes for CRM reads;
 - creates the service-role-only `apply_crm_dashboard_lead_action` function.
 
 It does not modify customers, existing leads, existing history, or either
@@ -53,6 +54,18 @@ appear in their previous workflow columns with an Archived label and can be
 searched or opened. Restoring clears the archive fields and records the
 authenticated team member in history. Archived bookings never appear in Today
 or Upcoming.
+
+## Performance
+
+The overview endpoint uses one trimmed Supabase query containing only the
+fields needed for board cards, summary counts, and appointment sections.
+Messages, history, command events, and full customer/lead details load only
+after a lead is opened.
+
+The browser initially renders at most 40 cards per column. Larger columns can
+be expanded in 40-card batches, and off-screen cards use browser rendering
+containment. Archived leads remain excluded from the overview query unless
+`Show archived` is enabled.
 
 All actions require:
 

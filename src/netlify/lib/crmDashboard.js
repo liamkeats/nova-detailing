@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import { getSupabaseAdminClient } from './supabase.js';
 
 const CRM_TIME_ZONE = 'America/Halifax';
@@ -123,15 +122,39 @@ export function normalizeCrmLead(lead, activity = {}) {
   };
 }
 
-export function getAppointmentBuckets(
-  leads,
-  nowValue = DateTime.now(),
-) {
-  const now = DateTime.isDateTime(nowValue)
-    ? nowValue.setZone(CRM_TIME_ZONE)
-    : DateTime.fromJSDate(nowValue, { zone: CRM_TIME_ZONE });
-  const todayStart = now.startOf('day');
-  const tomorrowStart = todayStart.plus({ days: 1 });
+function getTimeZoneDateKey(value) {
+  const date =
+    value && typeof value.toJSDate === 'function'
+      ? value.toJSDate()
+      : value instanceof Date
+        ? value
+        : new Date(value);
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: CRM_TIME_ZONE,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+      .formatToParts(date)
+      .filter((part) => part.type !== 'literal')
+      .map((part) => [part.type, part.value]),
+  );
+
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function getNextDateKey(dateKey) {
+  const [year, month, day] = dateKey.split('-').map(Number);
+
+  return getTimeZoneDateKey(
+    new Date(Date.UTC(year, month - 1, day + 1, 12)),
+  );
+}
+
+export function getAppointmentBuckets(leads, nowValue = new Date()) {
+  const todayKey = getTimeZoneDateKey(nowValue);
+  const tomorrowKey = getNextDateKey(todayKey);
   const booked = leads
     .filter(
       (lead) =>
@@ -141,36 +164,52 @@ export function getAppointmentBuckets(
     )
     .map((lead) => ({
       lead,
-      date: DateTime.fromISO(lead.appointmentAt, {
-        zone: CRM_TIME_ZONE,
-      }),
+      date: new Date(lead.appointmentAt),
+      dateKey: getTimeZoneDateKey(lead.appointmentAt),
     }))
-    .filter(({ date }) => date.isValid)
-    .sort((left, right) => left.date.toMillis() - right.date.toMillis());
+    .filter(({ date }) => !Number.isNaN(date.getTime()))
+    .sort((left, right) => left.date.getTime() - right.date.getTime());
 
   return {
     today: booked
-      .filter(
-        ({ date }) => date >= todayStart && date < tomorrowStart,
-      )
+      .filter(({ dateKey }) => dateKey === todayKey)
       .map(({ lead }) => lead),
     upcoming: booked
-      .filter(({ date }) => date >= tomorrowStart)
+      .filter(({ dateKey }) => dateKey >= tomorrowKey)
       .slice(0, 12)
       .map(({ lead }) => lead),
   };
 }
 
-function indexLatestActivity(rows, predicate = () => true) {
-  const result = new Map();
+export function normalizeCrmLeadSummary(lead) {
+  const customer = getRelatedRecord(lead.customers) || {};
+  const paymentStatus = lead.payment_status || 'unpaid';
 
-  (rows || []).forEach((row) => {
-    if (!result.has(row.lead_id) && predicate(row)) {
-      result.set(row.lead_id, row);
-    }
-  });
-
-  return result;
+  return {
+    leadNumber: Number(lead.lead_number),
+    status: lead.status,
+    statusGroup: getCrmStatusGroup(lead.status, paymentStatus),
+    source: lead.source,
+    customer: {
+      name: customer.name || 'Unknown customer',
+      phone: customer.phone || '',
+    },
+    service: lead.service_requested || '',
+    vehicle: [
+      lead.vehicle_year,
+      lead.vehicle_make,
+      lead.vehicle_model,
+    ]
+      .filter(Boolean)
+      .join(' '),
+    quotePrice:
+      lead.quote_price == null ? null : Number(lead.quote_price),
+    paymentStatus,
+    appointmentText: lead.appointment_text || '',
+    appointmentAt: lead.appointment_at || null,
+    createdAt: lead.created_at,
+    archivedAt: lead.archived_at || null,
+  };
 }
 
 export async function getCrmOverview({ includeArchived = false } = {}) {
@@ -179,29 +218,20 @@ export async function getCrmOverview({ includeArchived = false } = {}) {
     .from('leads')
     .select(
       [
-        'id',
         'lead_number',
         'status',
         'source',
-        'lead_type',
         'quote_price',
         'payment_status',
-        'paid_at',
         'appointment_text',
         'appointment_at',
         'service_requested',
         'vehicle_make',
         'vehicle_model',
         'vehicle_year',
-        'vehicle_color',
-        'preferred_date',
-        'request_notes',
         'created_at',
-        'updated_at',
-        'completed_at',
         'archived_at',
-        'archived_by_team_member_id',
-        'customers(name, phone, email)',
+        'customers(name, phone)',
       ].join(','),
     );
 
@@ -213,46 +243,13 @@ export async function getCrmOverview({ includeArchived = false } = {}) {
     .order('updated_at', { ascending: false })
     .limit(500);
 
-  const [
-    { data: rawLeads, error: leadError },
-    { data: rawMessages, error: messageError },
-    { data: rawUpdates, error: updateError },
-  ] = await Promise.all([
-    leadQuery,
-    supabase
-      .from('messages')
-      .select('lead_id, direction, body, created_at')
-      .eq('direction', 'inbound_website')
-      .order('created_at', { ascending: false })
-      .limit(1000),
-    supabase
-      .from('lead_updates')
-      .select('lead_id, update_type, message, created_at')
-      .eq('update_type', 'note')
-      .order('created_at', { ascending: false })
-      .limit(1000),
-  ]);
+  const { data: rawLeads, error: leadError } = await leadQuery;
 
   if (leadError) {
     throw new Error(`Unable to load CRM leads: ${leadError.message}`);
   }
 
-  if (messageError) {
-    throw new Error(`Unable to load CRM messages: ${messageError.message}`);
-  }
-
-  if (updateError) {
-    throw new Error(`Unable to load CRM notes: ${updateError.message}`);
-  }
-
-  const originalMessages = indexLatestActivity(rawMessages);
-  const latestNotes = indexLatestActivity(rawUpdates);
-  const leads = (rawLeads || []).map((lead) =>
-    normalizeCrmLead(lead, {
-      originalMessage: originalMessages.get(lead.id)?.body,
-      latestNote: latestNotes.get(lead.id)?.message,
-    }),
-  );
+  const leads = (rawLeads || []).map(normalizeCrmLeadSummary);
   const appointments = getAppointmentBuckets(leads);
 
   return {
@@ -276,7 +273,6 @@ export async function getCrmLeadDetail(
         'lead_number',
         'status',
         'source',
-        'lead_type',
         'quote_price',
         'payment_status',
         'paid_at',
@@ -294,7 +290,7 @@ export async function getCrmLeadDetail(
         'completed_at',
         'archived_at',
         'archived_by_team_member_id',
-        'customers(name, phone, email, created_at, updated_at)',
+        'customers(name, phone, email)',
       ].join(','),
     )
     .eq('lead_number', leadNumber);
@@ -318,7 +314,6 @@ export async function getCrmLeadDetail(
     { data: messages, error: messageError },
     { data: updates, error: updateError },
     { data: commandEvents, error: commandError },
-    { data: intakeEvents, error: intakeError },
     { data: teamMembers, error: teamError },
   ] = await Promise.all([
     supabase
@@ -329,21 +324,14 @@ export async function getCrmLeadDetail(
     supabase
       .from('lead_updates')
       .select(
-        'id, update_type, message, metadata, created_by_team_member_id, created_at',
+        'id, update_type, message, created_by_team_member_id, created_at',
       )
       .eq('lead_id', rawLead.id)
       .order('created_at', { ascending: true }),
     supabase
       .from('sms_command_events')
       .select(
-        'id, body, parsed_command, status, response_text, error, team_member_id, created_at',
-      )
-      .eq('lead_id', rawLead.id)
-      .order('created_at', { ascending: true }),
-    supabase
-      .from('intake_events')
-      .select(
-        'id, provider, status, notification_status, notified_at, created_at, updated_at',
+        'id, body, status, response_text, error, team_member_id, created_at',
       )
       .eq('lead_id', rawLead.id)
       .order('created_at', { ascending: true }),
@@ -357,7 +345,6 @@ export async function getCrmLeadDetail(
     ['messages', messageError],
     ['history', updateError],
     ['commands', commandError],
-    ['intake events', intakeError],
     ['team members', teamError],
   ]) {
     if (error) {
@@ -374,11 +361,6 @@ export async function getCrmLeadDetail(
     ...lead,
     archivedBy:
       teamNames.get(rawLead.archived_by_team_member_id) || '',
-    customer: {
-      ...lead.customer,
-      createdAt: getRelatedRecord(rawLead.customers)?.created_at || null,
-      updatedAt: getRelatedRecord(rawLead.customers)?.updated_at || null,
-    },
     originalRequest:
       (messages || []).find(
         (message) => message.direction === 'inbound_website',
@@ -393,6 +375,5 @@ export async function getCrmLeadDetail(
       ...event,
       teamMember: teamNames.get(event.team_member_id) || 'Unknown',
     })),
-    intakeEvents: intakeEvents || [],
   };
 }

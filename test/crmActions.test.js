@@ -212,6 +212,14 @@ test('dashboard migration leaves the existing SMS RPC definitions untouched', as
     migration,
     /'previous_archived_at'[\s\S]+'archived_by_team_member_id'/i,
   );
+  assert.match(
+    migration,
+    /create\s+index\s+if\s+not\s+exists\s+leads_updated_at_idx[\s\S]+on\s+public\.leads\s*\(\s*updated_at\s+desc\s*\)/i,
+  );
+  assert.match(
+    migration,
+    /create\s+index\s+if\s+not\s+exists\s+messages_lead_created_at_idx[\s\S]+on\s+public\.messages\s*\(\s*lead_id\s*,\s*created_at\s*\)/i,
+  );
 });
 
 test('CRM action endpoint rejects non-POST methods without touching data', async () => {

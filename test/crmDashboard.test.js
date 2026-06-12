@@ -7,6 +7,7 @@ import {
   getAppointmentBuckets,
   getCrmStatusGroup,
   normalizeCrmLead,
+  normalizeCrmLeadSummary,
 } from '../src/netlify/lib/crmDashboard.js';
 
 function createLead(overrides = {}) {
@@ -95,6 +96,29 @@ test('normalizes a Supabase lead into a dashboard card', () => {
   assert.equal(lead.archivedAt, null);
 });
 
+test('overview summaries expose only fields needed by the board', () => {
+  const lead = normalizeCrmLeadSummary(
+    createLead({
+      quote_price: '180.00',
+      service_requested: 'Interior Detailing',
+      vehicle_year: '2022',
+      vehicle_make: 'Honda',
+      vehicle_model: 'Civic',
+      request_notes: 'Private request details',
+    }),
+  );
+
+  assert.equal(lead.leadNumber, 1000);
+  assert.equal(lead.quotePrice, 180);
+  assert.equal(lead.vehicle, '2022 Honda Civic');
+  assert.equal(lead.customer.name, 'Test Customer');
+  assert.equal(lead.customer.phone, '+19025550100');
+  assert.equal('id' in lead, false);
+  assert.equal('requestNotes' in lead, false);
+  assert.equal('latestActivity' in lead, false);
+  assert.equal('email' in lead.customer, false);
+});
+
 test('server-side CRM reads require an explicit archived opt-in', async () => {
   const [dashboardModule, overviewEndpoint, leadEndpoint] =
     await Promise.all([
@@ -128,13 +152,34 @@ test('server-side CRM reads require an explicit archived opt-in', async () => {
   assert.match(leadEndpoint, /includeArchived\s*===\s*'true'/);
   assert.match(dashboardModule, /'archived_at'/);
   assert.match(dashboardModule, /'archived_by_team_member_id'/);
+
+  const overviewSource =
+    dashboardModule.match(
+      /export async function getCrmOverview[\s\S]+?(?=export async function getCrmLeadDetail)/,
+    )?.[0] || '';
+  const detailSource =
+    dashboardModule.match(/export async function getCrmLeadDetail[\s\S]+/)?.[0] ||
+    '';
+
+  assert.doesNotMatch(
+    overviewSource,
+    /\.from\('(messages|lead_updates|sms_command_events|intake_events)'\)/,
+  );
+  assert.doesNotMatch(detailSource, /\.from\('intake_events'\)/);
+  assert.doesNotMatch(detailSource, /metadata|parsed_command/);
 });
 
 test('board columns use fixed widths and independent vertical scrolling', async () => {
-  const styles = await readFile(
-    new URL('../public/styles/crm.css', import.meta.url),
-    'utf8',
-  );
+  const [styles, script] = await Promise.all([
+    readFile(
+      new URL('../public/styles/crm.css', import.meta.url),
+      'utf8',
+    ),
+    readFile(
+      new URL('../public/js/crm-dashboard.js', import.meta.url),
+      'utf8',
+    ),
+  ]);
 
   assert.match(styles, /grid-template-columns:\s*repeat\(8,\s*280px\)/);
   assert.match(styles, /\.crm-column-cards\s*\{[\s\S]*overflow-y:\s*auto/);
@@ -142,6 +187,9 @@ test('board columns use fixed widths and independent vertical scrolling', async 
     styles,
     /\[data-status-column="completed_paid"\][\s\S]*\.crm-card-preview\s*\{[\s\S]*display:\s*none/,
   );
+  assert.match(styles, /content-visibility:\s*auto/);
+  assert.match(script, /DEFAULT_COLUMN_CARD_LIMIT\s*=\s*40/);
+  assert.match(script, /data-load-more-column/);
 });
 
 test('splits completed leads by payment status', () => {

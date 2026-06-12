@@ -612,10 +612,38 @@ a {
   cursor: pointer;
   text-align: left;
   background: #0b0e14;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 190px;
   transition:
     transform 150ms ease,
     border-color 150ms ease,
     background 150ms ease;
+}
+
+.crm-column-more {
+  display: grid;
+  min-height: 52px;
+  place-items: center;
+  gap: 2px;
+  padding: 8px;
+  border: 1px dashed var(--crm-border-strong);
+  border-radius: 10px;
+  cursor: pointer;
+  color: #cfd4de;
+  background: rgba(27, 32, 42, 0.68);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.crm-column-more:hover {
+  border-color: rgba(237, 28, 36, 0.5);
+  background: #202631;
+}
+
+.crm-column-more span {
+  color: var(--crm-muted);
+  font-size: 0.66rem;
+  font-weight: 500;
 }
 
 .crm-lead-card:hover {

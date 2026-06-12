@@ -13,6 +13,12 @@ create index if not exists leads_active_updated_at_idx
   on public.leads(updated_at desc)
   where archived_at is null;
 
+create index if not exists leads_updated_at_idx
+  on public.leads(updated_at desc);
+
+create index if not exists messages_lead_created_at_idx
+  on public.messages(lead_id, created_at);
+
 create unique index if not exists team_members_auth_user_id_unique
   on public.team_members(auth_user_id)
   where auth_user_id is not null;

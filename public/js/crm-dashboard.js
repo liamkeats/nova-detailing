@@ -1,4 +1,6 @@
 (() => {
+  const DEFAULT_COLUMN_CARD_LIMIT = 40;
+
   const state = {
     overview: null,
     search: '',
@@ -6,6 +8,7 @@
     source: '',
     payment: '',
     showArchived: false,
+    columnLimits: {},
     currentLead: null,
     actionPending: false,
     actionFeedback: null,
@@ -224,11 +227,8 @@
         lead.leadNumber,
         lead.customer.name,
         lead.customer.phone,
-        lead.customer.email,
         lead.service,
         lead.vehicle,
-        lead.vehicleColor,
-        lead.latestActivity,
       ]
         .join(' ')
         .toLowerCase();
@@ -284,11 +284,6 @@
             ? `<span class="crm-card-booking">${escapeHtml(booking)}</span>`
             : ''
         }
-        ${
-          lead.latestActivity
-            ? `<span class="crm-card-preview">${escapeHtml(lead.latestActivity)}</span>`
-            : ''
-        }
         <span class="crm-card-footer">
           <span>${escapeHtml(sourceLabel(lead.source))}</span>
           <time>${escapeHtml(formatDate(lead.createdAt, false))}</time>
@@ -316,6 +311,10 @@
     elements.board.innerHTML = groups
       .map((group) => {
         const leads = filtered.filter((lead) => lead.statusGroup === group.id);
+        const limit =
+          state.columnLimits[group.id] || DEFAULT_COLUMN_CARD_LIMIT;
+        const visibleLeads = leads.slice(0, limit);
+        const remaining = leads.length - visibleLeads.length;
 
         return `
           <section
@@ -329,9 +328,23 @@
             </header>
             <div class="crm-column-cards">
               ${
-                leads.length
-                  ? leads.map(leadCardMarkup).join('')
+                visibleLeads.length
+                  ? visibleLeads.map(leadCardMarkup).join('')
                   : '<p class="crm-empty-column">No matching leads</p>'
+              }
+              ${
+                remaining > 0
+                  ? `
+                    <button
+                      type="button"
+                      class="crm-column-more"
+                      data-load-more-column="${escapeHtml(group.id)}"
+                    >
+                      Show ${Math.min(DEFAULT_COLUMN_CARD_LIMIT, remaining)} more
+                      <span>${remaining} remaining</span>
+                    </button>
+                  `
+                  : ''
               }
             </div>
           </section>
@@ -1032,22 +1045,27 @@
 
   elements.search.addEventListener('input', (event) => {
     state.search = event.target.value.trim();
+    state.columnLimits = {};
     renderBoard();
   });
   elements.statusFilter.addEventListener('change', (event) => {
     state.status = event.target.value;
+    state.columnLimits = {};
     renderBoard();
   });
   elements.sourceFilter.addEventListener('change', (event) => {
     state.source = event.target.value;
+    state.columnLimits = {};
     renderBoard();
   });
   elements.paymentFilter.addEventListener('change', (event) => {
     state.payment = event.target.value;
+    state.columnLimits = {};
     renderBoard();
   });
   elements.showArchived.addEventListener('change', (event) => {
     state.showArchived = event.target.checked;
+    state.columnLimits = {};
 
     if (!state.showArchived && state.currentLead?.archivedAt) {
       closeDrawer();
@@ -1086,6 +1104,17 @@
   });
 
   document.addEventListener('click', (event) => {
+    const loadMore = event.target.closest('[data-load-more-column]');
+
+    if (loadMore) {
+      const groupId = loadMore.dataset.loadMoreColumn;
+      state.columnLimits[groupId] =
+        (state.columnLimits[groupId] || DEFAULT_COLUMN_CARD_LIMIT) +
+        DEFAULT_COLUMN_CARD_LIMIT;
+      renderBoard();
+      return;
+    }
+
     const quickAction = event.target.closest('[data-crm-quick-action]');
 
     if (quickAction) {
