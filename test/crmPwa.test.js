@@ -72,15 +72,17 @@ test('CRM layout provides install and iPhone metadata only to CRM pages', async 
 });
 
 test('CRM service worker is network-only and stores no private data', async () => {
-  const [worker, registration, middleware, crmAuth] = await Promise.all([
-    readFile(new URL('../public/crm-sw.js', import.meta.url), 'utf8'),
-    readFile(new URL('../public/js/crm-pwa.js', import.meta.url), 'utf8'),
-    readFile(new URL('../src/middleware.ts', import.meta.url), 'utf8'),
-    readFile(
-      new URL('../src/netlify/lib/crmAuth.js', import.meta.url),
-      'utf8',
-    ),
-  ]);
+  const [worker, registration, middleware, crmAuth, netlifyConfig] =
+    await Promise.all([
+      readFile(new URL('../public/crm-sw.js', import.meta.url), 'utf8'),
+      readFile(new URL('../public/js/crm-pwa.js', import.meta.url), 'utf8'),
+      readFile(new URL('../src/middleware.ts', import.meta.url), 'utf8'),
+      readFile(
+        new URL('../src/netlify/lib/crmAuth.js', import.meta.url),
+        'utf8',
+      ),
+      readFile(new URL('../netlify.toml', import.meta.url), 'utf8'),
+    ]);
 
   assert.match(worker, /addEventListener\('fetch'/);
   assert.match(worker, /\/api\/crm-/);
@@ -93,4 +95,8 @@ test('CRM service worker is network-only and stores no private data', async () =
   assert.match(registration, /updateViaCache:\s*'none'/);
   assert.match(middleware, /no-store/);
   assert.match(crmAuth, /no-store/);
+  assert.match(
+    netlifyConfig,
+    /for\s*=\s*"\/crm\/manifest\.webmanifest"[\s\S]+Content-Type\s*=\s*"application\/manifest\+json;\s*charset=UTF-8"/,
+  );
 });
