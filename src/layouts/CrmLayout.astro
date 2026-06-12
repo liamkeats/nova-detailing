@@ -18,11 +18,27 @@ const {
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#080a0f" />
+    <meta name="theme-color" content="#ed1c24" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Nova CRM" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <title>{title}</title>
+    <link rel="manifest" href="/crm/manifest.webmanifest" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/crm/nova-crm-apple-touch-icon.png"
+    />
     <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,5 +52,6 @@ const {
   <body class={bodyClass}>
     <slot />
     <slot name="scripts" />
+    <script src="/js/crm-pwa.js" defer></script>
   </body>
 </html>

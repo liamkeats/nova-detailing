@@ -14,3 +14,19 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+[[headers]]
+  for = "/crm-sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/crm"
+
+[[headers]]
+  for = "/crm/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/assets/crm/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

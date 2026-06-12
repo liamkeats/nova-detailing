@@ -6,11 +6,17 @@ import CrmLayout from '../../layouts/CrmLayout.astro';
 const userEmail = Astro.locals.crmUser?.email || '';
 ---
 
-<CrmLayout title="Nova Detailing CRM" bodyClass="crm-app-page">
+<CrmLayout title="Nova CRM" bodyClass="crm-app-page">
   <div class="crm-app">
     <header class="crm-app-header">
       <div class="crm-header-brand">
-        <span class="crm-brand-mark">N</span>
+        <img
+          class="crm-brand-icon"
+          src="/assets/crm/nova-crm-192.png"
+          alt=""
+          width="42"
+          height="42"
+        />
         <div>
           <strong>NOVA CRM</strong>
           <span>Lead workspace</span>
@@ -28,7 +34,7 @@ const userEmail = Astro.locals.crmUser?.email || '';
     <main class="crm-main">
       <section class="crm-page-heading">
         <div>
-          <p class="crm-eyebrow">Stage 4 V1.1</p>
+          <p class="crm-eyebrow">Nova CRM V2</p>
           <h1>Lead overview</h1>
           <p>View and safely update the Nova Supabase CRM.</p>
         </div>
