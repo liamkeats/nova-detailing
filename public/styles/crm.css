@@ -1112,8 +1112,26 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(237, 28, 36, 0.34);
+  border-radius: 13px;
   cursor: pointer;
   list-style: none;
+  background:
+    linear-gradient(135deg, rgba(237, 28, 36, 0.12), transparent 58%),
+    #10141b;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
+}
+
+.crm-manual-edit-section > summary:hover {
+  border-color: rgba(237, 28, 36, 0.68);
+  background:
+    linear-gradient(135deg, rgba(237, 28, 36, 0.18), transparent 58%),
+    #151923;
+  transform: translateY(-1px);
 }
 
 .crm-manual-edit-section > summary::-webkit-details-marker {
@@ -1123,14 +1141,41 @@ a {
 .crm-manual-edit-section > summary > span {
   display: grid;
   color: var(--crm-text);
+}
+
+.crm-manual-edit-title {
   font-family: "Rajdhani", sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
 }
 
-.crm-manual-edit-section > summary small {
+.crm-manual-edit-cta {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: 1px solid rgba(237, 28, 36, 0.46);
+  border-radius: 999px;
+  color: #ffd7d8;
+  background: rgba(237, 28, 36, 0.16);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.crm-manual-edit-section > summary:hover .crm-manual-edit-cta {
+  border-color: rgba(237, 28, 36, 0.8);
+  background: rgba(237, 28, 36, 0.28);
+}
+
+.crm-manual-edit-helper {
+  margin: 10px 2px 0;
   color: var(--crm-muted);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
 }
 
 .crm-manual-edit-form {
@@ -1670,6 +1715,10 @@ a {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .crm-manual-edit-cta {
+    width: 100%;
   }
 
   .crm-manual-edit-actions button {

@@ -288,5 +288,7 @@ test('dashboard exposes the manual Add Lead workflow', async () => {
   assert.match(script, /function\s+renderManualEditSection/);
   assert.match(script, /\['manual',\s*'in_person'\]\.includes/);
   assert.match(script, /data-crm-manual-edit-form/);
+  assert.match(script, /crm-manual-edit-cta/);
+  assert.match(script, /Edit Here/);
   assert.match(script, /Only manual leads can be edited here/);
 });

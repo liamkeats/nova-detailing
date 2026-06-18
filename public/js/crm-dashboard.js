@@ -506,10 +506,13 @@
         <summary>
           <span>
             <span class="crm-eyebrow">Manual lead</span>
-            Edit typed-in details
+            <span class="crm-manual-edit-title">Edit typed-in details</span>
           </span>
-          <small>Only manual leads can be edited here</small>
+          <span class="crm-manual-edit-cta">Edit Here</span>
         </summary>
+        <p class="crm-manual-edit-helper">
+          Only manual leads can be edited here.
+        </p>
 
         ${feedback}
 
