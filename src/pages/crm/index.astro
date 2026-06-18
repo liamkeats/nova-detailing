@@ -38,9 +38,14 @@ const userEmail = Astro.locals.crmUser?.email || '';
           <h1>Lead overview</h1>
           <p>View and safely update the Nova Supabase CRM.</p>
         </div>
-        <button id="crm-refresh" class="crm-refresh-button" type="button">
-          Refresh
-        </button>
+        <div class="crm-page-actions">
+          <button id="crm-add-lead" class="crm-add-button" type="button">
+            Add Lead
+          </button>
+          <button id="crm-refresh" class="crm-refresh-button" type="button">
+            Refresh
+          </button>
+        </div>
       </section>
 
       <div id="crm-alert" class="crm-alert" hidden></div>
@@ -196,6 +201,191 @@ const userEmail = Astro.locals.crmUser?.email || '';
           type="button"
         ></button>
       </div>
+    </section>
+  </div>
+
+  <div
+    id="crm-add-lead-modal"
+    class="crm-add-lead-backdrop"
+    hidden
+  >
+    <section
+      class="crm-add-lead-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="crm-add-lead-title"
+    >
+      <div class="crm-add-lead-header">
+        <div>
+          <p class="crm-eyebrow">Manual lead</p>
+          <h2 id="crm-add-lead-title">Add Lead</h2>
+          <p>
+            Create a lead from a call, walk-up, referral, or anything outside
+            the website forms.
+          </p>
+        </div>
+        <button
+          id="crm-add-lead-close"
+          class="crm-icon-button"
+          type="button"
+          aria-label="Close add lead form"
+        >
+          &times;
+        </button>
+      </div>
+
+      <form id="crm-add-lead-form" class="crm-add-lead-form">
+        <div id="crm-add-lead-error" class="crm-action-feedback is-error" hidden></div>
+
+        <div class="crm-add-lead-grid">
+          <label>
+            <span>Customer name *</span>
+            <input
+              name="customerName"
+              type="text"
+              maxlength="120"
+              autocomplete="name"
+              required
+            />
+          </label>
+
+          <label>
+            <span>Phone number *</span>
+            <input
+              name="phone"
+              type="tel"
+              maxlength="40"
+              inputmode="tel"
+              autocomplete="tel"
+              placeholder="902-000-0000"
+              required
+            />
+          </label>
+        </div>
+
+        <label>
+          <span>Service / request details *</span>
+          <textarea
+            name="serviceRequested"
+            maxlength="500"
+            rows="3"
+            placeholder="Interior detail, pet hair, pickup truck, etc."
+            required
+          ></textarea>
+        </label>
+
+        <div class="crm-add-lead-grid">
+          <label>
+            <span>Lead status</span>
+            <select name="status">
+              <option value="new" selected>New</option>
+              <option value="contacted">Contacted</option>
+              <option value="waiting">Waiting</option>
+              <option value="quoted">Quoted</option>
+              <option value="booked">Booked</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Payment</span>
+            <select name="paymentStatus">
+              <option value="unpaid" selected>Unpaid</option>
+              <option value="paid">Paid</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="crm-add-lead-grid crm-add-lead-vehicle-grid">
+          <label>
+            <span>Year</span>
+            <input name="vehicleYear" type="text" maxlength="20" inputmode="numeric" />
+          </label>
+
+          <label>
+            <span>Make</span>
+            <input name="vehicleMake" type="text" maxlength="80" />
+          </label>
+
+          <label>
+            <span>Model</span>
+            <input name="vehicleModel" type="text" maxlength="80" />
+          </label>
+
+          <label>
+            <span>Color</span>
+            <input name="vehicleColor" type="text" maxlength="80" />
+          </label>
+        </div>
+
+        <label>
+          <span>Address / location</span>
+          <input
+            name="locationText"
+            type="text"
+            maxlength="220"
+            placeholder="Optional pickup, drop-off, or service location"
+          />
+        </label>
+
+        <div class="crm-add-lead-grid">
+          <label>
+            <span>Preferred date</span>
+            <input name="preferredDate" type="date" />
+          </label>
+
+          <label>
+            <span>Quote amount</span>
+            <span class="crm-money-input">
+              <span>$</span>
+              <input
+                name="quotePrice"
+                type="number"
+                min="0.01"
+                max="999999.99"
+                step="0.01"
+                inputmode="decimal"
+              />
+            </span>
+          </label>
+        </div>
+
+        <label>
+          <span>Booking date and time</span>
+          <input name="appointmentLocal" type="datetime-local" />
+        </label>
+
+        <label>
+          <span>Internal note</span>
+          <textarea
+            name="internalNote"
+            maxlength="2000"
+            rows="3"
+            placeholder="Anything Liam and Elijah should know..."
+          ></textarea>
+        </label>
+
+        <p class="crm-add-lead-note">
+          Saving creates a manual CRM lead, records history, and texts the other
+          owner. If the text fails, the lead still saves.
+        </p>
+
+        <div class="crm-add-lead-actions">
+          <button
+            id="crm-add-lead-cancel"
+            class="crm-ghost-button"
+            type="button"
+          >
+            Cancel
+          </button>
+          <button
+            id="crm-add-lead-submit"
+            class="crm-confirmation-submit"
+            type="submit"
+          >
+            Create lead
+          </button>
+        </div>
+      </form>
     </section>
   </div>
 

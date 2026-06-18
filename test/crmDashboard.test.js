@@ -27,6 +27,7 @@ function createLead(overrides = {}) {
     vehicle_model: null,
     vehicle_year: null,
     vehicle_color: null,
+    location_text: null,
     preferred_date: null,
     request_notes: null,
     created_at: '2026-06-10T12:00:00.000Z',
@@ -82,6 +83,7 @@ test('normalizes a Supabase lead into a dashboard card', () => {
       vehicle_year: '2022',
       vehicle_make: 'Honda',
       vehicle_model: 'Civic',
+      location_text: 'Halifax pickup',
     }),
     {
       latestNote: 'Customer asked about pet hair.',
@@ -91,6 +93,7 @@ test('normalizes a Supabase lead into a dashboard card', () => {
   assert.equal(lead.leadNumber, 1000);
   assert.equal(lead.quotePrice, 180);
   assert.equal(lead.vehicle, '2022 Honda Civic');
+  assert.equal(lead.location, 'Halifax pickup');
   assert.equal(lead.customer.name, 'Test Customer');
   assert.equal(lead.latestActivity, 'Customer asked about pet hair.');
   assert.equal(lead.archivedAt, null);
@@ -167,6 +170,7 @@ test('server-side CRM reads require an explicit archived opt-in', async () => {
   );
   assert.doesNotMatch(detailSource, /\.from\('intake_events'\)/);
   assert.doesNotMatch(detailSource, /metadata|parsed_command/);
+  assert.match(detailSource, /Manual lead created by/);
 });
 
 test('board columns use fixed widths and independent vertical scrolling', async () => {

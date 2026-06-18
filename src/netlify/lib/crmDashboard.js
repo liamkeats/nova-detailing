@@ -104,6 +104,7 @@ export function normalizeCrmLead(lead, activity = {}) {
     service: lead.service_requested || '',
     vehicle,
     vehicleColor: lead.vehicle_color || '',
+    location: lead.location_text || '',
     quotePrice:
       lead.quote_price == null ? null : Number(lead.quote_price),
     paymentStatus,
@@ -283,6 +284,7 @@ export async function getCrmLeadDetail(
         'vehicle_model',
         'vehicle_year',
         'vehicle_color',
+        'location_text',
         'preferred_date',
         'request_notes',
         'created_at',
@@ -356,15 +358,19 @@ export async function getCrmLeadDetail(
     (teamMembers || []).map((member) => [member.id, member.name]),
   );
   const lead = normalizeCrmLead(rawLead);
+  const originalRequest = (messages || []).find(
+    (message) =>
+      message.direction === 'inbound_website' ||
+      (rawLead.source === 'manual' &&
+        message.direction === 'inbound_team' &&
+        /^Manual lead created by /i.test(message.body || '')),
+  )?.body;
 
   return {
     ...lead,
     archivedBy:
       teamNames.get(rawLead.archived_by_team_member_id) || '',
-    originalRequest:
-      (messages || []).find(
-        (message) => message.direction === 'inbound_website',
-      )?.body || '',
+    originalRequest: originalRequest || '',
     messages: messages || [],
     history: (updates || []).map((update) => ({
       ...update,

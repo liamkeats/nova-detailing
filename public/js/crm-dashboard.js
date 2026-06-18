@@ -12,6 +12,8 @@
     currentLead: null,
     actionPending: false,
     actionFeedback: null,
+    addLeadPending: false,
+    addLeadRequestId: null,
     confirmationAction: null,
     confirmationTrigger: null,
     confirmationValues: null,
@@ -31,6 +33,7 @@
     sourceFilter: document.getElementById('crm-source-filter'),
     paymentFilter: document.getElementById('crm-payment-filter'),
     showArchived: document.getElementById('crm-show-archived'),
+    addLeadButton: document.getElementById('crm-add-lead'),
     refresh: document.getElementById('crm-refresh'),
     mobileTabs: document.getElementById('crm-mobile-tabs'),
     drawer: document.getElementById('crm-lead-drawer'),
@@ -43,6 +46,12 @@
     confirmationMessage: document.getElementById('crm-confirmation-message'),
     confirmationCancel: document.getElementById('crm-confirmation-cancel'),
     confirmationSubmit: document.getElementById('crm-confirmation-submit'),
+    addLeadModal: document.getElementById('crm-add-lead-modal'),
+    addLeadForm: document.getElementById('crm-add-lead-form'),
+    addLeadClose: document.getElementById('crm-add-lead-close'),
+    addLeadCancel: document.getElementById('crm-add-lead-cancel'),
+    addLeadError: document.getElementById('crm-add-lead-error'),
+    addLeadSubmit: document.getElementById('crm-add-lead-submit'),
   };
 
   if (!elements.board) {
@@ -670,16 +679,24 @@
     const emailLink = lead.customer.email
       ? `<a href="mailto:${escapeHtml(lead.customer.email)}">${escapeHtml(lead.customer.email)}</a>`
       : '';
-    const messageTimeline = lead.messages.map((message) => ({
-      title:
-        message.direction === 'inbound_website'
-          ? 'Website request'
-          : message.direction === 'inbound_team'
-            ? 'Team command'
-            : 'Team message',
-      body: message.body,
-      createdAt: message.created_at,
-    }));
+    const messageTimeline = lead.messages.map((message) => {
+      const isManualCreate =
+        message.direction === 'inbound_team' &&
+        /^Manual lead created by /i.test(message.body || '');
+
+      return {
+        title:
+          message.direction === 'inbound_website'
+            ? 'Website request'
+            : isManualCreate
+              ? 'Manual lead created'
+              : message.direction === 'inbound_team'
+                ? 'Team update'
+                : 'Team message',
+        body: message.body,
+        createdAt: message.created_at,
+      };
+    });
     const historyTimeline = lead.history.map((update) => ({
       title: statusLabel(update.update_type),
       body: update.message,
@@ -732,6 +749,7 @@
           ${detailRow('Service', lead.service)}
           ${detailRow('Vehicle', lead.vehicle)}
           ${detailRow('Color', lead.vehicleColor)}
+          ${detailRow('Location', lead.location)}
           ${detailRow('Preferred date', lead.preferredDate)}
           ${detailRow('Request notes', lead.requestNotes)}
         </dl>
@@ -793,6 +811,119 @@
     document.body.classList.remove('crm-drawer-open');
     state.currentLead = null;
     state.actionFeedback = null;
+  }
+
+  function setAddLeadError(message = '') {
+    if (!elements.addLeadError) {
+      return;
+    }
+
+    elements.addLeadError.hidden = !message;
+    elements.addLeadError.textContent = message;
+  }
+
+  function setAddLeadPending(pending) {
+    state.addLeadPending = pending;
+
+    if (elements.addLeadSubmit) {
+      elements.addLeadSubmit.disabled = pending;
+      elements.addLeadSubmit.textContent = pending
+        ? 'Creating...'
+        : 'Create lead';
+    }
+
+    elements.addLeadForm
+      ?.querySelectorAll('input, select, textarea, button')
+      .forEach((control) => {
+        control.disabled = pending;
+      });
+  }
+
+  function openAddLeadModal() {
+    if (!elements.addLeadModal || state.addLeadPending) {
+      return;
+    }
+
+    state.addLeadRequestId = null;
+    elements.addLeadForm?.reset();
+    setAddLeadError('');
+    elements.addLeadModal.hidden = false;
+    document.body.classList.add('crm-modal-open');
+    elements.addLeadForm?.elements.customerName?.focus();
+  }
+
+  function closeAddLeadModal() {
+    if (!elements.addLeadModal || elements.addLeadModal.hidden) {
+      return;
+    }
+
+    elements.addLeadModal.hidden = true;
+    document.body.classList.remove('crm-modal-open');
+    state.addLeadRequestId = null;
+    setAddLeadError('');
+    elements.addLeadButton?.focus();
+  }
+
+  function getAddLeadPayload(form) {
+    const formData = new FormData(form);
+
+    if (!state.addLeadRequestId) {
+      state.addLeadRequestId = crypto.randomUUID();
+    }
+
+    return {
+      requestId: state.addLeadRequestId,
+      customerName: formData.get('customerName'),
+      phone: formData.get('phone'),
+      serviceRequested: formData.get('serviceRequested'),
+      status: formData.get('status'),
+      vehicleYear: formData.get('vehicleYear'),
+      vehicleMake: formData.get('vehicleMake'),
+      vehicleModel: formData.get('vehicleModel'),
+      vehicleColor: formData.get('vehicleColor'),
+      locationText: formData.get('locationText'),
+      preferredDate: formData.get('preferredDate'),
+      quotePrice: formData.get('quotePrice'),
+      appointmentLocal: formData.get('appointmentLocal'),
+      paymentStatus: formData.get('paymentStatus'),
+      internalNote: formData.get('internalNote'),
+    };
+  }
+
+  async function submitManualLead(form) {
+    if (state.addLeadPending) {
+      return;
+    }
+
+    setAddLeadPending(true);
+    setAddLeadError('');
+    setAlert('');
+
+    try {
+      const data = await requestJson('/api/crm-manual-lead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(getAddLeadPayload(form)),
+      });
+      const notificationStatus = data.notification?.status;
+      const notificationMessage =
+        notificationStatus && !['sent', 'skipped'].includes(notificationStatus)
+          ? ` ${data.notification.message || 'SMS notification needs attention.'}`
+          : '';
+
+      closeAddLeadModal();
+      await loadOverview({ silent: true });
+      renderLeadDetail(data.lead);
+      openDrawer();
+      setAlert(`${data.result.responseText}${notificationMessage}`);
+      state.addLeadRequestId = null;
+    } catch (error) {
+      setAddLeadError(error.message);
+    } finally {
+      setAddLeadPending(false);
+    }
   }
 
   const confirmationCopy = {
@@ -1073,6 +1204,18 @@
 
     loadOverview();
   });
+  elements.addLeadButton?.addEventListener('click', openAddLeadModal);
+  elements.addLeadClose?.addEventListener('click', closeAddLeadModal);
+  elements.addLeadCancel?.addEventListener('click', closeAddLeadModal);
+  elements.addLeadModal?.addEventListener('click', (event) => {
+    if (event.target === elements.addLeadModal && !state.addLeadPending) {
+      closeAddLeadModal();
+    }
+  });
+  elements.addLeadForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    submitManualLead(elements.addLeadForm);
+  });
   elements.refresh.addEventListener('click', loadOverview);
   elements.drawerClose.addEventListener('click', closeDrawer);
   elements.drawerBackdrop.addEventListener('click', closeDrawer);
@@ -1144,7 +1287,14 @@
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !elements.confirmation.hidden) {
+    if (
+      event.key === 'Escape' &&
+      elements.addLeadModal &&
+      !elements.addLeadModal.hidden &&
+      !state.addLeadPending
+    ) {
+      closeAddLeadModal();
+    } else if (event.key === 'Escape' && !elements.confirmation.hidden) {
       closeConfirmation();
     } else if (
       event.key === 'Escape' &&
