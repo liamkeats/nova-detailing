@@ -12,6 +12,8 @@
     currentLead: null,
     actionPending: false,
     actionFeedback: null,
+    editPending: false,
+    editFeedback: null,
     addLeadPending: false,
     addLeadRequestId: null,
     confirmationAction: null,
@@ -103,6 +105,7 @@
       website_contact: 'Contact form',
       google_form: 'Google form',
       manual: 'Manual',
+      in_person: 'Manual',
     };
 
     return labels[source] || String(source || 'Unknown').replaceAll('_', ' ');
@@ -112,6 +115,54 @@
     return String(status || 'new')
       .replaceAll('_', ' ')
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function phoneDigits(value) {
+    return String(value || '').replace(/\D/g, '');
+  }
+
+  function formatPhoneDisplay(value) {
+    const digits = phoneDigits(value);
+    const localDigits =
+      digits.length === 11 && digits.startsWith('1')
+        ? digits.slice(1)
+        : digits;
+
+    if (localDigits.length !== 10) {
+      return String(value || '').trim();
+    }
+
+    return `(${localDigits.slice(0, 3)}) ${localDigits.slice(3, 6)}-${localDigits.slice(6)}`;
+  }
+
+  function phoneHref(value) {
+    const digits = phoneDigits(value);
+
+    if (digits.length === 10) {
+      return `+1${digits}`;
+    }
+
+    if (digits.length === 11 && digits.startsWith('1')) {
+      return `+${digits}`;
+    }
+
+    return String(value || '').trim();
+  }
+
+  function formatPhoneInput(input) {
+    if (!input) {
+      return;
+    }
+
+    const formatted = formatPhoneDisplay(input.value);
+
+    if (formatted) {
+      input.value = formatted;
+    }
+  }
+
+  function isManualLead(lead) {
+    return ['manual', 'in_person'].includes(lead?.source);
   }
 
   function setAlert(message = '') {
@@ -236,6 +287,7 @@
         lead.leadNumber,
         lead.customer.name,
         lead.customer.phone,
+        phoneDigits(lead.customer.phone),
         lead.service,
         lead.vehicle,
       ]
@@ -277,7 +329,7 @@
           </span>
         </span>
         <span class="crm-card-name">${escapeHtml(lead.customer.name)}</span>
-        <span class="crm-card-phone">${escapeHtml(lead.customer.phone || 'No phone')}</span>
+        <span class="crm-card-phone">${escapeHtml(formatPhoneDisplay(lead.customer.phone) || 'No phone')}</span>
         ${
           vehicleService
             ? `<span class="crm-card-detail">${escapeHtml(vehicleService)}</span>`
@@ -434,6 +486,196 @@
 
   function disabledAttribute(disabled) {
     return disabled ? 'disabled data-disabled' : '';
+  }
+
+  function renderManualEditSection(lead) {
+    if (!isManualLead(lead) || lead.archivedAt) {
+      return '';
+    }
+
+    const feedback = state.editFeedback
+      ? `
+        <div class="crm-action-feedback is-${escapeHtml(state.editFeedback.type)}" role="status">
+          ${escapeHtml(state.editFeedback.message)}
+        </div>
+      `
+      : '';
+
+    return `
+      <details class="crm-detail-section crm-manual-edit-section">
+        <summary>
+          <span>
+            <span class="crm-eyebrow">Manual lead</span>
+            Edit typed-in details
+          </span>
+          <small>Only manual leads can be edited here</small>
+        </summary>
+
+        ${feedback}
+
+        <form class="crm-manual-edit-form" data-crm-manual-edit-form>
+          <div class="crm-manual-edit-grid">
+            <label>
+              <span>Customer name</span>
+              <input
+                name="customerName"
+                type="text"
+                maxlength="120"
+                value="${escapeHtml(lead.customer.name)}"
+                data-crm-edit-control
+                required
+              />
+            </label>
+
+            <label>
+              <span>Phone number</span>
+              <input
+                name="phone"
+                type="tel"
+                maxlength="40"
+                inputmode="tel"
+                value="${escapeHtml(formatPhoneDisplay(lead.customer.phone))}"
+                data-format-phone
+                data-crm-edit-control
+                required
+              />
+            </label>
+          </div>
+
+          <label>
+            <span>Email</span>
+            <input
+              name="email"
+              type="email"
+              maxlength="254"
+              value="${escapeHtml(lead.customer.email)}"
+              data-crm-edit-control
+            />
+          </label>
+
+          <label>
+            <span>Service / request details</span>
+            <textarea
+              name="serviceRequested"
+              maxlength="500"
+              rows="3"
+              data-crm-edit-control
+              required
+            >${escapeHtml(lead.service)}</textarea>
+          </label>
+
+          <div class="crm-manual-edit-grid crm-manual-edit-vehicle-grid">
+            <label>
+              <span>Year</span>
+              <input
+                name="vehicleYear"
+                type="text"
+                maxlength="20"
+                inputmode="numeric"
+                value="${escapeHtml(lead.vehicleYear || '')}"
+                data-crm-edit-control
+              />
+            </label>
+
+            <label>
+              <span>Make</span>
+              <input
+                name="vehicleMake"
+                type="text"
+                maxlength="80"
+                value="${escapeHtml(lead.vehicleMake || '')}"
+                data-crm-edit-control
+              />
+            </label>
+
+            <label>
+              <span>Model</span>
+              <input
+                name="vehicleModel"
+                type="text"
+                maxlength="80"
+                value="${escapeHtml(lead.vehicleModel || '')}"
+                data-crm-edit-control
+              />
+            </label>
+
+            <label>
+              <span>Color</span>
+              <input
+                name="vehicleColor"
+                type="text"
+                maxlength="80"
+                value="${escapeHtml(lead.vehicleColor)}"
+                data-crm-edit-control
+              />
+            </label>
+          </div>
+
+          <label>
+            <span>Address / location</span>
+            <input
+              name="locationText"
+              type="text"
+              maxlength="220"
+              value="${escapeHtml(lead.location)}"
+              data-crm-edit-control
+            />
+          </label>
+
+          <div class="crm-manual-edit-grid">
+            <label>
+              <span>Quote amount</span>
+              <span class="crm-money-input">
+                <span>$</span>
+                <input
+                  name="quotePrice"
+                  type="number"
+                  min="0.01"
+                  max="999999.99"
+                  step="0.01"
+                  inputmode="decimal"
+                  value="${lead.quotePrice ?? ''}"
+                  data-crm-edit-control
+                />
+              </span>
+            </label>
+
+            <label>
+              <span>Payment</span>
+              <select name="paymentStatus" data-crm-edit-control>
+                <option value="unpaid" ${lead.paymentStatus !== 'paid' ? 'selected' : ''}>
+                  Unpaid
+                </option>
+                <option value="paid" ${lead.paymentStatus === 'paid' ? 'selected' : ''}>
+                  Paid
+                </option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            <span>Booking date and time</span>
+            <input
+              name="appointmentLocal"
+              type="datetime-local"
+              value="${escapeHtml(formatAppointmentInput(lead.appointmentAt))}"
+              data-crm-edit-control
+            />
+          </label>
+
+          <p class="crm-action-note">
+            Status changes and internal notes still use the normal action buttons below.
+            Saving this form records an edit history entry.
+          </p>
+
+          <div class="crm-manual-edit-actions">
+            <button type="submit" data-crm-edit-control>
+              Save manual edits
+            </button>
+          </div>
+        </form>
+      </details>
+    `;
   }
 
   function renderActionSection(lead) {
@@ -673,8 +915,9 @@
 
   function renderLeadDetail(lead) {
     state.currentLead = lead;
-    const phoneLink = lead.customer.phone
-      ? `<a href="tel:${escapeHtml(lead.customer.phone)}">${escapeHtml(lead.customer.phone)}</a>`
+    const displayPhone = formatPhoneDisplay(lead.customer.phone);
+    const phoneLink = displayPhone
+      ? `<a href="tel:${escapeHtml(phoneHref(displayPhone))}">${escapeHtml(displayPhone)}</a>`
       : '';
     const emailLink = lead.customer.email
       ? `<a href="mailto:${escapeHtml(lead.customer.email)}">${escapeHtml(lead.customer.email)}</a>`
@@ -728,6 +971,7 @@
       </span>
     `;
     elements.drawerContent.innerHTML = `
+      ${renderManualEditSection(lead)}
       ${renderActionSection(lead)}
 
       <section class="crm-detail-section">
@@ -811,6 +1055,7 @@
     document.body.classList.remove('crm-drawer-open');
     state.currentLead = null;
     state.actionFeedback = null;
+    state.editFeedback = null;
   }
 
   function setAddLeadError(message = '') {
@@ -865,6 +1110,7 @@
   }
 
   function getAddLeadPayload(form) {
+    formatPhoneInput(form.elements.phone);
     const formData = new FormData(form);
 
     if (!state.addLeadRequestId) {
@@ -925,6 +1171,93 @@
       setAddLeadError(error.message);
     } finally {
       setAddLeadPending(false);
+    }
+  }
+
+  function setManualEditPending(pending) {
+    state.editPending = pending;
+    elements.drawer.classList.toggle('is-saving', pending);
+    elements.drawer
+      .querySelectorAll('[data-crm-edit-control]')
+      .forEach((control) => {
+        control.disabled = pending;
+      });
+  }
+
+  function getManualEditPayload(form) {
+    formatPhoneInput(form.elements.phone);
+    const formData = new FormData(form);
+
+    return {
+      leadNumber: state.currentLead?.leadNumber,
+      requestId: crypto.randomUUID(),
+      expectedUpdatedAt: state.currentLead?.updatedAt,
+      customerName: formData.get('customerName'),
+      phone: formData.get('phone'),
+      email: formData.get('email'),
+      serviceRequested: formData.get('serviceRequested'),
+      vehicleYear: formData.get('vehicleYear'),
+      vehicleMake: formData.get('vehicleMake'),
+      vehicleModel: formData.get('vehicleModel'),
+      vehicleColor: formData.get('vehicleColor'),
+      locationText: formData.get('locationText'),
+      quotePrice: formData.get('quotePrice'),
+      appointmentLocal: formData.get('appointmentLocal'),
+      paymentStatus: formData.get('paymentStatus'),
+    };
+  }
+
+  async function submitManualEdit(form) {
+    if (!state.currentLead || state.editPending) {
+      return;
+    }
+
+    const payload = getManualEditPayload(form);
+
+    setManualEditPending(true);
+    state.editFeedback = null;
+    setAlert('');
+
+    try {
+      const data = await requestJson('/api/crm-manual-lead-edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      state.editFeedback = {
+        type: 'success',
+        message: data.result.responseText,
+      };
+      await loadOverview({ silent: true });
+      renderLeadDetail(data.lead);
+    } catch (error) {
+      state.editFeedback = {
+        type: 'error',
+        message: error.message,
+      };
+
+      if (error.status === 409) {
+        try {
+          const refreshed = await requestJson(
+            `/api/crm-lead?leadNumber=${encodeURIComponent(payload.leadNumber)}${
+              state.showArchived ? '&includeArchived=true' : ''
+            }`,
+          );
+          state.currentLead = refreshed.lead;
+          await loadOverview({ silent: true });
+        } catch {
+          // Keep the original edit conflict message visible.
+        }
+      }
+
+      if (state.currentLead) {
+        renderLeadDetail(state.currentLead);
+      }
+    } finally {
+      setManualEditPending(false);
     }
   }
 
@@ -1006,6 +1339,7 @@
 
   async function loadLead(leadNumber) {
     state.actionFeedback = null;
+    state.editFeedback = null;
     elements.drawerTitle.innerHTML = `
       <p class="crm-eyebrow">Lead #${escapeHtml(leadNumber)}</p>
       <h2>Loading details...</h2>
@@ -1238,6 +1572,14 @@
   });
 
   document.addEventListener('submit', (event) => {
+    const editForm = event.target.closest('[data-crm-manual-edit-form]');
+
+    if (editForm) {
+      event.preventDefault();
+      submitManualEdit(editForm);
+      return;
+    }
+
     const form = event.target.closest('[data-crm-action-form]');
 
     if (!form) {
@@ -1247,6 +1589,18 @@
     event.preventDefault();
     handleActionForm(form);
   });
+
+  document.addEventListener(
+    'blur',
+    (event) => {
+      const input = event.target.closest('[data-format-phone]');
+
+      if (input) {
+        formatPhoneInput(input);
+      }
+    },
+    true,
+  );
 
   document.addEventListener('click', (event) => {
     const loadMore = event.target.closest('[data-load-more-column]');

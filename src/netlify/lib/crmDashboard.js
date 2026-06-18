@@ -1,4 +1,5 @@
 import { getSupabaseAdminClient } from './supabase.js';
+import { formatNorthAmericanPhone } from './phone.js';
 
 const CRM_TIME_ZONE = 'America/Halifax';
 
@@ -61,6 +62,14 @@ function truncate(value, maxLength = 180) {
   return `${text.slice(0, maxLength - 3)}...`;
 }
 
+function formatPhoneForDisplay(value) {
+  try {
+    return formatNorthAmericanPhone(value);
+  } catch {
+    return String(value || '').trim();
+  }
+}
+
 export function getCrmStatusGroup(status, paymentStatus = 'unpaid') {
   return (
     CRM_STATUS_GROUPS.find(
@@ -98,11 +107,14 @@ export function normalizeCrmLead(lead, activity = {}) {
     leadType: lead.lead_type,
     customer: {
       name: customer.name || 'Unknown customer',
-      phone: customer.phone || '',
+      phone: formatPhoneForDisplay(customer.phone),
       email: customer.email || '',
     },
     service: lead.service_requested || '',
     vehicle,
+    vehicleYear: lead.vehicle_year || '',
+    vehicleMake: lead.vehicle_make || '',
+    vehicleModel: lead.vehicle_model || '',
     vehicleColor: lead.vehicle_color || '',
     location: lead.location_text || '',
     quotePrice:
@@ -193,7 +205,7 @@ export function normalizeCrmLeadSummary(lead) {
     source: lead.source,
     customer: {
       name: customer.name || 'Unknown customer',
-      phone: customer.phone || '',
+      phone: formatPhoneForDisplay(customer.phone),
     },
     service: lead.service_requested || '',
     vehicle: [

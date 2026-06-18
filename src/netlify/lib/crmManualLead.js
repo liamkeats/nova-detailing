@@ -1,6 +1,9 @@
 import { DateTime } from 'luxon';
 import twilio from 'twilio';
-import { normalizeNorthAmericanPhone } from './phone.js';
+import {
+  formatNorthAmericanPhone,
+  normalizeNorthAmericanPhone,
+} from './phone.js';
 import { getSupabaseAdminClient } from './supabase.js';
 
 const CRM_TIME_ZONE = 'America/Halifax';
@@ -62,6 +65,61 @@ function parseQuote(value) {
   return amount;
 }
 
+function parseEmail(value) {
+  const email = textValue(value, 254, 'Email');
+
+  if (!email) {
+    return null;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new CrmManualLeadError('Enter a valid email address.');
+  }
+
+  return email.toLowerCase();
+}
+
+function parseExpectedUpdatedAt(value) {
+  const text = String(value || '').trim();
+  const parsed = DateTime.fromISO(text, {
+    setZone: true,
+  });
+
+  if (!parsed.isValid) {
+    throw new CrmManualLeadError('Refresh the lead before saving edits.');
+  }
+
+  return text;
+}
+
+function parseLeadNumber(value) {
+  const leadNumber = Number(value);
+
+  if (!Number.isSafeInteger(leadNumber) || leadNumber < 1) {
+    throw new CrmManualLeadError('A valid lead number is required.');
+  }
+
+  return leadNumber;
+}
+
+function parsePhone(value) {
+  const rawPhone = textValue(value, 40, 'Phone number', {
+    required: true,
+  });
+  let normalizedPhone;
+
+  try {
+    normalizedPhone = normalizeNorthAmericanPhone(rawPhone);
+  } catch (error) {
+    throw new CrmManualLeadError(error.message);
+  }
+
+  return {
+    phone: formatNorthAmericanPhone(normalizedPhone),
+    normalizedPhone,
+  };
+}
+
 function parsePreferredDate(value) {
   const text = String(value || '').trim();
 
@@ -113,6 +171,7 @@ function mapManualLeadRpcError(error) {
   const message = String(error?.message || '');
   const mappings = [
     ['crm_forbidden:', 403],
+    ['crm_not_found:', 404],
     ['crm_conflict:', 409],
     ['crm_invalid:', 400],
   ];
@@ -162,16 +221,7 @@ export function validateManualLeadPayload(
   const customerName = textValue(payload.customerName, 120, 'Customer name', {
     required: true,
   });
-  const phone = textValue(payload.phone, 40, 'Phone number', {
-    required: true,
-  });
-  let normalizedPhone;
-
-  try {
-    normalizedPhone = normalizeNorthAmericanPhone(phone);
-  } catch (error) {
-    throw new CrmManualLeadError(error.message);
-  }
+  const { phone, normalizedPhone } = parsePhone(payload.phone);
 
   const serviceRequested = textValue(
     payload.serviceRequested,
@@ -278,6 +328,78 @@ export function validateManualLeadPayload(
   };
 }
 
+export function validateManualLeadEditPayload(
+  payload,
+  nowValue = DateTime.now().setZone(CRM_TIME_ZONE),
+) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new CrmManualLeadError('A valid manual lead edit is required.');
+  }
+
+  const leadNumber = parseLeadNumber(payload.leadNumber);
+  const requestId = String(payload.requestId || '').trim();
+
+  if (!UUID_PATTERN.test(requestId)) {
+    throw new CrmManualLeadError('A valid edit request ID is required.');
+  }
+
+  const expectedUpdatedAt = parseExpectedUpdatedAt(
+    payload.expectedUpdatedAt,
+  );
+  const customerName = textValue(payload.customerName, 120, 'Customer name', {
+    required: true,
+  });
+  const { phone, normalizedPhone } = parsePhone(payload.phone);
+  const email = parseEmail(payload.email);
+  const serviceRequested = textValue(
+    payload.serviceRequested,
+    500,
+    'Service or request details',
+    { required: true },
+  );
+  const vehicleMake = textValue(payload.vehicleMake, 80, 'Vehicle make');
+  const vehicleModel = textValue(payload.vehicleModel, 80, 'Vehicle model');
+  const vehicleYear = textValue(payload.vehicleYear, 20, 'Vehicle year');
+  const vehicleColor = textValue(payload.vehicleColor, 80, 'Vehicle color');
+  const locationText = textValue(
+    payload.locationText,
+    220,
+    'Address or location',
+  );
+  const quotePrice = parseQuote(payload.quotePrice);
+  const { appointmentAt, appointmentText } = parseAppointment(
+    payload.appointmentLocal,
+    nowValue,
+  );
+  const paymentStatus = String(payload.paymentStatus || 'unpaid')
+    .trim()
+    .toLowerCase();
+
+  if (!['unpaid', 'paid'].includes(paymentStatus)) {
+    throw new CrmManualLeadError('Payment status must be unpaid or paid.');
+  }
+
+  return {
+    leadNumber,
+    requestId,
+    expectedUpdatedAt,
+    customerName,
+    phone,
+    normalizedPhone,
+    email,
+    serviceRequested,
+    vehicleMake,
+    vehicleModel,
+    vehicleYear,
+    vehicleColor,
+    locationText,
+    quotePrice,
+    appointmentAt,
+    appointmentText,
+    paymentStatus,
+  };
+}
+
 export async function executeManualLeadCreate(user, lead) {
   const supabase = getSupabaseAdminClient();
   const { data, error } = await supabase.rpc('create_crm_manual_lead', {
@@ -319,6 +441,49 @@ export async function executeManualLeadCreate(user, lead) {
     customerId: result.customer_id,
     createdByTeamMemberId: result.created_by_team_member_id,
     createdByName: result.created_by_name,
+    updatedAt: result.updated_at,
+    isDuplicate: Boolean(result.is_duplicate),
+  };
+}
+
+export async function executeManualLeadEdit(user, edit) {
+  const supabase = getSupabaseAdminClient();
+  const { data, error } = await supabase.rpc('update_crm_manual_lead', {
+    p_auth_user_id: user.id,
+    p_auth_email: user.email,
+    p_lead_number: edit.leadNumber,
+    p_request_id: edit.requestId,
+    p_expected_updated_at: edit.expectedUpdatedAt,
+    p_customer_name: edit.customerName,
+    p_phone: edit.phone,
+    p_normalized_phone: edit.normalizedPhone,
+    p_email: edit.email,
+    p_service_requested: edit.serviceRequested,
+    p_vehicle_make: edit.vehicleMake,
+    p_vehicle_model: edit.vehicleModel,
+    p_vehicle_year: edit.vehicleYear,
+    p_vehicle_color: edit.vehicleColor,
+    p_location_text: edit.locationText,
+    p_quote_price: edit.quotePrice,
+    p_appointment_at: edit.appointmentAt,
+    p_appointment_text: edit.appointmentText,
+    p_payment_status: edit.paymentStatus,
+  });
+
+  if (error) {
+    throw mapManualLeadRpcError(error);
+  }
+
+  const result = Array.isArray(data) ? data[0] : data;
+
+  if (!result?.lead_id || !result?.lead_number) {
+    throw new Error('Manual lead edit did not return an updated lead.');
+  }
+
+  return {
+    leadId: result.lead_id,
+    leadNumber: Number(result.lead_number),
+    responseText: result.response_text,
     updatedAt: result.updated_at,
     isDuplicate: Boolean(result.is_duplicate),
   };

@@ -95,6 +95,7 @@ test('normalizes a Supabase lead into a dashboard card', () => {
   assert.equal(lead.vehicle, '2022 Honda Civic');
   assert.equal(lead.location, 'Halifax pickup');
   assert.equal(lead.customer.name, 'Test Customer');
+  assert.equal(lead.customer.phone, '(902) 555-0100');
   assert.equal(lead.latestActivity, 'Customer asked about pet hair.');
   assert.equal(lead.archivedAt, null);
 });
@@ -115,7 +116,7 @@ test('overview summaries expose only fields needed by the board', () => {
   assert.equal(lead.quotePrice, 180);
   assert.equal(lead.vehicle, '2022 Honda Civic');
   assert.equal(lead.customer.name, 'Test Customer');
-  assert.equal(lead.customer.phone, '+19025550100');
+  assert.equal(lead.customer.phone, '(902) 555-0100');
   assert.equal('id' in lead, false);
   assert.equal('requestNotes' in lead, false);
   assert.equal('latestActivity' in lead, false);

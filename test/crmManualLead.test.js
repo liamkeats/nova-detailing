@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { DateTime } from 'luxon';
+import { handler as manualLeadEditHandler } from '../src/netlify/functions/crm-manual-lead-edit.js';
 import { handler as manualLeadHandler } from '../src/netlify/functions/crm-manual-lead.js';
 import {
   CrmManualLeadError,
   formatManualLeadNotification,
+  validateManualLeadEditPayload,
   validateManualLeadPayload,
 } from '../src/netlify/lib/crmManualLead.js';
 
@@ -31,7 +33,7 @@ test('validates the minimum manual Add Lead payload', () => {
 
   assert.equal(result.requestId, requestId);
   assert.equal(result.customerName, 'John Smith');
-  assert.equal(result.phone, '902-555-0100');
+  assert.equal(result.phone, '(902) 555-0100');
   assert.equal(result.normalizedPhone, '+19025550100');
   assert.equal(result.serviceRequested, 'Interior detail with pet hair removal');
   assert.equal(result.status, 'new');
@@ -71,6 +73,66 @@ test('normalizes manual quote, booking, location, and payment fields', () => {
   assert.equal(paid.paymentStatus, 'paid');
 });
 
+test('validates manual lead edits and keeps phone matching normalized', () => {
+  for (const phone of ['9026700224', '(902) 670-0224', '+19026700224']) {
+    const result = validateManualLeadEditPayload(
+      {
+        leadNumber: 1010,
+        requestId,
+        expectedUpdatedAt: '2026-06-11T12:00:00.000Z',
+        customerName: 'hello hi',
+        phone,
+        email: 'OWNER@Example.com',
+        serviceRequested: 'helol',
+        vehicleYear: '2020',
+        vehicleMake: 'Ford',
+        vehicleModel: 'F-150',
+        vehicleColor: 'Black',
+        locationText: 'Timberlea',
+        quotePrice: '180',
+        appointmentLocal: '2026-06-12T12:00',
+        paymentStatus: 'unpaid',
+      },
+      now,
+    );
+
+    assert.equal(result.phone, '(902) 670-0224');
+    assert.equal(result.normalizedPhone, '+19026700224');
+    assert.equal(result.email, 'owner@example.com');
+    assert.equal(result.appointmentAt, '2026-06-12T15:00:00.000Z');
+  }
+});
+
+test('rejects invalid manual lead edits', () => {
+  const validEdit = {
+    leadNumber: 1010,
+    requestId,
+    expectedUpdatedAt: '2026-06-11T12:00:00.000Z',
+    customerName: 'hello hi',
+    phone: '9026700224',
+    serviceRequested: 'helol',
+    paymentStatus: 'unpaid',
+  };
+
+  for (const invalidPayload of [
+    { ...validEdit, leadNumber: 0 },
+    { ...validEdit, requestId: 'not-a-uuid' },
+    { ...validEdit, expectedUpdatedAt: 'not-a-date' },
+    { ...validEdit, customerName: '' },
+    { ...validEdit, phone: '555' },
+    { ...validEdit, email: 'not-an-email' },
+    { ...validEdit, serviceRequested: '' },
+    { ...validEdit, paymentStatus: 'maybe' },
+    { ...validEdit, quotePrice: '0' },
+    { ...validEdit, appointmentLocal: '2026-06-10T12:00' },
+  ]) {
+    assert.throws(
+      () => validateManualLeadEditPayload(invalidPayload, now),
+      CrmManualLeadError,
+    );
+  }
+});
+
 test('rejects invalid manual Add Lead payloads', () => {
   for (const invalidPayload of [
     payload({ customerName: '' }),
@@ -108,13 +170,23 @@ test('formats the manual lead owner SMS notification', () => {
 });
 
 test('manual Add Lead migration is isolated from SMS commands', async () => {
-  const migration = await readFile(
-    new URL(
-      '../supabase/migrations/202606_crm_manual_leads.sql',
-      import.meta.url,
+  const [createMigration, editMigration] = await Promise.all([
+    readFile(
+      new URL(
+        '../supabase/migrations/202606_crm_manual_leads.sql',
+        import.meta.url,
+      ),
+      'utf8',
     ),
-    'utf8',
-  );
+    readFile(
+      new URL(
+        '../supabase/migrations/202606_crm_manual_lead_edits.sql',
+        import.meta.url,
+      ),
+      'utf8',
+    ),
+  ]);
+  const migration = `${createMigration}\n${editMigration}`;
 
   assert.doesNotMatch(
     migration,
@@ -124,11 +196,17 @@ test('manual Add Lead migration is isolated from SMS commands', async () => {
     migration,
     /create\s+or\s+replace\s+function\s+public\.create_crm_manual_lead/i,
   );
+  assert.match(
+    migration,
+    /create\s+or\s+replace\s+function\s+public\.update_crm_manual_lead/i,
+  );
   assert.match(migration, /add\s+column\s+if\s+not\s+exists\s+location_text/i);
   assert.match(migration, /'manual_create'/);
+  assert.match(migration, /'manual_edit'/);
   assert.match(migration, /'notification'/);
   assert.match(migration, /on\s+conflict\s*\(\s*normalized_phone\s*\)/i);
   assert.match(migration, /request_id\s*=\s*p_request_id/i);
+  assert.match(migration, /v_current_source\s+not\s+in\s*\('manual',\s*'in_person'\)/i);
   assert.match(
     migration,
     /revoke\s+all\s+on\s+function\s+public\.create_crm_manual_lead[\s\S]+from\s+public,\s*anon,\s*authenticated/i,
@@ -137,10 +215,31 @@ test('manual Add Lead migration is isolated from SMS commands', async () => {
     migration,
     /grant\s+execute\s+on\s+function\s+public\.create_crm_manual_lead[\s\S]+to\s+service_role/i,
   );
+  assert.match(
+    migration,
+    /revoke\s+all\s+on\s+function\s+public\.update_crm_manual_lead[\s\S]+from\s+public,\s*anon,\s*authenticated/i,
+  );
+  assert.match(
+    migration,
+    /grant\s+execute\s+on\s+function\s+public\.update_crm_manual_lead[\s\S]+to\s+service_role/i,
+  );
 });
 
 test('manual Add Lead endpoint rejects non-POST methods without touching data', async () => {
   const response = await manualLeadHandler({
+    httpMethod: 'GET',
+    headers: {},
+  });
+
+  assert.equal(response.statusCode, 405);
+  assert.deepEqual(JSON.parse(response.body), {
+    success: false,
+    error: 'Method not allowed.',
+  });
+});
+
+test('manual lead edit endpoint rejects non-POST methods without touching data', async () => {
+  const response = await manualLeadEditHandler({
     httpMethod: 'GET',
     headers: {},
   });
@@ -167,6 +266,7 @@ test('dashboard exposes the manual Add Lead workflow', async () => {
   assert.match(page, /id="crm-add-lead"/);
   assert.match(page, /id="crm-add-lead-form"/);
   assert.match(page, /name="customerName"/);
+  assert.match(page, /data-format-phone/);
   assert.match(page, /name="serviceRequested"/);
   assert.match(page, /name="appointmentLocal"/);
   assert.match(page, /Saving creates a manual CRM lead/);
@@ -183,4 +283,10 @@ test('dashboard exposes the manual Add Lead workflow', async () => {
   assert.match(script, /loadOverview\(\{\s*silent:\s*true\s*\}\)/);
   assert.match(script, /renderLeadDetail\(data\.lead\)/);
   assert.match(script, /data\.notification/);
+  assert.match(script, /function\s+formatPhoneDisplay/);
+  assert.match(script, /\/api\/crm-manual-lead-edit/);
+  assert.match(script, /function\s+renderManualEditSection/);
+  assert.match(script, /\['manual',\s*'in_person'\]\.includes/);
+  assert.match(script, /data-crm-manual-edit-form/);
+  assert.match(script, /Only manual leads can be edited here/);
 });

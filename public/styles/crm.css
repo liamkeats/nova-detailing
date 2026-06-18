@@ -181,7 +181,10 @@ a {
 .crm-action-form textarea,
 .crm-add-lead-form input,
 .crm-add-lead-form select,
-.crm-add-lead-form textarea {
+.crm-add-lead-form textarea,
+.crm-manual-edit-form input,
+.crm-manual-edit-form select,
+.crm-manual-edit-form textarea {
   width: 100%;
   border: 1px solid var(--crm-border-strong);
   border-radius: 11px;
@@ -196,7 +199,9 @@ a {
 .crm-action-form input,
 .crm-action-form select,
 .crm-add-lead-form input,
-.crm-add-lead-form select {
+.crm-add-lead-form select,
+.crm-manual-edit-form input,
+.crm-manual-edit-form select {
   min-height: 46px;
 }
 
@@ -212,7 +217,10 @@ a {
 .crm-action-form textarea:focus,
 .crm-add-lead-form input:focus,
 .crm-add-lead-form select:focus,
-.crm-add-lead-form textarea:focus {
+.crm-add-lead-form textarea:focus,
+.crm-manual-edit-form input:focus,
+.crm-manual-edit-form select:focus,
+.crm-manual-edit-form textarea:focus {
   border-color: rgba(237, 28, 36, 0.8);
   box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12);
 }
@@ -982,12 +990,15 @@ a {
 .crm-action-form input,
 .crm-action-form select,
 .crm-add-lead-form input,
-.crm-add-lead-form select {
+.crm-add-lead-form select,
+.crm-manual-edit-form input,
+.crm-manual-edit-form select {
   padding: 0 12px;
 }
 
 .crm-action-form textarea,
-.crm-add-lead-form textarea {
+.crm-add-lead-form textarea,
+.crm-manual-edit-form textarea {
   min-height: 90px;
   padding: 11px 12px;
   resize: vertical;
@@ -1020,6 +1031,10 @@ a {
 .crm-add-lead-form select:disabled,
 .crm-add-lead-form textarea:disabled,
 .crm-add-lead-form button:disabled,
+.crm-manual-edit-form input:disabled,
+.crm-manual-edit-form select:disabled,
+.crm-manual-edit-form textarea:disabled,
+.crm-manual-edit-form button:disabled,
 .crm-quick-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.42;
@@ -1088,7 +1103,87 @@ a {
   line-height: 1.5;
 }
 
-.crm-lead-drawer.is-saving .crm-actions-section {
+.crm-manual-edit-section {
+  padding-top: 18px;
+}
+
+.crm-manual-edit-section > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.crm-manual-edit-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.crm-manual-edit-section > summary > span {
+  display: grid;
+  color: var(--crm-text);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.crm-manual-edit-section > summary small {
+  color: var(--crm-muted);
+  font-size: 0.7rem;
+}
+
+.crm-manual-edit-form {
+  display: grid;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.crm-manual-edit-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.crm-manual-edit-form label > span:first-child {
+  color: #cdd1d9;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.crm-manual-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.crm-manual-edit-vehicle-grid {
+  grid-template-columns: 0.7fr repeat(3, minmax(0, 1fr));
+}
+
+.crm-manual-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.crm-manual-edit-actions button {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid rgba(78, 211, 138, 0.38);
+  border-radius: 9px;
+  cursor: pointer;
+  color: #b9f7d3;
+  background: rgba(78, 211, 138, 0.12);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.crm-manual-edit-actions button:hover:not(:disabled) {
+  border-color: rgba(78, 211, 138, 0.55);
+  background: rgba(78, 211, 138, 0.18);
+}
+
+.crm-lead-drawer.is-saving .crm-actions-section,
+.crm-lead-drawer.is-saving .crm-manual-edit-section {
   opacity: 0.74;
 }
 
@@ -1418,7 +1513,9 @@ a {
   }
 
   .crm-add-lead-grid,
-  .crm-add-lead-vehicle-grid {
+  .crm-add-lead-vehicle-grid,
+  .crm-manual-edit-grid,
+  .crm-manual-edit-vehicle-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1566,6 +1663,16 @@ a {
   }
 
   .crm-add-lead-actions button {
+    width: 100%;
+  }
+
+  .crm-manual-edit-section > summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .crm-manual-edit-actions button {
     width: 100%;
   }
 
