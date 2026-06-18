@@ -172,6 +172,14 @@ test('dashboard exposes the manual Add Lead workflow', async () => {
   assert.match(page, /Saving creates a manual CRM lead/);
   assert.match(script, /\/api\/crm-manual-lead/);
   assert.match(script, /state\.addLeadRequestId\s*=\s*crypto\.randomUUID\(\)/);
+  assert.match(
+    script,
+    /const\s+payload\s*=\s*getAddLeadPayload\(form\)[\s\S]+setAddLeadPending\(true\)[\s\S]+body:\s*JSON\.stringify\(payload\)/,
+  );
+  assert.doesNotMatch(
+    script,
+    /body:\s*JSON\.stringify\(getAddLeadPayload\(form\)\)/,
+  );
   assert.match(script, /loadOverview\(\{\s*silent:\s*true\s*\}\)/);
   assert.match(script, /renderLeadDetail\(data\.lead\)/);
   assert.match(script, /data\.notification/);

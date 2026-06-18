@@ -895,6 +895,8 @@
       return;
     }
 
+    const payload = getAddLeadPayload(form);
+
     setAddLeadPending(true);
     setAddLeadError('');
     setAlert('');
@@ -905,7 +907,7 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(getAddLeadPayload(form)),
+        body: JSON.stringify(payload),
       });
       const notificationStatus = data.notification?.status;
       const notificationMessage =
